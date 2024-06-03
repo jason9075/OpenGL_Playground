@@ -1,3 +1,7 @@
+# nvim lsp clangd
+.cache/
+
+# CMake
 CMakeLists.txt.user
 CMakeCache.txt
 CMakeFiles
