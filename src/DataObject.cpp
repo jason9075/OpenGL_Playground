@@ -1,4 +1,5 @@
 #include "DataObject.h"
+
 #include <GL/glew.h>
 
 VAO::VAO() { glGenVertexArrays(1, &ID); }

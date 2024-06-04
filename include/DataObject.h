@@ -5,35 +5,35 @@
 class VBO;
 
 class VAO {
-public:
+ public:
   VAO();
   void linkVBO(VBO &VBO, GLuint layout);
   void bind();
   void unbind();
   void del();
 
-private:
+ private:
   GLuint ID;
 };
 
 class VBO {
-public:
+ public:
   VBO(GLfloat *vertices, GLsizeiptr size);
   void bind();
   void unbind();
   void del();
 
-private:
+ private:
   GLuint ID;
 };
 
 class EBO {
-public:
+ public:
   EBO(GLuint *indices, GLsizeiptr size);
   void bind();
   void unbind();
   void del();
 
-private:
+ private:
   GLuint ID;
 };

@@ -3,11 +3,11 @@
 #include <GL/glew.h>
 
 class Shader {
-public:
+ public:
   Shader(const char *vertexShaderSource, const char *fragmentShaderSource);
   void use();
   void del();
 
-private:
+ private:
   GLuint programID;
 };

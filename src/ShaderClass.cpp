@@ -1,5 +1,7 @@
 #include "ShaderClass.h"
+
 #include <GL/glew.h>
+
 #include <fstream>
 #include <iostream>
 
@@ -16,7 +18,6 @@ std::string readFile(const char *filePath) {
 }
 
 Shader::Shader(const char *vertShaderPath, const char *fragShaderPath) {
-
   std::string vertexCode = readFile(vertShaderPath);
   std::string fragmentCode = readFile(fragShaderPath);
 
@@ -34,8 +35,7 @@ Shader::Shader(const char *vertShaderPath, const char *fragShaderPath) {
   glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
   if (!success) {
     glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-    std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n"
-              << infoLog << std::endl;
+    std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
   }
   // Fragment shader
   GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
@@ -45,8 +45,7 @@ Shader::Shader(const char *vertShaderPath, const char *fragShaderPath) {
   glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
   if (!success) {
     glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-    std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n"
-              << infoLog << std::endl;
+    std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
   }
   // Link shaders
   programID = glCreateProgram();
@@ -57,8 +56,7 @@ Shader::Shader(const char *vertShaderPath, const char *fragShaderPath) {
   glGetProgramiv(programID, GL_LINK_STATUS, &success);
   if (!success) {
     glGetProgramInfoLog(programID, 512, NULL, infoLog);
-    std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n"
-              << infoLog << std::endl;
+    std::cout << "ERROR::SHADER::PROGRAM::LINKING_FAILED\n" << infoLog << std::endl;
   }
   // Delete the shaders as they're linked into our program now and no longer
   // necessary
