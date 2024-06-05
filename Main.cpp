@@ -62,6 +62,8 @@ int main(int argc, char *args[]) {
   Shader shaderProgram(VERT_SHADER_PATH, FRAG_SHADER_PATH);
 
   Camera camera(SCREEN_WIDTH, SCREEN_HEIGHT, 0.0f, 0.0f, 3.0f);
+  CameraEventListener listener(camera);
+  camera.setEventListener(&listener);
 
   VAO vao;
   vao.bind();
@@ -80,9 +82,10 @@ int main(int argc, char *args[]) {
       if (e.type == SDL_QUIT || (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_q)) {
         quit = true;
       }
-      camera.input(e);
+      camera.handle(e);
     }
 
+    camera.moveCamera();
     render(window, shaderProgram, camera, vao, vbo, ebo);
   }
 
