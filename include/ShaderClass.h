@@ -8,6 +8,7 @@ class Shader {
   void use();
   void del();
 
+  GLuint ID;
+
  private:
-  GLuint programID;
 };

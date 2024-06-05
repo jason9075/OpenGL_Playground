@@ -3,14 +3,15 @@
 
 #include <iostream>
 
+#include "Camera.h"
 #include "DataObject.h"
 #include "ShaderClass.h"
 #include "Window.h"
 
 // Global variables
 const char *WINDOW_TITLE = "OpenGL Demo";
-const int SCREEN_WIDTH = 800;
-const int SCREEN_HEIGHT = 600;
+const int SCREEN_WIDTH = 1024;
+const int SCREEN_HEIGHT = 768;
 
 const char *VERT_SHADER_PATH = "./shaders/default_vert.glsl";
 const char *FRAG_SHADER_PATH = "./shaders/default_frag.glsl";
@@ -25,11 +26,12 @@ GLfloat vertices[] = {
 GLuint indices[] = {0, 1, 2};
 
 // Render function
-void render(SDL_Window *window, Shader shaderProgram, VAO vao, VBO vbo, EBO ebo) {
+void render(SDL_Window *window, Shader shaderProgram, Camera camera, VAO vao, VBO vbo, EBO ebo) {
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-  glClear(GL_COLOR_BUFFER_BIT);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   shaderProgram.use();
+  camera.update(shaderProgram);
   vao.bind();
   glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
 
@@ -59,6 +61,8 @@ int main(int argc, char *args[]) {
 
   Shader shaderProgram(VERT_SHADER_PATH, FRAG_SHADER_PATH);
 
+  Camera camera(SCREEN_WIDTH, SCREEN_HEIGHT, 0.0f, 0.0f, 3.0f);
+
   VAO vao;
   vao.bind();
 
@@ -73,15 +77,13 @@ int main(int argc, char *args[]) {
 
   while (!quit) {
     while (SDL_PollEvent(&e) != 0) {
-      if (e.type == SDL_QUIT) {
+      if (e.type == SDL_QUIT || (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_q)) {
         quit = true;
       }
-      if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_q) {
-        quit = true;
-      }
+      camera.input(e);
     }
 
-    render(window, shaderProgram, vao, vbo, ebo);
+    render(window, shaderProgram, camera, vao, vbo, ebo);
   }
 
   vao.del();
