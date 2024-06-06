@@ -1,5 +1,9 @@
 #include "GUI.h"
 
+#include "backends/imgui_impl_opengl3.h"
+#include "backends/imgui_impl_sdl2.h"
+#include "imgui.h"
+
 GUI::GUI(SDL_Window *window, SDL_GLContext context) {
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();

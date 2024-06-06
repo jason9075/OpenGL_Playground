@@ -2,12 +2,14 @@
 
 #include <GL/glew.h>
 
+#include <glm/glm.hpp>
+
 class VBO;
 
 class VAO {
  public:
   VAO();
-  void linkVBO(VBO &VBO, GLuint layout);
+  void linkAttr(VBO &VBO, GLuint layout, GLuint numComponents, GLenum type, GLsizeiptr stride, const void *offset);
   void bind();
   void unbind();
   void del();
@@ -16,9 +18,13 @@ class VAO {
   GLuint ID;
 };
 
+struct Vertex {
+  glm::vec3 position;
+};
+
 class VBO {
  public:
-  VBO(GLfloat *vertices, GLsizeiptr size);
+  VBO(const std::vector<Vertex> &vertices);
   void bind();
   void unbind();
   void del();
@@ -29,7 +35,7 @@ class VBO {
 
 class EBO {
  public:
-  EBO(GLuint *indices, GLsizeiptr size);
+  EBO(const std::vector<GLuint> &indices);
   void bind();
   void unbind();
   void del();

@@ -5,9 +5,10 @@
 
 #include "Camera.h"
 #include "DataObject.h"
+#include "GUI.h"
+#include "Mesh.h"
 #include "ShaderClass.h"
 #include "Window.h"
-#include "GUI.h"
 
 // Global variables
 const char *WINDOW_TITLE = "OpenGL Demo";
@@ -18,22 +19,20 @@ const char *VERT_SHADER_PATH = "./shaders/default_vert.glsl";
 const char *FRAG_SHADER_PATH = "./shaders/default_frag.glsl";
 
 // Vertices coordinates
-GLfloat vertices[] = {
-    -0.5f, -0.5f * float(sqrt(3)) / 3,    0.0f,  // Lower left corner
-    0.5f,  -0.5f * float(sqrt(3)) / 3,    0.0f,  // Lower right corner
-    0.0f,  0.5f * float(sqrt(3)) * 2 / 3, 0.0f   // Upper corner
-};
+std::vector<Vertex> vertices = {{{-0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f}},
+                                {{0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f}},
+                                {{0.0f, 0.5f * float(sqrt(3)) * 2 / 3, 0.0f}}};
 
-GLuint indices[] = {0, 1, 2};
+std::vector<GLuint> indices = {0, 1, 2};
 
 // Render function
-void render(SDL_Window *window, Shader shaderProgram, Camera camera, VAO vao, VBO vbo, EBO ebo) {
+void render(SDL_Window *window, Shader shaderProgram, Camera camera, Mesh mesh) {
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   shaderProgram.use();
   camera.update(shaderProgram);
-  vao.bind();
+  mesh.draw(shaderProgram);
   glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
 }
 
@@ -71,17 +70,7 @@ int main(int argc, char *args[]) {
   CameraEventListener listener(camera);
   camera.setEventListener(&listener);
 
-  VAO vao;
-  vao.bind();
-
-  VBO vbo(vertices, sizeof(vertices));
-  EBO ebo(indices, sizeof(indices));
-
-  vao.linkVBO(vbo, 0);
-
-  vao.unbind();
-  vbo.unbind();
-  ebo.unbind();
+  Mesh mesh(vertices, indices);
 
   while (!quit) {
     while (SDL_PollEvent(&e) != 0) {
@@ -94,16 +83,14 @@ int main(int argc, char *args[]) {
 
     camera.moveCamera();
 
-    render(window, shaderProgram, camera, vao, vbo, ebo);
+    render(window, shaderProgram, camera, mesh);
 
     gui.draw();
 
     SDL_GL_SwapWindow(window);
   }
 
-  vao.del();
-  vbo.del();
-  ebo.del();
+  mesh.del();
   shaderProgram.del();
 
   gui.shutdown();
