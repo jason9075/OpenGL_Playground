@@ -1,7 +1,5 @@
 #pragma once
 
-#define GLM_ENABLE_EXPERIMENTAL
-
 #include <GL/glew.h>
 #include <SDL2/SDL.h>
 

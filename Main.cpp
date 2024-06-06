@@ -7,6 +7,7 @@
 #include "DataObject.h"
 #include "ShaderClass.h"
 #include "Window.h"
+#include "GUI.h"
 
 // Global variables
 const char *WINDOW_TITLE = "OpenGL Demo";
@@ -34,11 +35,10 @@ void render(SDL_Window *window, Shader shaderProgram, Camera camera, VAO vao, VB
   camera.update(shaderProgram);
   vao.bind();
   glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
-
-  SDL_GL_SwapWindow(window);
 }
 
 int main(int argc, char *args[]) {
+  // init SDL
   SDL_Window *window = nullptr;
   SDL_GLContext context;
 
@@ -47,13 +47,19 @@ int main(int argc, char *args[]) {
     exit(1);
   }
 
+  // init glew
   glewExperimental = GL_TRUE;
   GLenum glewError = glewInit();
   if (glewError != GLEW_OK) {
     std::cerr << "Error initializing GLEW! " << glewGetErrorString(glewError) << std::endl;
     exit(1);
   }
+  // SDL_GL_SetSwapInterval(0);  // Disable VSync
 
+  // init imgui
+  GUI gui(window, context);
+
+  // main func
   bool quit = false;
   SDL_Event e;
 
@@ -83,16 +89,25 @@ int main(int argc, char *args[]) {
         quit = true;
       }
       camera.handle(e);
+      // ImGui_ImplSDL2_ProcessEvent(&e);
     }
 
     camera.moveCamera();
+
     render(window, shaderProgram, camera, vao, vbo, ebo);
+
+    gui.draw();
+
+    SDL_GL_SwapWindow(window);
   }
 
   vao.del();
   vbo.del();
   ebo.del();
   shaderProgram.del();
+
+  gui.shutdown();
+
   close(window, context);
 
   return 0;

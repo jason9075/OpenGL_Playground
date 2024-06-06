@@ -53,3 +53,6 @@ external/glm/**
 !external/glm/.keep
 external/imgui/**
 !external/imgui/.keep
+
+# imgui
+imgui.ini
