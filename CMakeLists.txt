@@ -23,9 +23,16 @@ set(IMGUI_SOURCES
 
 file(GLOB SOURCES src/*.cpp Main.cpp)
 
+# Disable tests and installation for nlohmann_json
+set(JSON_BuildTests OFF CACHE INTERNAL "")
+set(JSON_Install OFF CACHE INTERNAL "")
+
+# Add nlohmann_json subdirectory
+add_subdirectory(external/json)
+
 add_executable(playground.app ${SOURCES} ${IMGUI_SOURCES})
 
 # Link libraries
-target_link_libraries(playground.app ${OPENGL_LIBRARIES} ${SDL2_LIBRARIES} GLEW)
+target_link_libraries(playground.app ${OPENGL_LIBRARIES} ${SDL2_LIBRARIES} GLEW nlohmann_json::nlohmann_json)
 
 

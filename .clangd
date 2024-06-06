@@ -5,3 +5,5 @@ CompileFlags:
     - ./external/imgui
     - -isystem
     - ./external/glm
+    - -isystem
+    - ./external/json
