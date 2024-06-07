@@ -13,8 +13,8 @@ Mesh::Mesh(const std::vector<Vertex> &vertices, const std::vector<GLuint> &indic
   ebo.unbind();
 }
 
-void Mesh::draw(Shader &shader) {
-  shader.use();
+void Mesh::draw(Shader *shader) {
+  shader->use();
   vao.bind();
   glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
   vao.unbind();

@@ -111,67 +111,10 @@ void Camera::handle(SDL_Event &event) {
   }
 }
 
-void Camera::update(Shader &shaderProgram) {
+void Camera::update(Shader *shaderProgram) {
   glm::mat4 view = glm::lookAt(position, position + orientation, up);
   glm::mat4 projection = glm::perspective(glm::radians(fov), (float)width / height, nearPlane, farPlane);
 
-  glUniformMatrix4fv(glGetUniformLocation(shaderProgram.ID, "camMatrix"), 1, GL_FALSE,
+  glUniformMatrix4fv(glGetUniformLocation(shaderProgram->ID, "camMatrix"), 1, GL_FALSE,
                      glm::value_ptr(projection * view));
 }
-
-CameraEventListener::CameraEventListener(Camera &camera) : camera(camera) {}
-void CameraEventListener::onKeyDown(SDL_Keycode key) {
-  switch (key) {
-    case SDLK_w:
-      camera.keyState[MOVE_FORWARD] = true;
-      break;
-    case SDLK_a:
-      camera.keyState[MOVE_LEFT] = true;
-      break;
-    case SDLK_s:
-      camera.keyState[MOVE_BACKWARD] = true;
-      break;
-    case SDLK_d:
-      camera.keyState[MOVE_RIGHT] = true;
-      break;
-    case SDLK_SPACE:
-      camera.keyState[MOVE_UP] = true;
-      break;
-    case SDLK_c:
-      camera.keyState[MOVE_DOWN] = true;
-      break;
-    case SDLK_LSHIFT:  // Increase movement speed
-      camera.keyState[MOVE_FASTER] = true;
-      break;
-  }
-}
-
-void CameraEventListener::onKeyUp(SDL_Keycode key) {
-  switch (key) {
-    case SDLK_w:
-      camera.keyState[MOVE_FORWARD] = false;
-      break;
-    case SDLK_a:
-      camera.keyState[MOVE_LEFT] = false;
-      break;
-    case SDLK_s:
-      camera.keyState[MOVE_BACKWARD] = false;
-      break;
-    case SDLK_d:
-      camera.keyState[MOVE_RIGHT] = false;
-      break;
-    case SDLK_SPACE:
-      camera.keyState[MOVE_UP] = false;
-      break;
-    case SDLK_c:
-      camera.keyState[MOVE_DOWN] = false;
-      break;
-    case SDLK_LSHIFT:  // Decrease movement speed
-      camera.keyState[MOVE_SLOWER] = true;
-      break;
-  }
-}
-
-void CameraEventListener::onMouseLeftPress(SDL_Event &e) { camera.lookAroundStart(e.motion.xrel, e.motion.yrel); }
-
-void CameraEventListener::onMouseLeftRelease() { camera.lookAroundEnd(); }

@@ -8,26 +8,13 @@
 
 #include "ShaderClass.h"
 
-class Camera;
-
+// Let the user define the event listener
 class EventListener {
  public:
   virtual void onKeyDown(SDL_Keycode key) = 0;
   virtual void onKeyUp(SDL_Keycode key) = 0;
   virtual void onMouseLeftPress(SDL_Event &event) = 0;
   virtual void onMouseLeftRelease() = 0;
-};
-
-class CameraEventListener : public EventListener {
- public:
-  CameraEventListener(Camera &camera);
-  void onKeyDown(SDL_Keycode key);
-  void onKeyUp(SDL_Keycode key);
-  void onMouseLeftPress(SDL_Event &event);
-  void onMouseLeftRelease();
-
- private:
-  Camera &camera;
 };
 
 enum CameraMovement {
@@ -57,7 +44,7 @@ class Camera {
   void moveCamera();
   void setEventListener(EventListener *listener);
   void handle(SDL_Event &event);
-  void update(Shader &shaderProgram);
+  void update(Shader *shaderProgram);
 
   std::unordered_map<int, bool> keyState;
 

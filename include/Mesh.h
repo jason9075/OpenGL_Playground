@@ -5,16 +5,16 @@
 
 class Mesh {
  public:
-    std::vector<Vertex> vertices;
-    std::vector<GLuint> indices;
+  std::vector<Vertex> vertices;
+  std::vector<GLuint> indices;
 
-    VAO vao;
-    VBO vbo;
-    EBO ebo;
+  VAO vao;
+  VBO vbo;
+  EBO ebo;
 
-    Mesh(const std::vector<Vertex> &vertices,const std::vector<GLuint> &indices);
+  Mesh(const std::vector<Vertex> &vertices, const std::vector<GLuint> &indices);
 
-    void draw(Shader &shader);
+  void draw(Shader *shader);
 
-    void del();
+  void del();
 };
