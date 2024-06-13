@@ -51,12 +51,10 @@ build
 *.app
 
 # external dependencies
-external/glm/**
-!external/glm/.keep
 external/imgui/**
 !external/imgui/.keep
-external/json/**
-!external/json/.keep
+external/tinygltf/**
+!external/tinygltf/.keep
 
 # imgui
 imgui.ini

@@ -3,6 +3,9 @@
 #include <GL/glew.h>
 
 #include <glm/glm.hpp>
+#include <vector>
+
+#include "ShaderClass.h"
 
 class VBO;
 
@@ -20,6 +23,9 @@ class VAO {
 
 struct Vertex {
   glm::vec3 position;
+  glm::vec3 normal;
+  glm::vec3 color;
+  glm::vec2 texCoords;
 };
 
 class VBO {
@@ -42,4 +48,18 @@ class EBO {
 
  private:
   GLuint ID;
+};
+
+class Texture {
+ public:
+  const char *type;
+  Texture(const char *image, const char *texType, GLuint slot);
+  void texUnit(Shader &shader, const char *uniform, GLuint unit);
+  void bind();
+  void unbind();
+  void del();
+
+ private:
+  GLuint ID;
+  GLuint unit;
 };

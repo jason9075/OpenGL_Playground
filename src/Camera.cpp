@@ -83,12 +83,10 @@ void Camera::moveCamera() {
   if (keyState[MOVE_DOWN]) {
     moveDown();
   }
-  if (keyState[MOVE_FASTER]) {
-    moveFaster();
-  }
-  if (keyState[MOVE_SLOWER]) {
-    moveSlower();
-  }
+  if (keyState[MOVE_FASTER])
+    movementSpeed = fastSpeed;
+  else
+    movementSpeed = normalSpeed;
 }
 
 void Camera::handle(SDL_Event &event) {

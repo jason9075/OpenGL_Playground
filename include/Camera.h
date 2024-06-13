@@ -25,7 +25,6 @@ enum CameraMovement {
   MOVE_UP,
   MOVE_DOWN,
   MOVE_FASTER,
-  MOVE_SLOWER
 };
 
 class Camera {
@@ -62,6 +61,8 @@ class Camera {
   EventListener *listener;
 
   bool firstClick = true;
-  float movementSpeed = 0.1f;
+  float normalSpeed = 0.1f;
+  float fastSpeed = normalSpeed * 5.0f;
+  float movementSpeed = normalSpeed;
   float mouseSensitivity = 1.0f;
 };

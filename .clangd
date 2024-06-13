@@ -4,6 +4,4 @@ CompileFlags:
     - -isystem
     - ./external/imgui
     - -isystem
-    - ./external/glm
-    - -isystem
-    - ./external/json
+    - ./external/tinygltf

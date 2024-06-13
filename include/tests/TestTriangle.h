@@ -10,7 +10,7 @@
 namespace test {
 class TestTriangle : public Test {
  public:
-  TestTriangle(float screenWidth, float screenHeight);
+  TestTriangle(const float screenWidth, const float screenHeight);
   ~TestTriangle();
 
   void OnEvent(SDL_Event& event) override;
@@ -19,8 +19,8 @@ class TestTriangle : public Test {
 
  private:
   class CameraEventListener;
-  float backgroundColor[3] = {0.2f, 0.3f, 0.8f};
-  float triangleColor[3] = {0.2f, 0.8f, 0.2f};
+  float backgroundColor[4] = {0.0f, 0.0f, 0.0f, 1.0f};
+  float triangleColor[4] = {0.2f, 0.8f, 0.2f, 1.0f};
   std::unique_ptr<Shader> shaderProgram;
   std::unique_ptr<Mesh> mesh;
   std::unique_ptr<Camera> camera;

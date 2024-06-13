@@ -8,9 +8,11 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 find_package(OpenGL REQUIRED)
 find_package(SDL2 REQUIRED)
+find_package(glm REQUIRED)
+find_package(nlohmann_json REQUIRED)
 
 # Include directories for external libraries
-include_directories(include/ ${OPENGL_INCLUDE_DIRS} ${SDL2_INCLUDE_DIRS} external/imgui external/glm)
+include_directories(include/ ${OPENGL_INCLUDE_DIRS} ${SDL2_INCLUDE_DIRS} external/imgui)
 
 # SDL2 and OpenGL libraries
 set(IMGUI_SOURCES
@@ -27,9 +29,6 @@ file(GLOB SOURCES src/*.cpp src/tests/*.cpp)
 # Disable tests and installation for nlohmann_json
 set(JSON_BuildTests OFF CACHE INTERNAL "")
 set(JSON_Install OFF CACHE INTERNAL "")
-
-# Add nlohmann_json subdirectory
-add_subdirectory(external/json)
 
 add_executable(playground.app Main.cpp ${SOURCES} ${IMGUI_SOURCES})
 
