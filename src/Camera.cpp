@@ -66,7 +66,7 @@ void Camera::lookAroundEnd() {
   firstClick = true;
 }
 
-void Camera::setEventListener(EventListener *listener) { this->listener = listener; }
+void Camera::setEventListener(CameraEventListener *listener) { this->listener = listener; }
 
 void Camera::moveCamera() {
   if (keyState[MOVE_FORWARD]) {
@@ -120,3 +120,59 @@ void Camera::update(Shader *shaderProgram) {
   glUniformMatrix4fv(glGetUniformLocation(shaderProgram->ID, "camMatrix"), 1, GL_FALSE,
                      glm::value_ptr(projection * view));
 }
+
+GhostCameraListener::GhostCameraListener(Camera *camera) : camera(camera) {}
+void GhostCameraListener::onKeyDown(SDL_Keycode key) {
+  switch (key) {
+    case SDLK_w:
+      camera->keyState[MOVE_FORWARD] = true;
+      break;
+    case SDLK_a:
+      camera->keyState[MOVE_LEFT] = true;
+      break;
+    case SDLK_s:
+      camera->keyState[MOVE_BACKWARD] = true;
+      break;
+    case SDLK_d:
+      camera->keyState[MOVE_RIGHT] = true;
+      break;
+    case SDLK_SPACE:
+      camera->keyState[MOVE_UP] = true;
+      break;
+    case SDLK_c:
+      camera->keyState[MOVE_DOWN] = true;
+      break;
+    case SDLK_LSHIFT:  // Increase movement speed
+      camera->keyState[MOVE_FASTER] = true;
+      break;
+  }
+}
+void GhostCameraListener::onKeyUp(SDL_Keycode key) {
+  switch (key) {
+    case SDLK_w:
+      camera->keyState[MOVE_FORWARD] = false;
+      break;
+    case SDLK_a:
+      camera->keyState[MOVE_LEFT] = false;
+      break;
+    case SDLK_s:
+      camera->keyState[MOVE_BACKWARD] = false;
+      break;
+    case SDLK_d:
+      camera->keyState[MOVE_RIGHT] = false;
+      break;
+    case SDLK_SPACE:
+      camera->keyState[MOVE_UP] = false;
+      break;
+    case SDLK_c:
+      camera->keyState[MOVE_DOWN] = false;
+      break;
+    case SDLK_LSHIFT:  // Decrease movement speed
+      camera->keyState[MOVE_FASTER] = false;
+      break;
+  }
+}
+
+void GhostCameraListener::onMouseLeftPress(SDL_Event &e) { camera->lookAroundStart(e.motion.xrel, e.motion.yrel); }
+
+void GhostCameraListener::onMouseLeftRelease() { camera->lookAroundEnd(); }

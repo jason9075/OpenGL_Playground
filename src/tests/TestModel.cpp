@@ -3,17 +3,6 @@
 #include "GL/glew.h"
 
 namespace test {
-class TestModel::CameraEventListener : public EventListener {
- public:
-  CameraEventListener(Camera *camera);
-  void onKeyDown(SDL_Keycode key) override;
-  void onKeyUp(SDL_Keycode key) override;
-  void onMouseLeftPress(SDL_Event &event) override;
-  void onMouseLeftRelease() override;
-
- private:
-  Camera *camera;
-};
 
 TestModel::TestModel(const float screenWidth, const float screenHeight, const char *path) {
   glViewport(0, 0, screenWidth, screenHeight);
@@ -24,7 +13,7 @@ TestModel::TestModel(const float screenWidth, const float screenHeight, const ch
   glm::vec3 position = glm::vec3(0.0f, 5.0f, 20.0f);
   glm::vec3 orientation = glm::vec3(0.0f, 0.0f, -1.0f);
   camera = std::make_unique<Camera>(screenWidth, screenHeight, position, orientation);
-  listener = std::make_unique<CameraEventListener>(camera.get());
+  listener = std::make_unique<GhostCameraListener>(camera.get());
   camera->setEventListener(listener.get());
 }
 
@@ -52,61 +41,4 @@ void TestModel::OnRender() {
 
 void TestModel::OnImGuiRender() {}
 
-TestModel::CameraEventListener::CameraEventListener(Camera *camera) : camera(camera) {}
-void TestModel::CameraEventListener::onKeyDown(SDL_Keycode key) {
-  switch (key) {
-    case SDLK_w:
-      camera->keyState[MOVE_FORWARD] = true;
-      break;
-    case SDLK_a:
-      camera->keyState[MOVE_LEFT] = true;
-      break;
-    case SDLK_s:
-      camera->keyState[MOVE_BACKWARD] = true;
-      break;
-    case SDLK_d:
-      camera->keyState[MOVE_RIGHT] = true;
-      break;
-    case SDLK_SPACE:
-      camera->keyState[MOVE_UP] = true;
-      break;
-    case SDLK_c:
-      camera->keyState[MOVE_DOWN] = true;
-      break;
-    case SDLK_LSHIFT:  // Increase movement speed
-      camera->keyState[MOVE_FASTER] = true;
-      break;
-  }
-}
-void TestModel::CameraEventListener::onKeyUp(SDL_Keycode key) {
-  switch (key) {
-    case SDLK_w:
-      camera->keyState[MOVE_FORWARD] = false;
-      break;
-    case SDLK_a:
-      camera->keyState[MOVE_LEFT] = false;
-      break;
-    case SDLK_s:
-      camera->keyState[MOVE_BACKWARD] = false;
-      break;
-    case SDLK_d:
-      camera->keyState[MOVE_RIGHT] = false;
-      break;
-    case SDLK_SPACE:
-      camera->keyState[MOVE_UP] = false;
-      break;
-    case SDLK_c:
-      camera->keyState[MOVE_DOWN] = false;
-      break;
-    case SDLK_LSHIFT:  // Decrease movement speed
-      camera->keyState[MOVE_FASTER] = false;
-      break;
-  }
-}
-
-void TestModel::CameraEventListener::onMouseLeftPress(SDL_Event &e) {
-  camera->lookAroundStart(e.motion.xrel, e.motion.yrel);
-}
-
-void TestModel::CameraEventListener::onMouseLeftRelease() { camera->lookAroundEnd(); }
 }  // namespace test

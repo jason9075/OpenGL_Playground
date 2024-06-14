@@ -9,7 +9,7 @@
 #include "ShaderClass.h"
 
 // Let the user define the event listener
-class EventListener {
+class CameraEventListener {
  public:
   virtual void onKeyDown(SDL_Keycode key) = 0;
   virtual void onKeyUp(SDL_Keycode key) = 0;
@@ -42,7 +42,7 @@ class Camera {
   void lookAroundStart(float x, float y);
   void lookAroundEnd();
   void moveCamera();
-  void setEventListener(EventListener *listener);
+  void setEventListener(CameraEventListener *listener);
   void handle(SDL_Event &event);
   void update(Shader *shaderProgram);
 
@@ -59,11 +59,23 @@ class Camera {
   float nearPlane = 0.1f;
   float farPlane = 100.0f;
 
-  EventListener *listener;
+  CameraEventListener *listener;
 
   bool firstClick = true;
   float normalSpeed = 0.1f;
   float fastSpeed = normalSpeed * 5.0f;
   float movementSpeed = normalSpeed;
   float mouseSensitivity = 1.0f;
+};
+
+class GhostCameraListener : public CameraEventListener {
+ public:
+  GhostCameraListener(Camera *camera);
+  void onKeyDown(SDL_Keycode key);
+  void onKeyUp(SDL_Keycode key);
+  void onMouseLeftPress(SDL_Event &event);
+  void onMouseLeftRelease();
+
+ private:
+  Camera *camera;
 };

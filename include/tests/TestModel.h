@@ -18,7 +18,6 @@ class TestModel : public Test {
   void OnImGuiRender() override;
 
  private:
-  class CameraEventListener;
   float backgroundColor[3] = {0.2f, 0.3f, 0.8f};
   float meshColor[3] = {0.6f, 0.7f, 0.2f};
   std::unique_ptr<Shader> shaderProgram;

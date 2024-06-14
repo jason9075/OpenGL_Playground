@@ -18,7 +18,6 @@ class TestTriangle : public Test {
   void OnImGuiRender() override;
 
  private:
-  class CameraEventListener;
   float backgroundColor[4] = {0.0f, 0.0f, 0.0f, 1.0f};
   float triangleColor[4] = {0.2f, 0.8f, 0.2f, 1.0f};
   std::unique_ptr<Shader> shaderProgram;
