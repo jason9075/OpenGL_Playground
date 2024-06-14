@@ -4,7 +4,6 @@
 
 #include "Camera.h"
 #include "DataObject.h"
-#include "Mesh.h"
 #include "nlohmann/json.hpp"
 
 using json = nlohmann::json;

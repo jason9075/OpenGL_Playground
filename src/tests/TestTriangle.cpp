@@ -1,6 +1,5 @@
 #include "tests/TestTriangle.h"
 
-#include "DataObject.h"
 #include "GL/glew.h"
 #include "imgui.h"
 
