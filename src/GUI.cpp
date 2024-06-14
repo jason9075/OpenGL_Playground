@@ -57,3 +57,8 @@ void GUI::shutdown() {
   ImGui_ImplSDL2_Shutdown();
   ImGui::DestroyContext();
 }
+
+bool GUI::isMouseOverGUI() {
+  ImGuiIO &io = ImGui::GetIO();
+  return io.WantCaptureMouse;
+}

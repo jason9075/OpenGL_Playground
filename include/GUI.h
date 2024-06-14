@@ -16,9 +16,10 @@ class GUI {
   GUI(SDL_Window* window, SDL_GLContext context, test::Test*& currentTest);
   void draw();
   void shutdown();
+  bool isMouseOverGUI();
 
   template <typename T, typename... Args>
-  void RegisterTest(const std::string& name, Args&&... args) {
+  void registerTest(const std::string& name, Args&&... args) {
     std::cout << "Registering test " << name << std::endl;
 
     allTests.push_back(std::make_pair(name, [args...]() { return new T(args...); }));

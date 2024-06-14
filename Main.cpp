@@ -35,13 +35,12 @@ int main(int argc, char *args[]) {
 
   // init imgui
   // test::Test *currentTest = new test::Test;
-  // test::Test *currentTest = new test::TestModel(SCREEN_WIDTH, SCREEN_HEIGHT, "./models/gltf_duck/Duck.gltf");
   test::Test *currentTest = new test::TestModel(SCREEN_WIDTH, SCREEN_HEIGHT, "./models/gltf_duck/Duck.gltf");
   GUI gui(window, context, currentTest);
 
-  gui.RegisterTest<test::Test>("-");  // dummy test
-  gui.RegisterTest<test::TestTriangle>("Triangle", SCREEN_WIDTH, SCREEN_HEIGHT);
-  gui.RegisterTest<test::TestModel>("Model", SCREEN_WIDTH, SCREEN_HEIGHT, "./models/gltf_duck/Duck.gltf");
+  gui.registerTest<test::Test>("-");  // dummy test
+  gui.registerTest<test::TestTriangle>("Triangle", SCREEN_WIDTH, SCREEN_HEIGHT);
+  gui.registerTest<test::TestModel>("Model", SCREEN_WIDTH, SCREEN_HEIGHT, "./models/gltf_duck/Duck.gltf");
 
   // main func
   bool quit = false;
@@ -52,7 +51,7 @@ int main(int argc, char *args[]) {
       if (e.type == SDL_QUIT || (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_q)) {
         quit = true;
       }
-      currentTest->OnEvent(e);
+      if (!gui.isMouseOverGUI()) currentTest->OnEvent(e);
       ImGui_ImplSDL2_ProcessEvent(&e);  // let imgui interact with SDL
     }
 

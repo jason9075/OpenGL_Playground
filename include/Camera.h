@@ -65,7 +65,7 @@ class Camera {
   float normalSpeed = 0.1f;
   float fastSpeed = normalSpeed * 5.0f;
   float movementSpeed = normalSpeed;
-  float mouseSensitivity = 1.0f;
+  float mouseSensitivity = 0.5f;
 };
 
 class GhostCameraListener : public CameraEventListener {
