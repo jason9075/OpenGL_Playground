@@ -53,8 +53,12 @@ build
 # external dependencies
 external/imgui/**
 !external/imgui/.keep
-external/tinygltf/**
-!external/tinygltf/.keep
+
+models/**
+
+!models/README.md
+!models/gltf_duck/
+!models/gltf_duck/**
 
 # imgui
 imgui.ini

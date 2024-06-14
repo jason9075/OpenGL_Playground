@@ -6,6 +6,7 @@
 #include "GUI.h"
 #include "Window.h"
 #include "backends/imgui_impl_sdl2.h"
+#include "tests/TestModel.h"
 #include "tests/TestTriangle.h"
 
 // Global variables
@@ -33,11 +34,14 @@ int main(int argc, char *args[]) {
   // SDL_GL_SetSwapInterval(0);  // Disable VSync
 
   // init imgui
-  test::Test *currentTest = new test::Test;
+  // test::Test *currentTest = new test::Test;
+  // test::Test *currentTest = new test::TestModel(SCREEN_WIDTH, SCREEN_HEIGHT, "./models/gltf_duck/Duck.gltf");
+  test::Test *currentTest = new test::TestModel(SCREEN_WIDTH, SCREEN_HEIGHT, "./models/gltf_duck/Duck.gltf");
   GUI gui(window, context, currentTest);
 
-  gui.RegisterTest<test::Test>("-");
+  gui.RegisterTest<test::Test>("-");  // dummy test
   gui.RegisterTest<test::TestTriangle>("Triangle", SCREEN_WIDTH, SCREEN_HEIGHT);
+  gui.RegisterTest<test::TestModel>("Model", SCREEN_WIDTH, SCREEN_HEIGHT, "./models/gltf_duck/Duck.gltf");
 
   // main func
   bool quit = false;
@@ -51,9 +55,6 @@ int main(int argc, char *args[]) {
       currentTest->OnEvent(e);
       ImGui_ImplSDL2_ProcessEvent(&e);  // let imgui interact with SDL
     }
-
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     currentTest->OnRender();
     gui.draw();

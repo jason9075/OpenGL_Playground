@@ -2,20 +2,9 @@
 
 #include <GL/glew.h>
 
-#include <fstream>
 #include <iostream>
 
-std::string readFile(const char *filePath) {
-  std::string content;
-  std::ifstream fileStream(filePath, std::ios::in);
-  std::string line = "";
-  while (!fileStream.eof()) {
-    std::getline(fileStream, line);
-    content.append(line + "\n");
-  }
-  fileStream.close();
-  return content;
-}
+#include "Utils.h"
 
 Shader::Shader(const char *vertShaderPath, const char *fragShaderPath) {
   std::string vertexCode = readFile(vertShaderPath);

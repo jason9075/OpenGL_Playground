@@ -6,11 +6,11 @@
 #include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtx/vector_angle.hpp>
 
-Camera::Camera(int width, int height, float x, float y, float z) {
+Camera::Camera(int width, int height, glm::vec3 position, glm::vec3 orientation) {
   this->width = width;
   this->height = height;
-  this->position = glm::vec3(x, y, z);
-  this->orientation = glm::vec3(0.0f, 0.0f, -1.0f);
+  this->position = position;
+  this->orientation = orientation;
   this->up = glm::vec3(0.0f, 1.0f, 0.0f);
 }
 
@@ -45,8 +45,12 @@ void Camera::lookAroundStart(float offsetX, float offsetY) {
   float rotY = offsetX * mouseSensitivity;
 
   // look up and down
-  glm::vec3 newOri = glm::rotate(orientation, glm::radians(-rotX), glm::normalize(glm::cross(orientation, up)));
-  if (abs(glm::angle(newOri, up) - glm::radians(90.0f)) <= 85.0f) {
+  glm::vec3 right = glm::normalize(glm::cross(orientation, up));
+  glm::vec3 newOri = glm::rotate(orientation, glm::radians(-rotX), right);
+
+  float angle = glm::degrees(glm::angle(newOri, up));
+  // restrict angle between 5 and 175 degrees
+  if (angle < 175 && angle > 5) {
     orientation = newOri;
   }
 

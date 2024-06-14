@@ -1,11 +1,9 @@
-#include "tests/TestTriangle.h"
+#include "tests/TestModel.h"
 
-#include "DataObject.h"
 #include "GL/glew.h"
-#include "imgui.h"
 
 namespace test {
-class TestTriangle::CameraEventListener : public EventListener {
+class TestModel::CameraEventListener : public EventListener {
  public:
   CameraEventListener(Camera *camera);
   void onKeyDown(SDL_Keycode key) override;
@@ -17,52 +15,45 @@ class TestTriangle::CameraEventListener : public EventListener {
   Camera *camera;
 };
 
-TestTriangle::TestTriangle(const float screenWidth, const float screenHeight) {
-  // Vetrex: pos , normal, color, texCoords
-  std::vector<Vertex> vertices = {{{-0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f}},
-                                  {{0.5f, -0.5f * float(sqrt(3)) / 3, 0.0f}},
-                                  {{0.0f, 0.5f * float(sqrt(3)) * 2 / 3, 0.0f}}};
-  std::vector<GLuint> indices = {0, 1, 2};
-  std::vector<Texture> textures = {};
-
+TestModel::TestModel(const float screenWidth, const float screenHeight, const char *path) {
   glViewport(0, 0, screenWidth, screenHeight);
 
-  shaderProgram = std::make_unique<Shader>("./shaders/default_vert.glsl", "./shaders/default_frag.glsl");
-  mesh = std::make_unique<Mesh>(vertices, indices, textures);
+  shaderProgram = std::make_unique<Shader>("./shaders/model_vert.glsl", "./shaders/model_frag.glsl");
+  model = std::make_unique<Model>(path);
 
-  glm::vec3 position = glm::vec3(0.0f, 0.0f, 3.0f);
-  camera = std::make_unique<Camera>(screenWidth, screenHeight, position);
+  glm::vec3 position = glm::vec3(0.0f, 5.0f, 20.0f);
+  glm::vec3 orientation = glm::vec3(0.0f, 0.0f, -1.0f);
+  camera = std::make_unique<Camera>(screenWidth, screenHeight, position, orientation);
   listener = std::make_unique<CameraEventListener>(camera.get());
   camera->setEventListener(listener.get());
 }
 
-TestTriangle::~TestTriangle() {}
+TestModel::~TestModel() {}
 
-void TestTriangle::OnEvent(SDL_Event &event) { camera->handle(event); }
+void TestModel::OnEvent(SDL_Event &event) { camera->handle(event); }
 
-void TestTriangle::OnRender() {
-  glClearColor(backgroundColor[0], backgroundColor[1], backgroundColor[2], backgroundColor[3]);
+void TestModel::OnRender() {
+  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   camera->moveCamera();
   shaderProgram->use();
-  GLuint colorLoc = glGetUniformLocation(shaderProgram->ID, "color");
-  if (colorLoc != -1) {
-    glUniform4fv(colorLoc, 1, triangleColor);
-  }
+
+  /* Check out this video for more information on depth testing:
+   * www.youtube.com/watch?v=3xGKu4T4SCU
+   */
+  glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LESS);
+
   camera->update(shaderProgram.get());
-  mesh->draw(shaderProgram.get());
+  model->draw(shaderProgram.get(), camera.get());
   glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
 }
 
-void TestTriangle::OnImGuiRender() {
-  // setting triangle color
-  ImGui::ColorEdit3("Background", backgroundColor);
-  ImGui::ColorEdit3("Triangle", triangleColor);
-}
+void TestModel::OnImGuiRender() {}
 
-TestTriangle::CameraEventListener::CameraEventListener(Camera *camera) : camera(camera) {}
-void TestTriangle::CameraEventListener::onKeyDown(SDL_Keycode key) {
+TestModel::CameraEventListener::CameraEventListener(Camera *camera) : camera(camera) {}
+void TestModel::CameraEventListener::onKeyDown(SDL_Keycode key) {
   switch (key) {
     case SDLK_w:
       camera->keyState[MOVE_FORWARD] = true;
@@ -87,7 +78,7 @@ void TestTriangle::CameraEventListener::onKeyDown(SDL_Keycode key) {
       break;
   }
 }
-void TestTriangle::CameraEventListener::onKeyUp(SDL_Keycode key) {
+void TestModel::CameraEventListener::onKeyUp(SDL_Keycode key) {
   switch (key) {
     case SDLK_w:
       camera->keyState[MOVE_FORWARD] = false;
@@ -113,9 +104,9 @@ void TestTriangle::CameraEventListener::onKeyUp(SDL_Keycode key) {
   }
 }
 
-void TestTriangle::CameraEventListener::onMouseLeftPress(SDL_Event &e) {
+void TestModel::CameraEventListener::onMouseLeftPress(SDL_Event &e) {
   camera->lookAroundStart(e.motion.xrel, e.motion.yrel);
 }
 
-void TestTriangle::CameraEventListener::onMouseLeftRelease() { camera->lookAroundEnd(); }
+void TestModel::CameraEventListener::onMouseLeftRelease() { camera->lookAroundEnd(); }
 }  // namespace test
