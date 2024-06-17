@@ -1,5 +1,7 @@
 # OpenGL Playground
 
+![Preview](./imgs/duck.gif)
+
 my learning journey.
 
 Ref:
