@@ -1,6 +1,7 @@
 #include "tests/TestTriangle.h"
 
 #include "GL/glew.h"
+#include "glm/gtc/type_ptr.hpp"
 #include "imgui.h"
 
 namespace test {
@@ -33,14 +34,13 @@ void TestTriangle::OnRender() {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   camera->moveCamera();
+
   shaderProgram->use();
-  GLuint colorLoc = glGetUniformLocation(shaderProgram->ID, "color");
-  if (colorLoc != -1) {
-    glUniform4fv(colorLoc, 1, triangleColor);
-  }
+  glUniform4fv(glGetUniformLocation(shaderProgram->ID, "color"), 1, triangleColor);
+  glUniformMatrix4fv(glGetUniformLocation(shaderProgram->ID, "modelMatrix"), 1, GL_FALSE,
+                     glm::value_ptr(glm::mat4(1.0f)));
   camera->update(shaderProgram.get());
   mesh->draw(shaderProgram.get());
-  glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
 }
 
 void TestTriangle::OnImGuiRender() {

@@ -14,6 +14,10 @@ Camera::Camera(int width, int height, glm::vec3 position, glm::vec3 orientation)
   this->up = glm::vec3(0.0f, 1.0f, 0.0f);
 }
 
+glm::vec3 Camera::getCameraPos() { return position; }
+
+glm::mat4 Camera::getCamMatrix() { return glm::lookAt(position, position + orientation, up); }
+
 void Camera::moveForward() { position += movementSpeed * orientation; }
 
 void Camera::moveBackward() { position -= movementSpeed * orientation; }
@@ -113,6 +117,7 @@ void Camera::handle(SDL_Event &event) {
   }
 }
 
+// Update the camera matrix in the shader
 void Camera::update(Shader *shaderProgram) {
   glm::mat4 view = glm::lookAt(position, position + orientation, up);
   glm::mat4 projection = glm::perspective(glm::radians(fov), (float)width / height, nearPlane, farPlane);

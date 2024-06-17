@@ -31,6 +31,8 @@ class Camera {
  public:
   Camera(int width, int height, glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f),
          glm::vec3 orientation = glm::vec3(0.0f, 0.0f, -1.0f));
+  glm::vec3 getCameraPos();
+  glm::mat4 getCamMatrix();
   void moveForward();
   void moveBackward();
   void moveLeft();

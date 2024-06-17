@@ -114,7 +114,6 @@ Mesh::Mesh(const std::vector<Vertex> &vertices, const std::vector<GLuint> &indic
 }
 
 void Mesh::draw(Shader *shader) {
-  shader->use();
   vao.bind();
 
   // Textures

@@ -12,7 +12,7 @@ class Model {
  public:
   Model(const char *path);
 
-  void draw(Shader *shader, Camera *camera);
+  void draw(Shader *shader);
 
  private:
   const char *path;

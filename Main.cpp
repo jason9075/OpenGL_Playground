@@ -6,8 +6,9 @@
 #include "GUI.h"
 #include "Window.h"
 #include "backends/imgui_impl_sdl2.h"
-#include "tests/TestModel.h"
 #include "tests/TestTriangle.h"
+#include "tests/TestModel.h"
+#include "tests/TestLighting.h"
 
 // Global variables
 const char *WINDOW_TITLE = "OpenGL Demo";
@@ -35,12 +36,13 @@ int main(int argc, char *args[]) {
 
   // init imgui
   // test::Test *currentTest = new test::Test;
-  test::Test *currentTest = new test::TestModel(SCREEN_WIDTH, SCREEN_HEIGHT, "./models/gltf_duck/Duck.gltf");
+  test::Test *currentTest = new test::TestLighting(SCREEN_WIDTH, SCREEN_HEIGHT);
   GUI gui(window, context, currentTest);
 
   gui.registerTest<test::Test>("-");  // dummy test
   gui.registerTest<test::TestTriangle>("Triangle", SCREEN_WIDTH, SCREEN_HEIGHT);
   gui.registerTest<test::TestModel>("Model", SCREEN_WIDTH, SCREEN_HEIGHT, "./models/gltf_duck/Duck.gltf");
+  gui.registerTest<test::TestLighting>("Lighting", SCREEN_WIDTH, SCREEN_HEIGHT);
 
   // main func
   bool quit = false;

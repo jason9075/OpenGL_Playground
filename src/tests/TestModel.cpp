@@ -10,7 +10,7 @@ TestModel::TestModel(const float screenWidth, const float screenHeight, const ch
   shaderProgram = std::make_unique<Shader>("./shaders/model_vert.glsl", "./shaders/model_frag.glsl");
   model = std::make_unique<Model>(path);
 
-  glm::vec3 position = glm::vec3(0.0f, 5.0f, 20.0f);
+  glm::vec3 position = glm::vec3(0.0f, 1.0f, 5.0f);
   glm::vec3 orientation = glm::vec3(0.0f, 0.0f, -1.0f);
   camera = std::make_unique<Camera>(screenWidth, screenHeight, position, orientation);
   listener = std::make_unique<GhostCameraListener>(camera.get());
@@ -26,7 +26,6 @@ void TestModel::OnRender() {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   camera->moveCamera();
-  shaderProgram->use();
 
   /* Check out this video for more information on depth testing:
    * www.youtube.com/watch?v=3xGKu4T4SCU
@@ -35,8 +34,9 @@ void TestModel::OnRender() {
   glDepthFunc(GL_LESS);
 
   camera->update(shaderProgram.get());
-  model->draw(shaderProgram.get(), camera.get());
-  glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
+
+  shaderProgram->use();
+  model->draw(shaderProgram.get());
 }
 
 void TestModel::OnImGuiRender() {}

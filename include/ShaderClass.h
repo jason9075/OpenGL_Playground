@@ -5,10 +5,10 @@
 class Shader {
  public:
   Shader(const char *vertexShaderSource, const char *fragmentShaderSource);
+  GLuint ID;
+
   void use();
   void del();
-
-  GLuint ID;
 
  private:
 };

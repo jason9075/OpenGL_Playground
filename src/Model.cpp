@@ -237,6 +237,12 @@ std::vector<Vertex> Model::assembleVertices(const std::vector<glm::vec3> &positi
   return vertices;
 }
 
+void Model::draw(Shader *shader) {
+  for (unsigned int i = 0; i < meshes.size(); i++) {
+    meshes[i].draw(shader);
+  }
+}
+
 std::vector<glm::vec2> Model::groupFloatsVec2(const std::vector<float> &floats) {
   std::vector<glm::vec2> vec2s;
 
@@ -265,10 +271,4 @@ std::vector<glm::vec4> Model::groupFloatsVec4(const std::vector<float> &floats) 
   }
 
   return vec4s;
-}
-
-void Model::draw(Shader *shader, Camera *camera) {
-  for (unsigned int i = 0; i < meshes.size(); i++) {
-    meshes[i].draw(shader);
-  }
 }
