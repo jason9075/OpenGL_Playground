@@ -45,7 +45,7 @@ void GUI::draw() {
   ImGui::Begin("Settings");
   currentTest->OnImGuiRender();
   ImGui::SetWindowPos(ImVec2(0, infoWindowPos.y + infoWindowSize.y));
-  ImGui::SetWindowSize(ImVec2(infoWindowSize.x, infoWindowSize.y));
+  ImGui::SetWindowSize(ImVec2(infoWindowSize.x, 0));
   ImGui::End();
 
   ImGui::Render();

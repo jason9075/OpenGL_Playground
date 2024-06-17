@@ -53,6 +53,9 @@ void TestLighting::OnRender() {
   glUniform3f(glGetUniformLocation(shaderProgram->ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
   glUniform3f(glGetUniformLocation(shaderProgram->ID, "camPos"), camera->getCameraPos().x, camera->getCameraPos().y,
               camera->getCameraPos().z);
+  glUniform1i(glGetUniformLocation(shaderProgram->ID, "ambientEnabled"), ambientToggle);
+  glUniform1i(glGetUniformLocation(shaderProgram->ID, "diffuseEnabled"), diffuseToggle);
+  glUniform1i(glGetUniformLocation(shaderProgram->ID, "specularEnabled"), specularToggle);
   camera->update(shaderProgram.get());
   model->draw(shaderProgram.get());
 
@@ -68,8 +71,11 @@ void TestLighting::OnRender() {
 }
 
 void TestLighting::OnImGuiRender() {
-  ImGui::ColorEdit3("Light Color", glm::value_ptr(lightColor));
-  ImGui::SliderFloat3("Light Position", glm::value_ptr(lightPos), -3.0f, 3.0f);
+  ImGui::ColorEdit3("Color", glm::value_ptr(lightColor));
+  ImGui::SliderFloat3("Pos", glm::value_ptr(lightPos), -3.0f, 3.0f);
+  ImGui::Checkbox("Ambient", &ambientToggle);
+  ImGui::Checkbox("Diffuse", &diffuseToggle);
+  ImGui::Checkbox("Specular", &specularToggle);
 }
 
 }  // namespace test

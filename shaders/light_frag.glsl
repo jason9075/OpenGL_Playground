@@ -12,6 +12,10 @@ uniform vec4 lightColor;
 uniform vec3 lightPos;
 uniform vec3 camPos;
 
+uniform bool ambientEnabled = true;
+uniform bool diffuseEnabled = true;
+uniform bool specularEnabled = true;
+
 vec4 calcPointLight(vec3 normal, vec3 fragPos, vec3 lightPos, vec4 lightColor);
 
 void main()
@@ -35,5 +39,10 @@ vec4 calcPointLight(vec3 normal, vec3 fragPos, vec3 lightPos, vec4 lightColor)
     vec3 reflectDir = reflect(-diffDir, norm);
     float specAmount = pow(max(dot(viewDir, reflectDir), 0.0f), 8);
     float specular = specularStrength * specAmount;
+    
+    ambient = ambientEnabled ? ambient : 0.0f;
+    diffuse = diffuseEnabled ? diffuse : 0.0f;
+    specular = specularEnabled ? specular : 0.0f;
+
     return (texture(texture0, texCoord) * (ambient + diffuse + specular)) * lightColor;
 }

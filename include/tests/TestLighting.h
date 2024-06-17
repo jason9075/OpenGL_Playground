@@ -15,6 +15,9 @@ class TestLighting : public Test {
 
   glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
   glm::vec3 lightPos = glm::vec3(1.0f, 1.0f, 1.0f);
+  bool ambientToggle = true;
+  bool diffuseToggle = true;
+  bool specularToggle = true;
 
   void OnEvent(SDL_Event& event) override;
   void OnRender() override;
