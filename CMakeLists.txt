@@ -6,6 +6,7 @@ set(OpenGL_GL_PREFERENCE "GLVND")
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR})
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+find_package(GLEW 2.0 REQUIRED)
 find_package(OpenGL REQUIRED)
 find_package(SDL2 REQUIRED)
 find_package(glm REQUIRED)
@@ -33,6 +34,6 @@ set(JSON_Install OFF CACHE INTERNAL "")
 add_executable(playground.app Main.cpp ${SOURCES} ${IMGUI_SOURCES})
 
 # Link libraries
-target_link_libraries(playground.app ${OPENGL_LIBRARIES} ${SDL2_LIBRARIES} GLEW nlohmann_json::nlohmann_json)
+target_link_libraries(playground.app ${OPENGL_LIBRARIES} ${SDL2_LIBRARIES} GLEW::GLEW nlohmann_json::nlohmann_json)
 
 

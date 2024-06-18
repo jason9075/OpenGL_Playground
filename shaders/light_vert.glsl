@@ -1,4 +1,4 @@
-#version 430 core
+#version 330 core
 
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec3 aNormal;
@@ -18,4 +18,4 @@ void main()
     normal = mat3(transpose(inverse(modelMatrix))) * aNormal;
     texCoord = mat2(1.0, 0.0, 0.0, -1.0) * aTexCoord;
     gl_Position = camMatrix * modelMatrix * vec4(aPos, 1.0);
-};
+}

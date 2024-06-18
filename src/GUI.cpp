@@ -13,7 +13,7 @@ GUI::GUI(SDL_Window *window, SDL_GLContext context, test::Test *&currentTest) : 
   ImGui::StyleColorsDark();
 
   ImGui_ImplSDL2_InitForOpenGL(window, context);
-  ImGui_ImplOpenGL3_Init("#version 130");
+  ImGui_ImplOpenGL3_Init("#version 150");
 }
 
 //  itemGetter func
