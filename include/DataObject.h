@@ -80,3 +80,17 @@ class Mesh {
 
   void del();
 };
+
+class PointCloud {
+ public:
+  std::vector<Vertex> vertices;
+
+  VAO vao;
+  VBO vbo;
+
+  PointCloud(const std::vector<Vertex> &vertices);
+
+  void draw(Shader *shader);
+
+  void del();
+};

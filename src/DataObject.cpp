@@ -131,3 +131,25 @@ void Mesh::del() {
   vbo.del();
   ebo.del();
 }
+
+PointCloud::PointCloud(const std::vector<Vertex> &vertices) : vertices(vertices), vao(), vbo(vertices) {
+  vao.bind();
+  vbo.bind();
+
+  vao.linkAttr(vbo, 0, 3, GL_FLOAT, sizeof(Vertex), (void *)offsetof(Vertex, position));
+  vao.linkAttr(vbo, 1, 3, GL_FLOAT, sizeof(Vertex), (void *)offsetof(Vertex, color));
+
+  vao.unbind();
+  vbo.unbind();
+}
+
+void PointCloud::draw(Shader *shader) {
+  vao.bind();
+  glDrawArrays(GL_POINTS, 0, vertices.size());
+  vao.unbind();
+}
+
+void PointCloud::del() {
+  vao.del();
+  vbo.del();
+}
