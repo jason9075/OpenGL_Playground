@@ -38,6 +38,11 @@ void Camera::lookAroundStart(float offsetX, float offsetY) {
   // hide the cursor
   SDL_ShowCursor(SDL_DISABLE);
 
+  if (!relativeMouseMode) {
+    relativeMouseMode = true;
+    SDL_SetRelativeMouseMode(SDL_TRUE);
+  }
+
   // move mouse to the center of the window
   if (firstClick) {
     SDL_WarpMouseInWindow(NULL, width / 2, height / 2);
@@ -67,6 +72,8 @@ void Camera::lookAroundStart(float offsetX, float offsetY) {
 
 void Camera::lookAroundEnd() {
   SDL_ShowCursor(SDL_ENABLE);
+  relativeMouseMode = false;
+  SDL_SetRelativeMouseMode(SDL_FALSE);
   firstClick = true;
 }
 
