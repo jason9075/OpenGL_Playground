@@ -19,6 +19,9 @@ class TestGs : public Test {
   void OnImGuiRender() override;
 
  private:
+  float rotateX = 0.6f;
+  float rotateZ = 3.15f;
+  const float C0 = 0.28209479177387814f;
   std::unique_ptr<PointCloud> pc;
   std::unique_ptr<Shader> shaderProgram;
   std::unique_ptr<Camera> camera;

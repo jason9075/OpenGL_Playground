@@ -6,10 +6,10 @@ out vec4 fragColor;
 
 void main() {
     // convert square to circle
-    vec2 coord = gl_PointCoord - vec2(0.5);
-    if (dot(coord, coord) > 0.25) {
-        discard;  // Discard fragments outside circle
-    }
+    // vec2 coord = gl_PointCoord - vec2(0.5);
+    // if (dot(coord, coord) > 0.25) {
+    //     discard;  // Discard fragments outside circle
+    // }
 
     fragColor = vec4(color, 1.0);
 }

@@ -28,9 +28,17 @@ struct Vertex {
   glm::vec2 texCoords;
 };
 
+struct Point {
+  glm::vec3 position;
+  glm::vec3 color;
+  glm::vec3 scale;
+  glm::vec4 rotation;
+};
+
 class VBO {
  public:
-  VBO(const std::vector<Vertex> &vertices);
+  template <typename T>
+  VBO(const std::vector<T> &data);
   void bind();
   void unbind();
   void del();
@@ -83,12 +91,12 @@ class Mesh {
 
 class PointCloud {
  public:
-  std::vector<Vertex> vertices;
+  std::vector<Point> points;
 
   VAO vao;
   VBO vbo;
 
-  PointCloud(const std::vector<Vertex> &vertices);
+  PointCloud(const std::vector<Point> &points);
 
   void draw(Shader *shader);
 
