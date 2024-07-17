@@ -11,7 +11,7 @@ TestLighting::TestLighting(const float screenWidth, const float screenHeight) {
 
   shaderProgram = std::make_unique<Shader>("./shaders/light_vert.glsl", "./shaders/light_frag.glsl");
   pureLightShader = std::make_unique<Shader>("./shaders/default_vert.glsl", "./shaders/default_frag.glsl");
-  model = std::make_unique<Model>("./models/gltf_duck/Duck.gltf");
+  model = std::make_unique<Model>("./assets/gltf_duck/Duck.gltf");
 
   std::vector<Vertex> lightVertices = {
       {{-0.1f, -0.1f, -0.1f}, {0.0f, 0.0f, -1.0f}}, {{0.1f, -0.1f, -0.1f}, {0.0f, 0.0f, -1.0f}},

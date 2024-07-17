@@ -14,6 +14,8 @@ class Model {
 
   void draw(Shader *shader);
 
+  void setModelMatrix(glm::mat4 matrix);
+
  private:
   const char *path;
   json JSON;
@@ -22,6 +24,8 @@ class Model {
   std::vector<Mesh> meshes;  // one model can have multiple meshes
   std::vector<std::string> loadedTexturesName;
   std::vector<Texture> loadedTextures;
+
+  glm::mat4 modelMatrix;
 
   void loadMesh(unsigned int indMesh, glm::mat4 matrix);
 

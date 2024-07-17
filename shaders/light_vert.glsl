@@ -18,4 +18,4 @@ void main()
     normal = mat3(transpose(inverse(modelMatrix))) * aNormal;
     texCoord = mat2(1.0, 0.0, 0.0, -1.0) * aTexCoord;
     gl_Position = camMatrix * modelMatrix * vec4(aPos, 1.0);
-};
+}

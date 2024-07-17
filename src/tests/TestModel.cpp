@@ -1,6 +1,8 @@
 #include "tests/TestModel.h"
 
 #include "GL/glew.h"
+#include "glm/gtc/matrix_transform.hpp"
+#include "imgui.h"
 
 namespace test {
 
@@ -33,12 +35,24 @@ void TestModel::OnRender() {
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LESS);
 
-  camera->update(shaderProgram.get());
-
   shaderProgram->use();
+  camera->update(shaderProgram.get());
+  // update trans, scale, and rot to model.modelMatrix
+  glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), trans);
+  modelMatrix = glm::scale(modelMatrix, scale);
+  modelMatrix = glm::rotate(modelMatrix, glm::radians(rot.x), glm::vec3(1.0f, 0.0f, 0.0f));
+  modelMatrix = glm::rotate(modelMatrix, glm::radians(rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
+  modelMatrix = glm::rotate(modelMatrix, glm::radians(rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
+  model->setModelMatrix(modelMatrix);
   model->draw(shaderProgram.get());
 }
 
-void TestModel::OnImGuiRender() {}
+void TestModel::OnImGuiRender() {
+  // set modelMatrix
+  ImGui::Text("Model Matrix");
+  ImGui::SliderFloat3("Trans", &trans[0], -10.0f, 10.0f);
+  ImGui::SliderFloat3("Scale", &scale[0], 0.1f, 3.0f);
+  ImGui::SliderFloat3("Rot", &rot[0], -180.0f, 180.0f);
+}
 
 }  // namespace test

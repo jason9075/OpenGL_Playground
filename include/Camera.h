@@ -49,6 +49,7 @@ class Camera {
   void update(Shader *shaderProgram);
 
   std::unordered_map<int, bool> keyState;
+  bool relativeMouseMode = false;  // FPS mode
 
  private:
   int width;
@@ -59,7 +60,7 @@ class Camera {
 
   float fov = 45.0f;
   float nearPlane = 0.1f;
-  float farPlane = 100.0f;
+  float farPlane = 300.0f;
 
   CameraEventListener *listener;
 

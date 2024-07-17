@@ -22,6 +22,9 @@ class TestModel : public Test {
   float meshColor[3] = {0.6f, 0.7f, 0.2f};
   std::unique_ptr<Shader> shaderProgram;
   std::unique_ptr<Model> model;
+  glm::vec3 trans{0.0f, 0.0f, 0.0f};
+  glm::vec3 scale{1.0f, 1.0f, 1.0f};
+  glm::vec3 rot{0.0f, 0.0f, 0.0f};
   std::unique_ptr<Camera> camera;
   std::unique_ptr<CameraEventListener> listener;
 };

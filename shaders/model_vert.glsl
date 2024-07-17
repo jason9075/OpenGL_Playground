@@ -7,10 +7,11 @@ layout (location = 3) in vec2 aTexCoord;
 
 out vec2 texCoord;
 
+uniform mat4 modelMatrix;
 uniform mat4 camMatrix;
 
 void main()
 {
     texCoord = mat2(1.0, 0.0, 0.0, -1.0) * aTexCoord;
-    gl_Position = camMatrix * vec4(aPos, 1.0);
-};
+    gl_Position = camMatrix * modelMatrix * vec4(aPos, 1.0);
+}
