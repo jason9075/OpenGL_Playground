@@ -54,11 +54,13 @@ build
 external/imgui/**
 !external/imgui/.keep
 
-models/**
+assets/**
 
-!models/README.md
-!models/gltf_duck/
-!models/gltf_duck/**
+!assets/README.md
+!assets/gltf_duck/
+!assets/gltf_duck/**
+!assets/skybox/
+!assets/skybox/**
 
 # imgui
 imgui.ini
