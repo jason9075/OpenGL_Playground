@@ -3,6 +3,7 @@
 #include <GL/glew.h>
 
 #include <glm/glm.hpp>
+#include <string>
 #include <vector>
 
 #include "ShaderClass.h"
@@ -16,9 +17,9 @@ class VAO {
   void bind();
   void unbind();
   void del();
+  GLuint ID;
 
  private:
-  GLuint ID;
 };
 
 struct Vertex {
@@ -79,4 +80,17 @@ class Mesh {
   void draw(Shader *shader);
 
   void del();
+};
+
+class CubeMap {
+ public:
+  VAO vao;
+  CubeMap(const std::vector<std::string> &faces);
+
+  void draw(Shader *shader);
+
+  void del();
+
+ private:
+  GLuint textureID;
 };
