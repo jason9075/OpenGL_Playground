@@ -7,6 +7,7 @@
 #include "Window.h"
 #include "backends/imgui_impl_sdl2.h"
 #include "tests/TestCubeMap.h"
+#include "tests/TestGs.h"
 #include "tests/TestLighting.h"
 #include "tests/TestModel.h"
 #include "tests/TestTriangle.h"
@@ -36,7 +37,7 @@ int main(int argc, char *args[]) {
   // SDL_GL_SetSwapInterval(0);  // Disable VSync
 
   // test::Test *currentTest = new test::Test;
-  test::Test *currentTest = new test::TestCubeMap(SCREEN_WIDTH, SCREEN_HEIGHT);
+  test::Test *currentTest = new test::TestGs(SCREEN_WIDTH, SCREEN_HEIGHT);
   GUI gui(window, context, currentTest);
 
   gui.registerTest<test::Test>("-");  // dummy test
@@ -44,6 +45,7 @@ int main(int argc, char *args[]) {
   gui.registerTest<test::TestModel>("Model", SCREEN_WIDTH, SCREEN_HEIGHT, "./assets/gltf_duck/Duck.gltf");
   gui.registerTest<test::TestLighting>("Lighting", SCREEN_WIDTH, SCREEN_HEIGHT);
   gui.registerTest<test::TestCubeMap>("CubeMap", SCREEN_WIDTH, SCREEN_HEIGHT);
+  gui.registerTest<test::TestGs>("Gaussian Splat", SCREEN_WIDTH, SCREEN_HEIGHT);
 
   // main func
   bool quit = false;

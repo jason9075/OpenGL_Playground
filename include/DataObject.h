@@ -29,9 +29,17 @@ struct Vertex {
   glm::vec2 texCoords;
 };
 
+struct Point {
+  glm::vec3 position;
+  glm::vec3 color;
+  glm::vec3 scale;
+  glm::vec4 rotation;
+};
+
 class VBO {
  public:
-  VBO(const std::vector<Vertex> &vertices);
+  template <typename T>
+  VBO(const std::vector<T> &data);
   void bind();
   void unbind();
   void del();
@@ -93,4 +101,18 @@ class CubeMap {
 
  private:
   GLuint textureID;
+};
+
+class PointCloud {
+ public:
+  std::vector<Point> points;
+
+  VAO vao;
+  VBO vbo;
+
+  void draw(Shader *shader);
+
+  void del();
+
+  PointCloud(const std::vector<Point> &points);
 };

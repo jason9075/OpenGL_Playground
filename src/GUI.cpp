@@ -13,7 +13,11 @@ GUI::GUI(SDL_Window *window, SDL_GLContext context, test::Test *&currentTest) : 
   ImGui::StyleColorsDark();
 
   ImGui_ImplSDL2_InitForOpenGL(window, context);
+#ifdef __APPLE__
   ImGui_ImplOpenGL3_Init("#version 130");
+#else
+  ImGui_ImplOpenGL3_Init("#version 150");
+#endif
 }
 
 //  itemGetter func

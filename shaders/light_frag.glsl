@@ -1,4 +1,4 @@
-#version 430 core
+#version 330 core
 
 in vec3 fragPos;
 in vec3 normal;
@@ -21,7 +21,7 @@ vec4 calcPointLight(vec3 normal, vec3 fragPos, vec3 lightPos, vec4 lightColor);
 void main()
 {
     fragColor = calcPointLight(normal, fragPos, lightPos, lightColor);
-};
+}
 
 vec4 calcPointLight(vec3 normal, vec3 fragPos, vec3 lightPos, vec4 lightColor)
 {

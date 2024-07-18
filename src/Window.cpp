@@ -1,3 +1,4 @@
+#include <GL/glew.h>
 #include <SDL2/SDL.h>
 
 #include <iostream>
@@ -7,10 +8,15 @@ bool initWindow(SDL_Window **window, SDL_GLContext *context, const char *title, 
     std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << std::endl;
     return false;
   }
+#ifdef __APPLE__
+
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+#else
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
+#endif
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
-
   *window = SDL_CreateWindow(title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height,
                              SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
   if (*window == nullptr) {
