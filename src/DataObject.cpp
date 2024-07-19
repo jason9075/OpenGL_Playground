@@ -1,8 +1,6 @@
 #include "DataObject.h"
 
-#include <GL/glew.h>
-
-#include <iostream>
+#include <OPPCH.h>
 
 #include "stb_image.h"
 

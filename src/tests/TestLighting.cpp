@@ -1,8 +1,6 @@
 #include "tests/TestLighting.h"
 
-#include "GL/glew.h"
-#include "glm/gtc/type_ptr.hpp"
-#include "imgui.h"
+#include <OPPCH.h>
 
 namespace test {
 

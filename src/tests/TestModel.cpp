@@ -1,8 +1,6 @@
 #include "tests/TestModel.h"
 
-#include "GL/glew.h"
-#include "glm/gtc/matrix_transform.hpp"
-#include "imgui.h"
+#include <OPPCH.h>
 
 namespace test {
 

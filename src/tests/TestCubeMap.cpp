@@ -1,12 +1,7 @@
 #include "tests/TestCubeMap.h"
 
+#include <OPPCH.h>
 #include <stb_image.h>
-
-#include <glm/glm.hpp>
-
-#include "GL/glew.h"
-#include "glm/gtc/matrix_transform.hpp"
-#include "imgui.h"
 
 namespace test {
 

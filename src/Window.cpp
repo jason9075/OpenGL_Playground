@@ -1,7 +1,4 @@
-#include <GL/glew.h>
-#include <SDL2/SDL.h>
-
-#include <iostream>
+#include <OPPCH.h>
 
 bool initWindow(SDL_Window **window, SDL_GLContext *context, const char *title, const int width, const int height) {
   if (SDL_Init(SDL_INIT_VIDEO) < 0) {

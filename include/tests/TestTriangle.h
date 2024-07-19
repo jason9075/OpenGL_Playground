@@ -1,7 +1,5 @@
 #pragma once
 
-#include <memory>
-
 #include "Camera.h"
 #include "DataObject.h"
 #include "ShaderClass.h"

@@ -1,8 +1,5 @@
 #pragma once
 
-#include <glm/glm.hpp>
-
-#include "Camera.h"
 #include "DataObject.h"
 #include "nlohmann/json.hpp"
 

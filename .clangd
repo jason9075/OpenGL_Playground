@@ -3,5 +3,3 @@ CompileFlags:
     - ./include/
     - -isystem
     - ./external/imgui
-    - -isystem
-    - ./external/tinygltf

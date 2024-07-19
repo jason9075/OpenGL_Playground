@@ -15,7 +15,7 @@ find_package(glm REQUIRED)
 find_package(nlohmann_json REQUIRED)
 
 # Include directories for external libraries
-include_directories(include/ ${OPENGL_INCLUDE_DIRS} ${SDL2_INCLUDE_DIRS} external/imgui)
+include_directories(include ${OPENGL_INCLUDE_DIRS} ${SDL2_INCLUDE_DIRS} external/imgui)
 
 # SDL2 and OpenGL libraries
 set(IMGUI_SOURCES
@@ -33,13 +33,21 @@ file(GLOB SOURCES src/*.cpp src/tests/*.cpp)
 set(JSON_BuildTests OFF CACHE INTERNAL "")
 set(JSON_Install OFF CACHE INTERNAL "")
 
-add_executable(playground.app Main.cpp ${SOURCES} ${IMGUI_SOURCES})
+# Create imgui static library for target link
+add_library(imgui STATIC ${IMGUI_SOURCES})
+target_include_directories(imgui PRIVATE external/imgui)
+
+# Create playground executable
+add_executable(playground.app Main.cpp ${SOURCES})
+
+# Add precompiled header
+target_precompile_headers(playground.app PRIVATE include/OPPCH.h)
 
 # Link libraries
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    target_link_libraries(playground.app ${OPENGL_LIBRARIES} ${SDL2_LIBRARIES} GLEW::GLEW nlohmann_json::nlohmann_json)
+    target_link_libraries(playground.app imgui ${OPENGL_LIBRARIES} ${SDL2_LIBRARIES} GLEW::GLEW nlohmann_json::nlohmann_json)
 else()
-    target_link_libraries(playground.app ${OPENGL_LIBRARIES} ${SDL2_LIBRARIES} GLEW nlohmann_json::nlohmann_json)
+    target_link_libraries(playground.app imgui ${OPENGL_LIBRARIES} ${SDL2_LIBRARIES} GLEW nlohmann_json::nlohmann_json)
 endif()
 
 

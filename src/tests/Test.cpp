@@ -1,5 +1,7 @@
 #include "tests/Test.h"
 
+#include <OPPCH.h>
+
 namespace test {
 
 Test::Test() {}

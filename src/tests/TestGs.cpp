@@ -1,7 +1,6 @@
 #include "tests/TestGs.h"
 
-#include "glm/gtc/type_ptr.hpp"
-#include "imgui.h"
+#include <OPPCH.h>
 
 namespace test {
 
@@ -13,7 +12,7 @@ TestGs::TestGs(const float screenWidth, const float screenHeight) {
   happly::PLYData plyIn("./assets/Medic.ply");
 
   // Print Info
-  // printInfo(plyIn);
+  printInfo(plyIn);
 
   auto x = plyIn.getElement("vertex").getProperty<float>("x");
   auto y = plyIn.getElement("vertex").getProperty<float>("y");

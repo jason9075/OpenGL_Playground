@@ -1,10 +1,6 @@
 #include "Camera.h"
 
-#define GLM_ENABLE_EXPERIMENTAL
-
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtx/rotate_vector.hpp>
-#include <glm/gtx/vector_angle.hpp>
+#include <OPPCH.h>
 
 Camera::Camera(int width, int height, glm::vec3 position, glm::vec3 orientation) {
   this->width = width;

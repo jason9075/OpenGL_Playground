@@ -1,11 +1,5 @@
 #pragma once
 
-#include <GL/glew.h>
-
-#include <glm/glm.hpp>
-#include <string>
-#include <vector>
-
 #include "ShaderClass.h"
 
 class VBO;

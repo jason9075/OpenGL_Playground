@@ -1,11 +1,5 @@
 #pragma once
 
-#include <GL/glew.h>
-#include <SDL2/SDL.h>
-
-#include <glm/glm.hpp>
-#include <unordered_map>
-
 #include "ShaderClass.h"
 
 // Let the user define the event listener

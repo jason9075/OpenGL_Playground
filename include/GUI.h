@@ -1,12 +1,5 @@
 #pragma once
 
-#include <GL/glew.h>
-#include <SDL2/SDL.h>
-
-#include <functional>
-#include <iostream>
-#include <vector>
-
 #include "tests/Test.h"
 
 class GUI {
