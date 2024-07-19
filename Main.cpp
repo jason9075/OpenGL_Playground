@@ -1,12 +1,10 @@
-#include <GL/glew.h>
-#include <SDL2/SDL.h>
-
-#include <iostream>
+#include <OPPCH.h>
 
 #include "GUI.h"
 #include "Window.h"
-#include "backends/imgui_impl_sdl2.h"
 #include "tests/TestCubeMap.h"
+#include "tests/TestGaussian.h"
+#include "tests/TestGeometry.h"
 #include "tests/TestGs.h"
 #include "tests/TestLighting.h"
 #include "tests/TestModel.h"
@@ -37,7 +35,7 @@ int main(int argc, char *args[]) {
   // SDL_GL_SetSwapInterval(0);  // Disable VSync
 
   // test::Test *currentTest = new test::Test;
-  test::Test *currentTest = new test::TestGs(SCREEN_WIDTH, SCREEN_HEIGHT);
+  test::Test *currentTest = new test::TestGaussian(SCREEN_WIDTH, SCREEN_HEIGHT);
   GUI gui(window, context, currentTest);
 
   gui.registerTest<test::Test>("-");  // dummy test
@@ -46,6 +44,8 @@ int main(int argc, char *args[]) {
   gui.registerTest<test::TestLighting>("Lighting", SCREEN_WIDTH, SCREEN_HEIGHT);
   gui.registerTest<test::TestCubeMap>("CubeMap", SCREEN_WIDTH, SCREEN_HEIGHT);
   gui.registerTest<test::TestGs>("Gaussian Splat", SCREEN_WIDTH, SCREEN_HEIGHT);
+  gui.registerTest<test::TestGaussian>("Gaussian", SCREEN_WIDTH, SCREEN_HEIGHT);
+  gui.registerTest<test::TestGeometry>("Geometry", SCREEN_WIDTH, SCREEN_HEIGHT);
 
   // main func
   bool quit = false;
