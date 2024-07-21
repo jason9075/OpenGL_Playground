@@ -30,6 +30,14 @@ struct Point {
   glm::vec4 rotation;
 };
 
+struct GaussianSphere {
+  glm::vec3 position;
+  glm::vec3 color;
+  float opacity;
+  glm::vec3 covA;
+  glm::vec3 covB;
+};
+
 class VBO {
  public:
   template <typename T>
@@ -109,4 +117,17 @@ class PointCloud {
   void del();
 
   PointCloud(const std::vector<Point> &points);
+};
+
+class GaussianSplat {
+ public:
+  VAO vao;
+  VBO vbo;
+  std::vector<GaussianSphere> spheres;
+
+  GaussianSplat(const std::vector<GaussianSphere> &spheres);
+
+  void draw(Shader *shader);
+
+  void del();
 };

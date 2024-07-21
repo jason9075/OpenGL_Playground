@@ -257,3 +257,28 @@ void PointCloud::del() {
   vao.del();
   vbo.del();
 }
+
+GaussianSplat::GaussianSplat(const std::vector<GaussianSphere> &spheres) : vao(), vbo(spheres), spheres(spheres) {
+  vao.bind();
+  vbo.bind();
+
+  vao.linkAttr(vbo, 0, 3, GL_FLOAT, sizeof(GaussianSphere), (void *)offsetof(GaussianSphere, position));
+  vao.linkAttr(vbo, 1, 3, GL_FLOAT, sizeof(GaussianSphere), (void *)offsetof(GaussianSphere, color));
+  vao.linkAttr(vbo, 2, 1, GL_FLOAT, sizeof(GaussianSphere), (void *)offsetof(GaussianSphere, opacity));
+  vao.linkAttr(vbo, 3, 3, GL_FLOAT, sizeof(GaussianSphere), (void *)offsetof(GaussianSphere, covA));
+  vao.linkAttr(vbo, 4, 3, GL_FLOAT, sizeof(GaussianSphere), (void *)offsetof(GaussianSphere, covB));
+
+  vao.unbind();
+  vbo.unbind();
+}
+
+void GaussianSplat::draw(Shader *shader) {
+  vao.bind();
+  glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, spheres.size());
+  vao.unbind();
+}
+
+void GaussianSplat::del() {
+  vao.del();
+  vbo.del();
+}
