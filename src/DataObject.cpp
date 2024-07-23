@@ -8,8 +8,9 @@ VAO::VAO() { glGenVertexArrays(1, &ID); }
 
 void VAO::linkAttr(VBO &VBO, GLuint layout, GLuint numComponents, GLenum type, GLsizeiptr stride, const void *offset) {
   VBO.bind();
-  glVertexAttribPointer(layout, numComponents, type, GL_FALSE, stride, offset);
   glEnableVertexAttribArray(layout);
+  glVertexAttribPointer(layout, numComponents, type, GL_FALSE, stride, offset);
+  glVertexAttribDivisor(layout, 1);
   VBO.unbind();
 }
 
@@ -23,7 +24,7 @@ template <typename T>
 VBO::VBO(const std::vector<T> &data) {
   glGenBuffers(1, &ID);
   glBindBuffer(GL_ARRAY_BUFFER, ID);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(T) * data.size(), data.data(), GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(T) * data.size(), data.data(), GL_DYNAMIC_DRAW);
 }
 
 void VBO::bind() { glBindBuffer(GL_ARRAY_BUFFER, ID); }
@@ -260,7 +261,6 @@ void PointCloud::del() {
 
 GaussianSplat::GaussianSplat(const std::vector<GaussianSphere> &spheres) : vao(), vbo(spheres), spheres(spheres) {
   vao.bind();
-  vbo.bind();
 
   vao.linkAttr(vbo, 0, 3, GL_FLOAT, sizeof(GaussianSphere), (void *)offsetof(GaussianSphere, position));
   vao.linkAttr(vbo, 1, 3, GL_FLOAT, sizeof(GaussianSphere), (void *)offsetof(GaussianSphere, color));
@@ -268,7 +268,6 @@ GaussianSplat::GaussianSplat(const std::vector<GaussianSphere> &spheres) : vao()
   vao.linkAttr(vbo, 3, 3, GL_FLOAT, sizeof(GaussianSphere), (void *)offsetof(GaussianSphere, covA));
   vao.linkAttr(vbo, 4, 3, GL_FLOAT, sizeof(GaussianSphere), (void *)offsetof(GaussianSphere, covB));
 
-  vao.unbind();
   vbo.unbind();
 }
 

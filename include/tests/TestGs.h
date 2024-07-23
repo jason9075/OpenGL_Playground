@@ -20,7 +20,9 @@ class TestGs : public Test {
   float rotateX = 0.6f;
   float rotateZ = 3.15f;
   const float C0 = 0.28209479177387814f;
+  float scaleFactor = 1.0f;
   std::unique_ptr<PointCloud> pc;
+  std::unique_ptr<GaussianSplat> splat;
   std::unique_ptr<Shader> shaderProgram;
   std::unique_ptr<Camera> camera;
   std::unique_ptr<CameraEventListener> listener;

@@ -25,8 +25,8 @@ class Camera {
  public:
   Camera(int width, int height, glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f),
          glm::vec3 orientation = glm::vec3(0.0f, 0.0f, -1.0f));
-  glm::vec3 getCameraPos();
-  glm::mat4 getCamMatrix();
+  glm::vec3 position;     // the position of the camera
+  glm::vec3 orientation;  // the vector where the camera is looking at
   void moveForward();
   void moveBackward();
   void moveLeft();
@@ -48,8 +48,6 @@ class Camera {
  private:
   int width;
   int height;
-  glm::vec3 position;     // the position of the camera
-  glm::vec3 orientation;  // the vector where the camera is looking at
   glm::vec3 up;
 
   float fov = 45.0f;

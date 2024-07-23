@@ -49,8 +49,8 @@ void TestLighting::OnRender() {
   glUniform4f(glGetUniformLocation(shaderProgram->ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z,
               lightColor.w);
   glUniform3f(glGetUniformLocation(shaderProgram->ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
-  glUniform3f(glGetUniformLocation(shaderProgram->ID, "camPos"), camera->getCameraPos().x, camera->getCameraPos().y,
-              camera->getCameraPos().z);
+  glUniform3f(glGetUniformLocation(shaderProgram->ID, "camPos"), camera->position.x, camera->position.y,
+              camera->position.z);
   glUniform1i(glGetUniformLocation(shaderProgram->ID, "ambientEnabled"), ambientToggle);
   glUniform1i(glGetUniformLocation(shaderProgram->ID, "diffuseEnabled"), diffuseToggle);
   glUniform1i(glGetUniformLocation(shaderProgram->ID, "specularEnabled"), specularToggle);

@@ -15,8 +15,8 @@ class TestGaussian : public Test {
   void OnImGuiRender() override;
 
  private:
+  float scaleFactor = 1.0f;
   std::unique_ptr<GaussianSplat> splat;
-  glm::mat3 covariance;
   std::unique_ptr<Shader> shaderProgram;
   std::unique_ptr<Camera> camera;
   std::unique_ptr<CameraEventListener> listener;
