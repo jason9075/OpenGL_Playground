@@ -27,6 +27,9 @@ TestLighting::TestLighting(const float screenWidth, const float screenHeight) {
   camera = std::make_unique<Camera>(screenWidth, screenHeight, position, orientation);
   listener = std::make_unique<GhostCameraListener>(camera.get());
   camera->setEventListener(listener.get());
+
+  glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LESS);
 }
 
 TestLighting::~TestLighting() {}
@@ -38,9 +41,6 @@ void TestLighting::OnRender() {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   camera->moveCamera();
-
-  glEnable(GL_DEPTH_TEST);
-  glDepthFunc(GL_LESS);
 
   // draw model
   shaderProgram->use();

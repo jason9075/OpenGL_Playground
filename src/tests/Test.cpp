@@ -4,7 +4,11 @@
 
 namespace test {
 
-Test::Test() {}
+Test::Test() {
+  // Default OpenGL settings
+  glDisable(GL_DEPTH_TEST);
+  glDisable(GL_BLEND);
+}
 Test::~Test() {}
 
 void Test::OnEvent(SDL_Event& event) {}

@@ -7,7 +7,6 @@ namespace test {
 TestGs::TestGs(const float screenWidth, const float screenHeight) {
   glViewport(0, 0, screenWidth, screenHeight);
 
-  // shaderProgram = std::make_unique<Shader>("./shaders/pointcloud_vert.glsl", "./shaders/pointcloud_frag.glsl");
   shaderProgram = std::make_unique<Shader>("./shaders/gaussian_vert.glsl", "./shaders/gaussian_frag.glsl");
 
   happly::PLYData plyIn("./assets/Medic.ply");
@@ -42,7 +41,7 @@ TestGs::TestGs(const float screenWidth, const float screenHeight) {
     glm::mat3 R(glm::normalize(glm::quat(rotate0[i], rotate1[i], rotate2[i], rotate3[i])));
     glm::mat3 S =
         glm::mat3(std::exp(scaleX[i]), 0.0f, 0.0f, 0.0f, std::exp(scaleY[i]), 0.0f, 0.0f, 0.0f, std::exp(scaleZ[i]));
-    glm ::mat3 M = R * S * glm::transpose(S) * glm::transpose(R);
+    glm::mat3 M = R * S * glm::transpose(S) * glm::transpose(R);
     sphere.covA = glm::vec3(M[0][0], M[0][1], M[0][2]);
     sphere.covB = glm::vec3(M[1][1], M[1][2], M[2][2]);
     sphere.opacity = opacity[i];
@@ -50,37 +49,17 @@ TestGs::TestGs(const float screenWidth, const float screenHeight) {
   }
   splat = std::make_unique<GaussianSplat>(spheres);
 
-  // std::vector<Point> points;
-  // for (int i = 0; i < x.size(); i++) {
-  //   Point point;
-  //   point.position = glm::vec3(x[i], y[i], z[i]);
-  //   point.color = glm::vec3(0.5f + C0 * red[i], 0.5f + C0 * grn[i], 0.5f + C0 * blu[i]);  // normalize color
-  //   float qlen = std::sqrt(scaleX[i] * scaleX[i] + scaleY[i] * scaleY[i] + scaleZ[i] * scaleZ[i]);
-  //   point.rotation = glm::vec4((rotate0[i] / qlen), (rotate1[i] / qlen), (rotate2[i] / qlen), (rotate3[i] / qlen));
-  //   point.scale = glm::vec3(std::exp(scaleX[i]), std::exp(scaleY[i]), std::exp(scaleZ[i]));
-  //
-  //   points.push_back(point);
-  // }
-
-  // print points[0]
-  // std::cout << "position: " << points[0].position.x << " " << points[0].position.y << " " << points[0].position.z
-  //           << std::endl;
-  // std::cout << "color: " << points[0].color.x << " " << points[0].color.y << " " << points[0].color.z << std::endl;
-  // std::cout << "scale: " << points[0].scale.x << " " << points[0].scale.y << " " << points[0].scale.z << std::endl;
-  // std::cout << "rotation: " << points[0].rotation.x << " " << points[0].rotation.y << " " << points[0].rotation.z <<
-  // " "
-  //           << points[0].rotation.w << std::endl;
-  //
-  // pc = std::make_unique<PointCloud>(points);
-
-  glm::vec3 position = glm::vec3(0.0f, 1.0f, 5.0f);
-  glm::vec3 orientation = glm::vec3(0.0f, 0.0f, -1.0f);
+  glm::vec3 position = glm::vec3(5.0f, 3.0f, 0.0f);
+  glm::vec3 orientation = glm::vec3(-0.7f, -0.6f, 0.0f);
   camera = std::make_unique<Camera>(screenWidth, screenHeight, position, orientation);
   listener = std::make_unique<GhostCameraListener>(camera.get());
   camera->setEventListener(listener.get());
 
   glDisable(GL_DEPTH_TEST);
   glEnable(GL_BLEND);
+  glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+  // TODO: fix z value is opposite
+  splat->sort(camera->viewMatrix, false);
 }
 TestGs::~TestGs() {}
 
@@ -93,6 +72,10 @@ void TestGs::OnRender() {
   camera->moveCamera();
 
   shaderProgram->use();
+  glUniformMatrix4fv(
+      glGetUniformLocation(shaderProgram->ID, "modelMatrix"), 1, GL_FALSE,
+      glm::value_ptr(glm::rotate(glm::rotate(glm::mat4(1.0f), glm::radians(rotateX), glm::vec3(1.0f, 0.0f, 0.0f)),
+                                 glm::radians(rotateZ), glm::vec3(0.0f, 0.0f, 1.0f))));
   glUniform1f(glGetUniformLocation(shaderProgram->ID, "scaleFactor"), scaleFactor);
   glUniform1f(glGetUniformLocation(shaderProgram->ID, "W"), 1024.0f);
   glUniform1f(glGetUniformLocation(shaderProgram->ID, "H"), 768.0f);
@@ -105,14 +88,17 @@ void TestGs::OnRender() {
   glUniform1f(glGetUniformLocation(shaderProgram->ID, "tan_fovx"), tan_fovx);
   glUniform1f(glGetUniformLocation(shaderProgram->ID, "tan_fovy"), tan_fovy);
   camera->update(shaderProgram.get());
-  // pc->draw(shaderProgram.get());
   splat->draw(shaderProgram.get());
 }
 
 void TestGs::OnImGuiRender() {
-  ImGui::SliderFloat("Rot-X", &rotateX, -3.15f, 3.15f);
-  ImGui::SliderFloat("Rot-Z", &rotateZ, -3.15f, 3.15f);
-  ImGui::SliderFloat("ScaleF", &scaleFactor, 0.1f, 10.0f);
+  ImGui::Text("Camera Position:");
+  ImGui::Text("X:%.2f Y:%.2f Z:%.2f", camera->position.x, camera->position.y, camera->position.z);
+  ImGui::Text("Camera Orientation:");
+  ImGui::Text("X:%.2f Y:%.2f Z:%.2f", camera->orientation.x, camera->orientation.y, camera->orientation.z);
+  ImGui::SliderFloat("Rot-X", &rotateX, -180., 180.);
+  ImGui::SliderFloat("Rot-Z", &rotateZ, -180., 180.);
+  ImGui::SliderFloat("ScaleF", &scaleFactor, 0.1f, 3.0f);
 }
 
 void TestGs::printInfo(happly::PLYData& plyIn) {

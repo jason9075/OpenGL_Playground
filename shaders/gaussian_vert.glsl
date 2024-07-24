@@ -13,6 +13,7 @@ uniform float focal_y;
 uniform float tan_fovx;
 uniform float tan_fovy;
 uniform float scaleFactor;
+uniform mat4 modelMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 camMatrix;
 
@@ -58,14 +59,12 @@ float ndc2Pix(float v, float S) {
 
 void main()
 {
-    vec4 p4 = camMatrix * vec4(aPos, 1.0);
+    vec4 p4 = camMatrix * modelMatrix * vec4(aPos, 1.0);
     float pw = 1.0 / (p4.w + 1e-7);
     vec3 p_proj = p4.xyz * pw;
 
     // near culling
-    vec4 p_view = viewMatrix * vec4(aPos, 1.0);
-    // for OpenGL, the near plane is at -1
-    if (p_view.z > 0.0)
+    if (p4.z < 0.4)
     {
         gl_Position = vec4(0, 0, 0, 1);
         return;
@@ -73,10 +72,11 @@ void main()
 
     float cov3D[6] = float[6](aCovA.x, aCovA.y, aCovA.z, aCovB.x, aCovB.y, aCovB.z);
 
-    vec3 cov2D = computeCov2D(aPos, cov3D, viewMatrix);
+    mat4 vm = viewMatrix * modelMatrix;
+    vec3 cov2D = computeCov2D(aPos, cov3D, vm);
 
     float det = cov2D.x * cov2D.z - cov2D.y * cov2D.y;
-    if (det < 1e-7)
+    if (det == 0.)
     {
         gl_Position = vec4(0, 0, 0, 1);
         return;

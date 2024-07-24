@@ -41,15 +41,14 @@ void VBO::unbind() { glBindBuffer(GL_ARRAY_BUFFER, 0); }
 
 void VBO::del() { glDeleteBuffers(1, &ID); }
 
-EBO::EBO(const std::vector<GLuint> &indices) {
-  glGenBuffers(1, &ID);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ID);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * indices.size(), indices.data(), GL_STATIC_DRAW);
-}
+// note: EBO no need to unbind
+EBO::EBO() { glGenBuffers(1, &ID); }
 
 void EBO::bind() { glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ID); }
 
-void EBO::unbind() { glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0); }
+void EBO::bufferData(const std::vector<GLuint> &indices) {
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * indices.size(), indices.data(), GL_STATIC_DRAW);
+}
 
 void EBO::del() { glDeleteBuffers(1, &ID); }
 
@@ -106,10 +105,10 @@ void Texture::del() { glDeleteTextures(1, &ID); }
 
 Mesh::Mesh(const std::vector<Vertex> &vertices, const std::vector<GLuint> &indices,
            const std::vector<Texture> &textures)
-    : vertices(vertices), indices(indices), textures(textures), vao(), vbo(vertices), ebo(indices) {
+    : vertices(vertices), indices(indices), textures(textures), vao(), vbo(vertices), ebo() {
   vao.bind();
-  vbo.bind();
   ebo.bind();
+  ebo.bufferData(indices);
 
   vao.linkAttr(vbo, 0, 3, GL_FLOAT, sizeof(Vertex), (void *)offsetof(Vertex, position));
   vao.linkAttr(vbo, 1, 3, GL_FLOAT, sizeof(Vertex), (void *)offsetof(Vertex, normal));
@@ -117,8 +116,6 @@ Mesh::Mesh(const std::vector<Vertex> &vertices, const std::vector<GLuint> &indic
   vao.linkAttr(vbo, 3, 2, GL_FLOAT, sizeof(Vertex), (void *)offsetof(Vertex, texCoords));
 
   vao.unbind();
-  vbo.unbind();
-  ebo.unbind();
 }
 
 void Mesh::draw(Shader *shader) {
@@ -245,7 +242,6 @@ void CubeMap::del() {
 
 PointCloud::PointCloud(const std::vector<Point> &points) : points(points), vao(), vbo(points) {
   vao.bind();
-  vbo.bind();
 
   vao.linkAttr(vbo, 0, 3, GL_FLOAT, sizeof(Point), (void *)offsetof(Point, position));
   vao.linkAttr(vbo, 1, 3, GL_FLOAT, sizeof(Point), (void *)offsetof(Point, color));
@@ -253,7 +249,6 @@ PointCloud::PointCloud(const std::vector<Point> &points) : points(points), vao()
   vao.linkAttr(vbo, 3, 4, GL_FLOAT, sizeof(Point), (void *)offsetof(Point, rotation));
 
   vao.unbind();
-  vbo.unbind();
 }
 
 void PointCloud::draw(Shader *shader) {
@@ -276,6 +271,21 @@ GaussianSplat::GaussianSplat(const std::vector<GaussianSphere> &spheres) : vao()
   vao.linkAttrDiv(vbo, 3, 3, GL_FLOAT, sizeof(GaussianSphere), (void *)offsetof(GaussianSphere, covA));
   vao.linkAttrDiv(vbo, 4, 3, GL_FLOAT, sizeof(GaussianSphere), (void *)offsetof(GaussianSphere, covB));
 
+  vao.unbind();
+}
+
+void GaussianSplat::sort(const glm::mat4 &viewMatrix, const bool isAscending) {
+  std::sort(spheres.begin(), spheres.end(), [&](const GaussianSphere &a, const GaussianSphere &b) {
+    float zA = a.position.x * viewMatrix[0][2] + a.position.y * viewMatrix[1][2] + a.position.z * viewMatrix[2][2] +
+               viewMatrix[3][2];
+    float zB = b.position.x * viewMatrix[0][2] + b.position.y * viewMatrix[1][2] + b.position.z * viewMatrix[2][2] +
+               viewMatrix[3][2];
+    return isAscending ? zA < zB : zA > zB;
+  });
+
+  // Update the VBO
+  vbo.bind();
+  glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GaussianSphere) * spheres.size(), spheres.data());
   vbo.unbind();
 }
 

@@ -27,6 +27,8 @@ class Camera {
          glm::vec3 orientation = glm::vec3(0.0f, 0.0f, -1.0f));
   glm::vec3 position;     // the position of the camera
   glm::vec3 orientation;  // the vector where the camera is looking at
+  glm::mat4 viewMatrix;
+  glm::mat4 projMatrix;
   void moveForward();
   void moveBackward();
   void moveLeft();

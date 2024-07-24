@@ -9,35 +9,38 @@ TestGaussian::TestGaussian(const float screenWidth, const float screenHeight) {
 
   shaderProgram = std::make_unique<Shader>("./shaders/gaussian_vert.glsl", "./shaders/gaussian_frag.glsl");
 
-  float scale[3] = {0.0109f, 0.00179f, 0.0229f};
-  glm::quat rot = glm::quat(0.0832f, 0.0447f, -0.0188f, -0.0145f);
+  float scale1[3] = {-2.51659, -5.3231, -2.7751};
+  glm::quat rot1 = glm::quat(0.0832f, 0.0447f, -0.0188f, -0.0145f);
+
+  float scale2[3] = {-4.51659, -6.3231, -3.7751};
+  glm::quat rot2 = glm::quat(0.0332f, 0.0467f, -0.0238f, -0.0845f);
 
   // calculate the covariance matrix
-  glm::mat3 R(glm::normalize(rot));
-  glm::mat3 S = glm::mat3(scale[0], 0.0f, 0.0f, 0.0f, scale[1], 0.0f, 0.0f, 0.0f, scale[2]);
-  glm::mat3 M = R * S * glm::transpose(S) * glm::transpose(R);
-  // M = glm::mat3(0.1f, 0.0f, 0.0f, 0.0f, 0.1f, 0.0f, 0.0f, 0.0f, 0.1f);
-  // scale up the covariance matrix
-  std::cout << "covariance: " << std::endl;
-  std::cout << M[0][0] << " " << M[0][1] << " " << M[0][2] << std::endl;
-  std::cout << M[1][0] << " " << M[1][1] << " " << M[1][2] << std::endl;
-  std::cout << M[2][0] << " " << M[2][1] << " " << M[2][2] << std::endl;
+  glm::mat3 R(glm::normalize(rot1));
+  glm::mat3 S =
+      glm::mat3(std::exp(scale1[0]), 0.0f, 0.0f, 0.0f, std::exp(scale1[1]), 0.0f, 0.0f, 0.0f, std::exp(scale1[2]));
+  glm::mat3 M1 = R * S * glm::transpose(S) * glm::transpose(R);
+
+  R = glm::mat3(glm::normalize(rot2));
+  S = glm::mat3(std::exp(scale2[0]), 0.0f, 0.0f, 0.0f, std::exp(scale2[1]), 0.0f, 0.0f, 0.0f, std::exp(scale2[2]));
+  glm::mat3 M2 = R * S * glm::transpose(S) * glm::transpose(R);
 
   std::vector<GaussianSphere> spheres;
-  GaussianSphere sphere;
-  sphere.position = glm::vec3(0.0f, 0.0f, 0.0f);
-  sphere.color = glm::vec3(1.0f, 1.0f, 1.0f);
-  sphere.opacity = 1.0f;
-  sphere.covA = glm::vec3(M[0][0], M[0][1], M[0][2]);
-  sphere.covB = glm::vec3(M[1][1], M[1][2], M[2][2]);
-  spheres.push_back(sphere);
-  GaussianSphere sphere2;
-  sphere2.position = glm::vec3(0.0f, 0.0f, 5.0f);
+  GaussianSphere sphere1;  // Yellow (Front)
+  sphere1.position = glm::vec3(0.0f, 0.0f, 0.0f);
+  sphere1.color = glm::vec3(1.0f, 1.0f, 0.0f);
+  sphere1.opacity = 1.0f;
+  sphere1.covA = glm::vec3(M1[0][0], M1[0][1], M1[0][2]);
+  sphere1.covB = glm::vec3(M1[1][1], M1[1][2], M1[2][2]);
+  GaussianSphere sphere2;  // BlueGreen (Back)
+  sphere2.position = glm::vec3(0.05f, 0.05f, -1.0f);
   sphere2.color = glm::vec3(0.0f, 1.0f, 1.0f);
   sphere2.opacity = 1.0f;
-  sphere2.covA = glm::vec3(M[0][0], M[0][1], M[0][2]);
-  sphere2.covB = glm::vec3(M[1][1], M[1][2], M[2][2]);
-  spheres.push_back(sphere2);
+  sphere2.covA = glm::vec3(M2[0][0], M2[0][1], M2[0][2]);
+  sphere2.covB = glm::vec3(M2[1][1], M2[1][2], M2[2][2]);
+  spheres.push_back(sphere1);
+  spheres.push_back(sphere2);  // order matters, first sphere is drawn first
+
   splat = std::make_unique<GaussianSplat>(spheres);
 
   glm::vec3 camPosition = glm::vec3(0.0f, 0.0f, 3.0f);
@@ -47,20 +50,24 @@ TestGaussian::TestGaussian(const float screenWidth, const float screenHeight) {
   camera->setEventListener(listener.get());
 
   glDisable(GL_DEPTH_TEST);
+
   glEnable(GL_BLEND);
-  // glBlendFunc(GL_ONE_MINUS_DST_ALPHA, GL_ONE);
+  glBlendEquation(GL_FUNC_ADD);
+  glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 }
 TestGaussian::~TestGaussian() {}
 
 void TestGaussian::OnEvent(SDL_Event& event) { camera->handle(event); }
 
 void TestGaussian::OnRender() {
-  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+  glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT);
 
   camera->moveCamera();
 
   shaderProgram->use();
+  glUniformMatrix4fv(glGetUniformLocation(shaderProgram->ID, "modelMatrix"), 1, GL_FALSE,
+                     glm::value_ptr(glm::mat4(1.0f)));
   glUniform1f(glGetUniformLocation(shaderProgram->ID, "scaleFactor"), scaleFactor);
   glUniform1f(glGetUniformLocation(shaderProgram->ID, "W"), 1024.0f);
   glUniform1f(glGetUniformLocation(shaderProgram->ID, "H"), 768.0f);
@@ -74,6 +81,7 @@ void TestGaussian::OnRender() {
   glUniform1f(glGetUniformLocation(shaderProgram->ID, "tan_fovy"), tan_fovy);
 
   camera->update(shaderProgram.get());
+  splat->sort(camera->viewMatrix, true);
   splat->draw(shaderProgram.get());
 }
 
@@ -82,7 +90,7 @@ void TestGaussian::OnImGuiRender() {
   ImGui::Text("X:%.2f Y:%.2f Z:%.2f", camera->position.x, camera->position.y, camera->position.z);
   ImGui::Text("Camera Orientation:");
   ImGui::Text("X:%.2f Y:%.2f Z:%.2f", camera->orientation.x, camera->orientation.y, camera->orientation.z);
-  ImGui::SliderFloat("ScaleF", &scaleFactor, 0.1f, 10.0f);
+  ImGui::SliderFloat("Render S", &scaleFactor, 0.1f, 10.0f);
 }
 
 }  // namespace test

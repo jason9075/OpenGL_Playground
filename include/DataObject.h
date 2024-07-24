@@ -53,9 +53,9 @@ class VBO {
 
 class EBO {
  public:
-  EBO(const std::vector<GLuint> &indices);
+  EBO();
   void bind();
-  void unbind();
+  void bufferData(const std::vector<GLuint> &indices);
   void del();
 
  private:
@@ -128,6 +128,7 @@ class GaussianSplat {
 
   GaussianSplat(const std::vector<GaussianSphere> &spheres);
 
+  void sort(const glm::mat4 &viewMatrix, const bool isAscending = true);
   void draw(Shader *shader);
 
   void del();

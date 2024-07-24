@@ -15,6 +15,12 @@ TestModel::TestModel(const float screenWidth, const float screenHeight, const ch
   camera = std::make_unique<Camera>(screenWidth, screenHeight, position, orientation);
   listener = std::make_unique<GhostCameraListener>(camera.get());
   camera->setEventListener(listener.get());
+
+  /* Check out this video for more information on depth testing:
+   * www.youtube.com/watch?v=3xGKu4T4SCU
+   */
+  glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LESS);
 }
 
 TestModel::~TestModel() {}
@@ -26,12 +32,6 @@ void TestModel::OnRender() {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   camera->moveCamera();
-
-  /* Check out this video for more information on depth testing:
-   * www.youtube.com/watch?v=3xGKu4T4SCU
-   */
-  glEnable(GL_DEPTH_TEST);
-  glDepthFunc(GL_LESS);
 
   shaderProgram->use();
   camera->update(shaderProgram.get());

@@ -8,6 +8,8 @@ Camera::Camera(int width, int height, glm::vec3 position, glm::vec3 orientation)
   this->position = position;
   this->orientation = orientation;
   this->up = glm::vec3(0.0f, 1.0f, 0.0f);
+  this->viewMatrix = glm::lookAt(position, position + orientation, up);
+  this->projMatrix = glm::perspective(glm::radians(fov), (float)width / height, nearPlane, farPlane);
 }
 
 void Camera::moveForward() { position += movementSpeed * orientation; }
@@ -121,12 +123,12 @@ void Camera::handle(SDL_Event &event) {
 // projection matrix: field of view, aspect ratio, near plane, far plane
 // camera matrix: projection * view
 void Camera::update(Shader *shaderProgram) {
-  glm::mat4 view = glm::lookAt(position, position + orientation, up);
-  glm::mat4 projection = glm::perspective(glm::radians(fov), (float)width / height, nearPlane, farPlane);
+  viewMatrix = glm::lookAt(position, position + orientation, up);
+  projMatrix = glm::perspective(glm::radians(fov), (float)width / height, nearPlane, farPlane);
 
-  glUniformMatrix4fv(glGetUniformLocation(shaderProgram->ID, "viewMatrix"), 1, GL_FALSE, glm::value_ptr(view));
+  glUniformMatrix4fv(glGetUniformLocation(shaderProgram->ID, "viewMatrix"), 1, GL_FALSE, glm::value_ptr(viewMatrix));
   glUniformMatrix4fv(glGetUniformLocation(shaderProgram->ID, "camMatrix"), 1, GL_FALSE,
-                     glm::value_ptr(projection * view));
+                     glm::value_ptr(projMatrix * viewMatrix));
 }
 
 GhostCameraListener::GhostCameraListener(Camera *camera) : camera(camera) {}
