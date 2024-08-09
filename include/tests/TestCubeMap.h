@@ -14,6 +14,7 @@ class TestCubeMap : public Test {
   void OnEvent(SDL_Event& event) override;
   void OnRender() override;
   void OnImGuiRender() override;
+  void OnExit() override;
 
  private:
   const std::vector<std::string> faces = {"./assets/skybox/right.jpg", "./assets/skybox/left.jpg",

@@ -2,6 +2,8 @@
 
 #include <OPPCH.h>
 
+#include "BasicMesh.h"
+
 namespace test {
 
 TestLighting::TestLighting(const float screenWidth, const float screenHeight) {
@@ -11,16 +13,7 @@ TestLighting::TestLighting(const float screenWidth, const float screenHeight) {
   pureLightShader = std::make_unique<Shader>("./shaders/default_vert.glsl", "./shaders/default_frag.glsl");
   model = std::make_unique<Model>("./assets/gltf_duck/Duck.gltf");
 
-  std::vector<Vertex> lightVertices = {
-      {{-0.1f, -0.1f, -0.1f}, {0.0f, 0.0f, -1.0f}}, {{0.1f, -0.1f, -0.1f}, {0.0f, 0.0f, -1.0f}},
-      {{0.1f, 0.1f, -0.1f}, {0.0f, 0.0f, -1.0f}},   {{-0.1f, 0.1f, -0.1f}, {0.0f, 0.0f, -1.0f}},
-      {{-0.1f, -0.1f, 0.1f}, {0.0f, 0.0f, 1.0f}},   {{0.1f, -0.1f, 0.1f}, {0.0f, 0.0f, 1.0f}},
-      {{0.1f, 0.1f, 0.1f}, {0.0f, 0.0f, 1.0f}},     {{-0.1f, 0.1f, 0.1f}, {0.0f, 0.0f, 1.0f}}};
-  std::vector<GLuint> lightIndices = {0, 1, 2, 2, 3, 0, 1, 5, 6, 6, 2, 1, 7, 6, 5, 5, 4, 7,
-                                      4, 0, 3, 3, 7, 4, 4, 5, 1, 1, 0, 4, 3, 2, 6, 6, 7, 3};
-  std::vector<Texture> lightTextures = {};
-
-  lightMesh = std::make_unique<Mesh>(lightVertices, lightIndices, lightTextures);
+  lightMesh = createCubeMesh(0.1);
 
   glm::vec3 position = glm::vec3(0.0f, 1.0f, 5.0f);
   glm::vec3 orientation = glm::vec3(0.0f, 0.0f, -1.0f);
@@ -46,10 +39,9 @@ void TestLighting::OnRender() {
   shaderProgram->use();
   glm::mat4 modelMatrix = glm::mat4(1.0f);
   glUniformMatrix4fv(glGetUniformLocation(shaderProgram->ID, "modelMatrix"), 1, GL_FALSE, glm::value_ptr(modelMatrix));
-  glUniform4f(glGetUniformLocation(shaderProgram->ID, "lightColor"), lightColor.x, lightColor.y, lightColor.z,
-              lightColor.w);
-  glUniform3f(glGetUniformLocation(shaderProgram->ID, "lightPos"), lightPos.x, lightPos.y, lightPos.z);
-  glUniform3f(glGetUniformLocation(shaderProgram->ID, "camPos"), camera->position.x, camera->position.y,
+  glUniform3fv(glGetUniformLocation(shaderProgram->ID, "lightColor"), 1, lightColor);
+  glUniform3fv(glGetUniformLocation(shaderProgram->ID, "lightPosition"), 1, lightPos);
+  glUniform3f(glGetUniformLocation(shaderProgram->ID, "camPosition"), camera->position.x, camera->position.y,
               camera->position.z);
   glUniform1i(glGetUniformLocation(shaderProgram->ID, "ambientEnabled"), ambientToggle);
   glUniform1i(glGetUniformLocation(shaderProgram->ID, "diffuseEnabled"), diffuseToggle);
@@ -59,18 +51,17 @@ void TestLighting::OnRender() {
 
   // draw light
   pureLightShader->use();
-  modelMatrix = glm::translate(glm::mat4(1.0f), lightPos);
+  modelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(lightPos[0], lightPos[1], lightPos[2]));
   glUniformMatrix4fv(glGetUniformLocation(pureLightShader->ID, "modelMatrix"), 1, GL_FALSE,
                      glm::value_ptr(modelMatrix));
-  glUniform4f(glGetUniformLocation(pureLightShader->ID, "color"), lightColor.x, lightColor.y, lightColor.z,
-              lightColor.w);
+  glUniform3fv(glGetUniformLocation(pureLightShader->ID, "color"), 1, lightColor);
   camera->update(pureLightShader.get());
   lightMesh->draw(pureLightShader.get());
 }
 
 void TestLighting::OnImGuiRender() {
-  ImGui::ColorEdit3("Color", glm::value_ptr(lightColor));
-  ImGui::SliderFloat3("Pos", glm::value_ptr(lightPos), -3.0f, 3.0f);
+  ImGui::ColorEdit3("Color", lightColor);
+  ImGui::SliderFloat3("Pos", lightPos, -3.0f, 3.0f);
   ImGui::Checkbox("Ambient", &ambientToggle);
   ImGui::Checkbox("Diffuse", &diffuseToggle);
   ImGui::Checkbox("Specular", &specularToggle);

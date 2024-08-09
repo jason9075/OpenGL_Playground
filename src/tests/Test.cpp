@@ -14,5 +14,6 @@ Test::~Test() {}
 void Test::OnEvent(SDL_Event& event) {}
 void Test::OnRender() {}
 void Test::OnImGuiRender() {}
+void Test::OnExit() {}
 
 }  // namespace test

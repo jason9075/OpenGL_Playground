@@ -60,4 +60,11 @@ void TestCubeMap::OnImGuiRender() {
   ImGui::SliderFloat("Sky", &skyboxScale, 0.1f, 100.0f);
 }
 
+void TestCubeMap::OnExit() {
+  model->del();
+  skybox->del();
+  skyShader->del();
+  modelShader->del();
+}
+
 }  // namespace test

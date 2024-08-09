@@ -13,6 +13,8 @@ class Model {
 
   void setModelMatrix(glm::mat4 matrix);
 
+  void del();
+
  private:
   const char *path;
   json JSON;

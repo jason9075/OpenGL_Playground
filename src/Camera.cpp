@@ -126,9 +126,11 @@ void Camera::update(Shader *shaderProgram) {
   viewMatrix = glm::lookAt(position, position + orientation, up);
   projMatrix = glm::perspective(glm::radians(fov), (float)width / height, nearPlane, farPlane);
 
-  glUniformMatrix4fv(glGetUniformLocation(shaderProgram->ID, "viewMatrix"), 1, GL_FALSE, glm::value_ptr(viewMatrix));
-  glUniformMatrix4fv(glGetUniformLocation(shaderProgram->ID, "camMatrix"), 1, GL_FALSE,
-                     glm::value_ptr(projMatrix * viewMatrix));
+  GLuint vm = glGetUniformLocation(shaderProgram->ID, "viewMatrix");
+  GLuint cm = glGetUniformLocation(shaderProgram->ID, "camMatrix");
+
+  glUniformMatrix4fv(vm, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+  glUniformMatrix4fv(cm, 1, GL_FALSE, glm::value_ptr(projMatrix * viewMatrix));
 }
 
 GhostCameraListener::GhostCameraListener(Camera *camera) : camera(camera) {}

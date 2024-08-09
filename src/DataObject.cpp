@@ -103,6 +103,29 @@ void Texture::unbind() { glBindTexture(GL_TEXTURE_2D, 0); }
 
 void Texture::del() { glDeleteTextures(1, &ID); }
 
+Mesh::Mesh(const std::vector<Vertex> &vertices) : vertices(vertices), vao(), vbo(vertices), ebo() {
+  vao.bind();
+
+  vao.linkAttr(vbo, 0, 3, GL_FLOAT, sizeof(Vertex), (void *)offsetof(Vertex, position));
+  vao.linkAttr(vbo, 1, 3, GL_FLOAT, sizeof(Vertex), (void *)offsetof(Vertex, normal));
+  vao.linkAttr(vbo, 2, 3, GL_FLOAT, sizeof(Vertex), (void *)offsetof(Vertex, color));
+
+  vao.unbind();
+}
+
+Mesh::Mesh(const std::vector<Vertex> &vertices, const std::vector<GLuint> &indices)
+    : vertices(vertices), indices(indices), textures(textures), vao(), vbo(vertices), ebo() {
+  vao.bind();
+  ebo.bind();
+  ebo.bufferData(indices);
+
+  vao.linkAttr(vbo, 0, 3, GL_FLOAT, sizeof(Vertex), (void *)offsetof(Vertex, position));
+  vao.linkAttr(vbo, 1, 3, GL_FLOAT, sizeof(Vertex), (void *)offsetof(Vertex, normal));
+  vao.linkAttr(vbo, 2, 3, GL_FLOAT, sizeof(Vertex), (void *)offsetof(Vertex, color));
+
+  vao.unbind();
+}
+
 Mesh::Mesh(const std::vector<Vertex> &vertices, const std::vector<GLuint> &indices,
            const std::vector<Texture> &textures)
     : vertices(vertices), indices(indices), textures(textures), vao(), vbo(vertices), ebo() {
@@ -136,6 +159,9 @@ void Mesh::draw(Shader *shader) {
 }
 
 void Mesh::del() {
+  for (unsigned int i = 0; i < textures.size(); i++) {
+    textures[i].del();
+  }
   vao.del();
   vbo.del();
   ebo.del();

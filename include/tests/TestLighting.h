@@ -11,8 +11,8 @@ class TestLighting : public Test {
   TestLighting(const float screenWidth, const float screenHeight);
   ~TestLighting();
 
-  glm::vec4 lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-  glm::vec3 lightPos = glm::vec3(1.0f, 1.0f, 1.0f);
+  float lightColor[3] = {1.0f, 1.0f, 1.0f};
+  float lightPos[3] = {1.0f, 1.0f, 1.0f};
   bool ambientToggle = true;
   bool diffuseToggle = true;
   bool specularToggle = true;

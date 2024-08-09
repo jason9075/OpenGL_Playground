@@ -23,12 +23,14 @@ enum CameraMovement {
 
 class Camera {
  public:
-  Camera(int width, int height, glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f),
+  Camera(int width, int height, glm::vec3 position = glm::vec3(0.0f, 0.0f, 3.0f),
          glm::vec3 orientation = glm::vec3(0.0f, 0.0f, -1.0f));
   glm::vec3 position;     // the position of the camera
   glm::vec3 orientation;  // the vector where the camera is looking at
+  glm::vec3 up;
   glm::mat4 viewMatrix;
   glm::mat4 projMatrix;
+  float fov = 45.0f;
   void moveForward();
   void moveBackward();
   void moveLeft();
@@ -50,9 +52,7 @@ class Camera {
  private:
   int width;
   int height;
-  glm::vec3 up;
 
-  float fov = 45.0f;
   float nearPlane = 0.1f;
   float farPlane = 300.0f;
 

@@ -14,6 +14,7 @@ class TestModel : public Test {
   void OnEvent(SDL_Event& event) override;
   void OnRender() override;
   void OnImGuiRender() override;
+  void OnExit() override;
 
  private:
   float backgroundColor[3] = {0.2f, 0.3f, 0.8f};

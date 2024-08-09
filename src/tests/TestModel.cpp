@@ -53,4 +53,9 @@ void TestModel::OnImGuiRender() {
   ImGui::SliderFloat3("Rot", &rot[0], -180.0f, 180.0f);
 }
 
+void TestModel::OnExit() {
+  model->del();
+  shaderProgram->del();
+}
+
 }  // namespace test

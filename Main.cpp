@@ -8,6 +8,7 @@
 #include "tests/TestGs.h"
 #include "tests/TestLighting.h"
 #include "tests/TestModel.h"
+#include "tests/TestSdfBlend.h"
 #include "tests/TestTriangle.h"
 
 // Global variables
@@ -35,7 +36,7 @@ int main(int argc, char *args[]) {
   // SDL_GL_SetSwapInterval(0);  // Disable VSync
 
   // test::Test *currentTest = new test::Test;
-  test::Test *currentTest = new test::TestGs(SCREEN_WIDTH, SCREEN_HEIGHT);
+  test::Test *currentTest = new test::TestSdfBlend(SCREEN_WIDTH, SCREEN_HEIGHT);
   GUI gui(window, context, currentTest);
 
   gui.registerTest<test::Test>("-");  // dummy test
@@ -46,6 +47,7 @@ int main(int argc, char *args[]) {
   gui.registerTest<test::TestGs>("Gaussian Splat", SCREEN_WIDTH, SCREEN_HEIGHT);
   gui.registerTest<test::TestGaussian>("Gaussian", SCREEN_WIDTH, SCREEN_HEIGHT);
   gui.registerTest<test::TestGeometry>("Geometry", SCREEN_WIDTH, SCREEN_HEIGHT);
+  gui.registerTest<test::TestSdfBlend>("SDF Blend", SCREEN_WIDTH, SCREEN_HEIGHT);
 
   // main func
   bool quit = false;

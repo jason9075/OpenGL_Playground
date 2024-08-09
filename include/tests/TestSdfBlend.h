@@ -1,0 +1,36 @@
+#pragma once
+
+#include "Camera.h"
+#include "Model.h"
+#include "ShaderClass.h"
+#include "tests/Test.h"
+
+namespace test {
+class TestSdfBlend : public Test {
+ public:
+  TestSdfBlend(const float screenWidth, const float screenHeight);
+  ~TestSdfBlend();
+
+  void OnEvent(SDL_Event& event) override;
+  void OnRender() override;
+  void OnImGuiRender() override;
+  void OnExit() override;
+
+ private:
+  std::unique_ptr<Shader> shaderSDF;
+  std::unique_ptr<Shader> shaderModel;
+  std::unique_ptr<Mesh> sdfMesh;
+  std::unique_ptr<Mesh> modelMesh;
+  float lightPos[3] = {4.0f, 5.0f, 3.0f};
+  bool isLightMove = false;
+  bool isShowSdf = true;
+  bool isSphere = true;
+  bool isShowModel = true;
+  float size = 1.0f;
+  float sdfColor[3] = {0.0f, 0.5f, 1.0f};    // blue
+  float modelColor[3] = {1.0f, 0.5f, 0.0f};  // orange
+  std::unique_ptr<Camera> camera;
+  std::unique_ptr<CameraEventListener> listener;
+};
+
+}  // namespace test
