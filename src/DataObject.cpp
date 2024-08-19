@@ -114,7 +114,7 @@ Mesh::Mesh(const std::vector<Vertex> &vertices) : vertices(vertices), vao(), vbo
 }
 
 Mesh::Mesh(const std::vector<Vertex> &vertices, const std::vector<GLuint> &indices)
-    : vertices(vertices), indices(indices), textures(textures), vao(), vbo(vertices), ebo() {
+    : vertices(vertices), indices(indices), vao(), vbo(vertices), ebo() {
   vao.bind();
   ebo.bind();
   ebo.bufferData(indices);

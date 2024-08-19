@@ -68,13 +68,29 @@ void Shader::del() { glDeleteProgram(ID); }
 std::string Shader::readFile(const char *filePath) {
   std::string content;
   std::ifstream fileStream(filePath, std::ios::in);
-  std::string line = "";
-  while (!fileStream.eof()) {
-    std::getline(fileStream, line);
-    content.append(line + "\n");
+  if (!fileStream.is_open()) {
+    std::cerr << "Could not read file " << filePath << ". File does not exist." << std::endl;
+    return "";
+  }
+
+  std::string line;
+  std::stringstream contentStream;
+  while (std::getline(fileStream, line)) {
+    if (line.substr(0, 8) == "#include") {
+      // Extract the file name
+      std::string includeFile = line.substr(9);
+      includeFile = includeFile.substr(1, includeFile.length() - 2);  // Remove quotes
+
+      // Recursively load the included file content
+      std::string includeContent = readFile(includeFile.c_str());
+      contentStream << includeContent;
+    } else {
+      contentStream << line << "\n";
+    }
   }
   fileStream.close();
-  return content;
+
+  return contentStream.str();
 }
 
 GLuint Shader::compileShader(const char *shaderSource, GLenum shaderType) {

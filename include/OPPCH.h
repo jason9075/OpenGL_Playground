@@ -16,6 +16,7 @@ Use #define GLM_ENABLE_EXPERIMENTAL before including it, if you really want to u
 #include <glm/gtx/vector_angle.hpp>
 #include <iostream>
 #include <memory>
+#include <sstream>
 #include <string>
 #include <unordered_map>
 #include <vector>
