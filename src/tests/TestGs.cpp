@@ -44,7 +44,7 @@ TestGs::TestGs(const float screenWidth, const float screenHeight) {
     glm::mat3 M = R * S * glm::transpose(S) * glm::transpose(R);
     sphere.covA = glm::vec3(M[0][0], M[0][1], M[0][2]);
     sphere.covB = glm::vec3(M[1][1], M[1][2], M[2][2]);
-    sphere.opacity = opacity[i];
+    sphere.opacity = 1. / (1. + std::exp(-opacity[i]));
     spheres.push_back(sphere);
   }
   splat = std::make_unique<GaussianSplat>(spheres);
