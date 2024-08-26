@@ -90,6 +90,8 @@ class Mesh {
   Mesh(const std::vector<Vertex> &vertices, const std::vector<GLuint> &indices);
   Mesh(const std::vector<Vertex> &vertices, const std::vector<GLuint> &indices, const std::vector<Texture> &textures);
 
+  void setTexture(const std::vector<Texture> &textures);
+
   void draw(Shader *shader);
 
   void del();

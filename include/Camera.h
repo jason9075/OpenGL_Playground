@@ -18,6 +18,10 @@ enum CameraMovement {
   MOVE_RIGHT,
   MOVE_UP,
   MOVE_DOWN,
+  ROTATE_LEFT,
+  ROTATE_RIGHT,
+  ROTATE_UP,
+  ROTATE_DOWN,
   MOVE_FASTER,
 };
 
@@ -35,6 +39,10 @@ class Camera {
   void moveBackward();
   void moveLeft();
   void moveRight();
+  void rotateLeft();
+  void rotateRight();
+  void rotateUp();
+  void rotateDown();
   void moveUp();
   void moveDown();
   void moveFaster();

@@ -20,6 +20,20 @@ void Camera::moveLeft() { position -= movementSpeed * glm::normalize(glm::cross(
 
 void Camera::moveRight() { position += movementSpeed * glm::normalize(glm::cross(orientation, up)); }
 
+void Camera::rotateLeft() { orientation = glm::rotate(orientation, glm::radians(1.0f), up); }
+
+void Camera::rotateRight() { orientation = glm::rotate(orientation, glm::radians(-1.0f), up); }
+
+void Camera::rotateUp() {
+  glm::vec3 right = glm::normalize(glm::cross(orientation, up));
+  orientation = glm::rotate(orientation, glm::radians(1.0f), right);
+}
+
+void Camera::rotateDown() {
+  glm::vec3 right = glm::normalize(glm::cross(orientation, up));
+  orientation = glm::rotate(orientation, glm::radians(-1.0f), right);
+}
+
 void Camera::moveUp() { position += movementSpeed * up; }
 
 void Camera::moveDown() { position -= movementSpeed * up; }
@@ -86,6 +100,18 @@ void Camera::moveCamera() {
   if (keyState[MOVE_RIGHT]) {
     moveRight();
   }
+  if (keyState[ROTATE_LEFT]) {
+    rotateLeft();
+  }
+  if (keyState[ROTATE_RIGHT]) {
+    rotateRight();
+  }
+  if (keyState[ROTATE_UP]) {
+    rotateUp();
+  }
+  if (keyState[ROTATE_DOWN]) {
+    rotateDown();
+  }
   if (keyState[MOVE_UP]) {
     moveUp();
   }
@@ -148,6 +174,18 @@ void GhostCameraListener::onKeyDown(SDL_Keycode key) {
     case SDLK_d:
       camera->keyState[MOVE_RIGHT] = true;
       break;
+    case SDLK_h:
+      camera->keyState[ROTATE_LEFT] = true;
+      break;
+    case SDLK_l:
+      camera->keyState[ROTATE_RIGHT] = true;
+      break;
+    case SDLK_k:
+      camera->keyState[ROTATE_UP] = true;
+      break;
+    case SDLK_j:
+      camera->keyState[ROTATE_DOWN] = true;
+      break;
     case SDLK_SPACE:
       camera->keyState[MOVE_UP] = true;
       break;
@@ -172,6 +210,18 @@ void GhostCameraListener::onKeyUp(SDL_Keycode key) {
       break;
     case SDLK_d:
       camera->keyState[MOVE_RIGHT] = false;
+      break;
+    case SDLK_h:
+      camera->keyState[ROTATE_LEFT] = false;
+      break;
+    case SDLK_l:
+      camera->keyState[ROTATE_RIGHT] = false;
+      break;
+    case SDLK_k:
+      camera->keyState[ROTATE_UP] = false;
+      break;
+    case SDLK_j:
+      camera->keyState[ROTATE_DOWN] = false;
       break;
     case SDLK_SPACE:
       camera->keyState[MOVE_UP] = false;

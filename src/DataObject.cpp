@@ -141,6 +141,8 @@ Mesh::Mesh(const std::vector<Vertex> &vertices, const std::vector<GLuint> &indic
   vao.unbind();
 }
 
+void Mesh::setTexture(const std::vector<Texture> &textures) { this->textures = textures; }
+
 void Mesh::draw(Shader *shader) {
   vao.bind();
 
