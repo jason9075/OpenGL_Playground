@@ -2,6 +2,7 @@
 
 #include "GUI.h"
 #include "Window.h"
+#include "tests/TestBVH.h"
 #include "tests/TestCubeMap.h"
 #include "tests/TestGaussian.h"
 #include "tests/TestGeometry.h"
@@ -38,7 +39,7 @@ int main(int argc, char *args[]) {
   // SDL_GL_SetSwapInterval(0);  // Disable VSync
 
   // test::Test *currentTest = new test::Test;
-  test::Test *currentTest = new test::TestRoom(SCREEN_WIDTH, SCREEN_HEIGHT);
+  test::Test *currentTest = new test::TestBVH(SCREEN_WIDTH, SCREEN_HEIGHT);
   GUI gui(window, context, currentTest);
 
   gui.registerTest<test::Test>("-");  // dummy test
@@ -52,6 +53,7 @@ int main(int argc, char *args[]) {
   gui.registerTest<test::TestSdfBlend>("SDF Blend", SCREEN_WIDTH, SCREEN_HEIGHT);
   gui.registerTest<test::TestSdfTaipei101>("SDF Taipei101", SCREEN_WIDTH, SCREEN_HEIGHT);
   gui.registerTest<test::TestRoom>("Room", SCREEN_WIDTH, SCREEN_HEIGHT);
+  gui.registerTest<test::TestBVH>("ModelBVH", SCREEN_WIDTH, SCREEN_HEIGHT);
 
   // main func
   bool quit = false;
