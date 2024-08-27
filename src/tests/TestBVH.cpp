@@ -1,4 +1,4 @@
-#include "tests/TestBVH.h"
+#include "tests/TestBVH.hpp"
 
 #include <OPPCH.h>
 

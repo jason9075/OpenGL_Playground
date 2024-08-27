@@ -1,15 +1,15 @@
 #pragma once
 
-#include "Camera.h"
-#include "Model.h"
-#include "ShaderClass.h"
-#include "tests/Test.h"
+#include "Camera.hpp"
+#include "Model.hpp"
+#include "ShaderClass.hpp"
+#include "tests/Test.hpp"
 
 namespace test {
-class TestBVH : public Test {
+class TestModel : public Test {
  public:
-  TestBVH(const float screenWidth, const float screenHeight);
-  ~TestBVH();
+  TestModel(const float screenWidth, const float screenHeight, const char* path);
+  ~TestModel();
 
   void OnEvent(SDL_Event& event) override;
   void OnRender() override;

@@ -1,3 +1,5 @@
+#include "Window.hpp"
+
 #include <OPPCH.h>
 
 bool initWindow(SDL_Window **window, SDL_GLContext *context, const char *title, const int width, const int height) {

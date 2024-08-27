@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Camera.h"
-#include "Model.h"
-#include "ShaderClass.h"
-#include "tests/Test.h"
+#include "Camera.hpp"
+#include "Model.hpp"
+#include "ShaderClass.hpp"
+#include "tests/Test.hpp"
 
 namespace test {
 class TestSdfTaipei101 : public Test {

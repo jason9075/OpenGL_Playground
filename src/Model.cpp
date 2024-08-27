@@ -1,9 +1,8 @@
-
-#include "Model.h"
+#include "Model.hpp"
 
 #include <OPPCH.h>
 
-#include "Utils.h"
+#include "Utils.hpp"
 
 Model::Model(const char *path) {
   modelMatrix = glm::mat4(1.0f);

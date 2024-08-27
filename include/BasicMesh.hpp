@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DataObject.h"
+#include "DataObject.hpp"
 
 std::unique_ptr<Mesh> createCuboidMesh(float width = 1.0f, float height = 1.0f, float depth = 1.0f, float x = 0.0f,
                                        float y = 0.0f, float z = 0.0f, float r = 0.5f, float g = 0.5f, float b = 0.5f);

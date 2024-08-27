@@ -1,7 +1,7 @@
 #include <OPPCH.h>
 
-#include "BasicMesh.h"
-#include "tests/TestSdfTaipei101.h"
+#include "BasicMesh.hpp"
+#include "tests/TestSdfTaipei101.hpp"
 
 namespace test {
 

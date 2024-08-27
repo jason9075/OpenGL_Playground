@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Camera.h"
-#include "DataObject.h"
-#include "tests/Test.h"
+#include "Camera.hpp"
+#include "DataObject.hpp"
+#include "tests/Test.hpp"
 
 namespace test {
 class TestGeometry : public Test {

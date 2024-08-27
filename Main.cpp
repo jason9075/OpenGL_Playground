@@ -1,18 +1,18 @@
 #include <OPPCH.h>
 
-#include "GUI.h"
-#include "Window.h"
-#include "tests/TestBVH.h"
-#include "tests/TestCubeMap.h"
-#include "tests/TestGaussian.h"
-#include "tests/TestGeometry.h"
-#include "tests/TestGs.h"
-#include "tests/TestLighting.h"
-#include "tests/TestModel.h"
-#include "tests/TestRoom.h"
-#include "tests/TestSdfBlend.h"
-#include "tests/TestSdfTaipei101.h"
-#include "tests/TestTriangle.h"
+#include "GUI.hpp"
+#include "Window.hpp"
+#include "tests/TestBVH.hpp"
+#include "tests/TestCubeMap.hpp"
+#include "tests/TestGaussian.hpp"
+#include "tests/TestGeometry.hpp"
+#include "tests/TestGs.hpp"
+#include "tests/TestLighting.hpp"
+#include "tests/TestModel.hpp"
+#include "tests/TestRoom.hpp"
+#include "tests/TestSdfBlend.hpp"
+#include "tests/TestSdfTaipei101.hpp"
+#include "tests/TestTriangle.hpp"
 
 // Global variables
 const char *WINDOW_TITLE = "OpenGL Demo";

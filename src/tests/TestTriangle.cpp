@@ -1,8 +1,8 @@
-#include "tests/TestTriangle.h"
+#include "tests/TestTriangle.hpp"
 
 #include <OPPCH.h>
 
-#include "BasicMesh.h"
+#include "BasicMesh.hpp"
 
 namespace test {
 

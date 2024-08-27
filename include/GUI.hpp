@@ -1,6 +1,6 @@
 #pragma once
 
-#include "tests/Test.h"
+#include "tests/Test.hpp"
 
 class GUI {
  public:

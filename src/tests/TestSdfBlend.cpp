@@ -1,8 +1,8 @@
-#include "tests/TestSdfBlend.h"
+#include "tests/TestSdfBlend.hpp"
 
 #include <OPPCH.h>
 
-#include "BasicMesh.h"
+#include "BasicMesh.hpp"
 
 namespace test {
 

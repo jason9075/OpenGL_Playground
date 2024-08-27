@@ -1,8 +1,8 @@
-#include "tests/TestRoom.h"
+#include "tests/TestRoom.hpp"
 
 #include <OPPCH.h>
 
-#include "BasicMesh.h"
+#include "BasicMesh.hpp"
 
 namespace test {
 

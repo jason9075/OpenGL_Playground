@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Camera.h"
-#include "DataObject.h"
-#include "ShaderClass.h"
+#include "Camera.hpp"
+#include "DataObject.hpp"
+#include "ShaderClass.hpp"
 #include "happly.h"
-#include "tests/Test.h"
+#include "tests/Test.hpp"
 
 namespace test {
 class TestGs : public Test {

@@ -1,4 +1,4 @@
-#include "tests/TestGaussian.h"
+#include "tests/TestGaussian.hpp"
 
 #include <OPPCH.h>
 

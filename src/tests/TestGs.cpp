@@ -1,4 +1,4 @@
-#include "tests/TestGs.h"
+#include "tests/TestGs.hpp"
 
 #include <OPPCH.h>
 

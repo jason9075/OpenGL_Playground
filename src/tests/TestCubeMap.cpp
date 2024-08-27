@@ -1,4 +1,4 @@
-#include "tests/TestCubeMap.h"
+#include "tests/TestCubeMap.hpp"
 
 #include <OPPCH.h>
 #include <stb_image.h>
