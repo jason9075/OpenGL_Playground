@@ -20,7 +20,7 @@ uniform bool specularEnabled = true;
 
 vec4 calcPointLight(vec3 normal, vec3 fragPos, vec3 lightPos, vec3 lightColor);
 
-void main() { fragColor = calcPointLight(normal, FragPos, lightPosition, lightColor); }
+void main() { fragColor = calcPointLight(Normal, FragPos, lightPosition, lightColor); }
 
 vec4 calcPointLight(vec3 normal, vec3 fragPos, vec3 lightPos, vec3 lightCol) {
   // ambient lighting

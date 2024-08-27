@@ -38,7 +38,7 @@ vec2 fOpUnion(vec2 res1, vec2 res2) { return (res1.x < res2.x) ? res1 : res2; }
 float fOpDifferece(float d1, float d2) { return max(d1, -d2); }
 
 vec3 triPlanar(sampler2D tex, vec3 p, vec3 normal) {
-  // normal = abs(normal);
+  normal = abs(normal);
   return (texture(tex, p.xy * 0.5 + 0.5) * normal.z + texture(tex, p.zy * 0.5 + 0.5) * normal.x).rgb;
 }
 
@@ -109,46 +109,46 @@ vec2 sdfFunc(vec3 p) {
   transP.y -= BASE_HEIGHT / 2;
   // transP.x -= 10;
   float baseDist = fTruncatedPyramid(transP, 1.0, BASE_UP_WIDTH, BASE_HEIGHT);
-  // baseDist += bumpMap(texture1, transP * 2, transP + bumpFactor, baseDist, bumpFactor, sdfSize);
+  baseDist += bumpMap(texture1, transP * 2, transP + bumpFactor, baseDist, bumpFactor, sdfSize);
   vec2 base = vec2(baseDist, windowsID);
   vec2 res = fOpUnion(base, plane);
 
   // cylinder
-  // pMirrorOctant(transP.xy, vec2(BASE_UP_WIDTH));  // maybe use later
-  // float grayID = 3.0;
-  // transP = p;
-  // transP.y -= BASE_HEIGHT;
-  //
-  // vec3 tPX = transP;
-  // pR(tPX.zy, HALF_PI);
-  // pMirror(tPX.y, BASE_UP_WIDTH);
-  //
-  // vec3 tPZ = transP;
-  // pR(tPZ.xy, HALF_PI);
-  // pMirror(tPZ.y, BASE_UP_WIDTH);
-  //
-  // float cylinderDist = fCylinder(tPX, 0.2, 0.1);
-  // res = fOpUnion(res, vec2(cylinderDist, grayID));
-  //
-  // cylinderDist = fCylinder(tPZ, 0.2, 0.1);
-  // res = fOpUnion(res, vec2(cylinderDist, grayID));
-  //
-  // transP = p;
-  // transP.y -= BASE_HEIGHT + PYRAMID_HEIGHT / 2;
-  // // upside down
-  // pR(transP.xy, PI);
-  // pModInterval1(transP.y, PYRAMID_HEIGHT, -7, 0);
-  // float pyrDist = fTruncatedPyramid(transP, 0.6, 0.5, PYRAMID_HEIGHT);
-  // vec2 pyr = vec2(pyrDist, windowsID);
-  // res = fOpUnion(res, pyr);
+  pMirrorOctant(transP.xy, vec2(BASE_UP_WIDTH));  // maybe use later
+  float grayID = 3.0;
+  transP = p;
+  transP.y -= BASE_HEIGHT;
+
+  vec3 tPX = transP;
+  pR(tPX.zy, HALF_PI);
+  pMirror(tPX.y, BASE_UP_WIDTH);
+
+  vec3 tPZ = transP;
+  pR(tPZ.xy, HALF_PI);
+  pMirror(tPZ.y, BASE_UP_WIDTH);
+
+  float cylinderDist = fCylinder(tPX, 0.2, 0.1);
+  res = fOpUnion(res, vec2(cylinderDist, grayID));
+
+  cylinderDist = fCylinder(tPZ, 0.2, 0.1);
+  res = fOpUnion(res, vec2(cylinderDist, grayID));
+
+  transP = p;
+  transP.y -= BASE_HEIGHT + PYRAMID_HEIGHT / 2;
+  // upside down
+  pR(transP.xy, PI);
+  pModInterval1(transP.y, PYRAMID_HEIGHT, -7, 0);
+  float pyrDist = fTruncatedPyramid(transP, 0.6, 0.5, PYRAMID_HEIGHT);
+  vec2 pyr = vec2(pyrDist, windowsID);
+  res = fOpUnion(res, pyr);
 
   // baseTop Decoration
   transP = p;
-  transP.y -= BASE_HEIGHT + 1;
+  transP.y -= BASE_HEIGHT;
   pMirrorOctant(transP.zx, vec2(BASE_UP_WIDTH));
   float baseTopDist = fBoxCheap(transP, vec3(BASE_UP_WIDTH, 0.15, 0.03));
 
-  baseTopDist += bumpMap(texture1, transP * 2, transP + bumpFactor, baseTopDist, bumpFactor, sdfSize);
+  // baseTopDist += bumpMap(texture1, transP * 2, transP + bumpFactor, baseTopDist, bumpFactor, sdfSize);
   res = fOpUnion(res, vec2(baseTopDist, darkGrayID));
 
   // top building
@@ -177,8 +177,7 @@ vec3 getMaterial(vec3 point, float id, vec3 normal) {
     case 3:
       return vec3(0.75, 0.75, 0.75);  // light gray
     case 4:
-      return triPlanar(texture0, point * 2, normal);
-      // return vec3(0.3, 0.3, 0.3);  // dark gray
+      return vec3(0.3, 0.3, 0.3);  // dark gray
     default:
       return vec3(1.0, 1.0, 1.0);
   }
