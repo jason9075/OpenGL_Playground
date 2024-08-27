@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Camera.hpp"
-#include "Model.hpp"
+#include "DataObject.hpp"
 #include "ShaderClass.hpp"
 #include "tests/Test.hpp"
 

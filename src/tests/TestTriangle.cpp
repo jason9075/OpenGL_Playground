@@ -2,8 +2,6 @@
 
 #include <OPPCH.h>
 
-#include "BasicMesh.hpp"
-
 namespace test {
 
 TestTriangle::TestTriangle(const float screenWidth, const float screenHeight) {
