@@ -14,7 +14,8 @@ uniform mat4 camMatrix;
 
 void main() {
   FragPos = vec3(modelMatrix * vec4(aPos, 1.0));
-  Normal = mat3(transpose(inverse(modelMatrix))) * aNormal;
   TexCoord = aTexCoord;
+  Normal = mat3(transpose(inverse(modelMatrix))) * aNormal;
+
   gl_Position = camMatrix * modelMatrix * vec4(aPos, 1.0);
 }

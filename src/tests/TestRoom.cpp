@@ -34,8 +34,6 @@ TestRoom::TestRoom(const float screenWidth, const float screenHeight) {
 
   shaderRoom->use();
   glUniformMatrix4fv(glGetUniformLocation(shaderRoom->ID, "modelMatrix"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
-  glUniform3f(glGetUniformLocation(shaderRoom->ID, "camPosition"), camera->position.x, camera->position.y,
-              camera->position.z);
   // background color
   glUniform3f(glGetUniformLocation(shaderRoom->ID, "backgroundColor"), backgroundColor[0], backgroundColor[1],
               backgroundColor[2]);
@@ -63,8 +61,6 @@ void TestRoom::OnRender() {
   camera->moveCamera();
 
   shaderRoom->use();
-  glUniform3f(glGetUniformLocation(shaderRoom->ID, "camPosition"), camera->position.x, camera->position.y,
-              camera->position.z);
   camera->update(shaderRoom.get());
   glUniform1i(glGetUniformLocation(shaderRoom->ID, "classId"), 0);
   groundMesh->draw(shaderRoom.get());

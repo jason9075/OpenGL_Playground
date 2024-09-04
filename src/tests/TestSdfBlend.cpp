@@ -64,8 +64,6 @@ void TestSdfBlend::OnRender() {
     glUniform3fv(glGetUniformLocation(shaderModel->ID, "lightPosition"), 1, lightPos);
     glUniformMatrix4fv(glGetUniformLocation(shaderModel->ID, "modelMatrix"), 1, GL_FALSE,
                        glm::value_ptr(glm::scale(glm::mat4(1.0f), glm::vec3(size))));
-    glUniform3f(glGetUniformLocation(shaderModel->ID, "camPosition"), camera->position.x, camera->position.y,
-                camera->position.z);
     glUniform3fv(glGetUniformLocation(shaderModel->ID, "color"), 1, modelColor);
     camera->update(shaderModel.get());
     modelMesh->draw(shaderModel.get());
@@ -76,8 +74,6 @@ void TestSdfBlend::OnRender() {
     glUniform1f(glGetUniformLocation(shaderSDF->ID, "sdfSize"), size);
     glUniform3fv(glGetUniformLocation(shaderSDF->ID, "sdfColor"), 1, sdfColor);
     glUniform3fv(glGetUniformLocation(shaderSDF->ID, "lightPosition"), 1, lightPos);
-    glUniform3f(glGetUniformLocation(shaderSDF->ID, "camPosition"), camera->position.x, camera->position.y,
-                camera->position.z);
     glUniform1i(glGetUniformLocation(shaderSDF->ID, "isSphere"), isSphere);
     camera->update(shaderSDF.get());
     sdfMesh->draw(shaderSDF.get());

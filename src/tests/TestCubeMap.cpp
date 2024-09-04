@@ -10,10 +10,10 @@ TestCubeMap::TestCubeMap(const float screenWidth, const float screenHeight) {
 
   skyShader = std::make_unique<Shader>("./shaders/skybox_vert.glsl", "./shaders/skybox_frag.glsl");
   modelShader = std::make_unique<Shader>("./shaders/model_vert.glsl", "./shaders/model_frag.glsl");
-  skybox = std::make_unique<CubeMap>(faces);
+  skybox = std::make_unique<CubeMap>(faces, false);
   model = std::make_unique<Model>("./assets/gltf_duck/Duck.gltf");
 
-  glm::vec3 position = glm::vec3(0.0f, 0.0f, 3.0f);
+  glm::vec3 position = glm::vec3(0.0f, 1.0f, 3.0f);
   glm::vec3 orientation = glm::vec3(0.0f, 0.0f, -1.0f);
   camera = std::make_unique<Camera>(screenWidth, screenHeight, position, orientation);
   listener = std::make_unique<GhostCameraListener>(camera.get());
@@ -33,31 +33,27 @@ void TestCubeMap::OnRender() {
   camera->moveCamera();
 
   // draw model
-  glDepthFunc(GL_LESS);
   modelShader->use();
+  glDepthFunc(GL_LESS);
   camera->update(modelShader.get());
   glm::mat4 modelMatrix = glm::scale(glm::mat4(1.0f), glm::vec3(modelScale));
   model->setModelMatrix(modelMatrix);
   model->draw(modelShader.get());
 
-  // draw skybox
-  glDepthFunc(GL_LEQUAL);
+  // draw skybox, tips: render skybox after all other objects
   skyShader->use();
-
+  glDepthFunc(GL_LEQUAL);
   glUniform1f(glGetUniformLocation(skyShader->ID, "scaleFactor"), skyboxScale);
-
+  glUniform1i(glGetUniformLocation(skyShader->ID, "fixSkybox"), fixSkybox);
   camera->update(skyShader.get());
-
   skybox->draw(skyShader.get());
-
-  glDepthFunc(GL_LESS);
 }
 
 void TestCubeMap::OnImGuiRender() {
-  // setting scale factor
+  ImGui::Checkbox("Fix Skybox", &fixSkybox);
   ImGui::Text("Scale Factor");
-  ImGui::SliderFloat("Model", &modelScale, 0.1f, 5.0f);
-  ImGui::SliderFloat("Sky", &skyboxScale, 0.1f, 100.0f);
+  ImGui::SliderFloat("Duck", &modelScale, 0.1f, 5.0f);
+  ImGui::SliderFloat("Skybox", &skyboxScale, 0.1f, 50.0f);
 }
 
 void TestCubeMap::OnExit() {

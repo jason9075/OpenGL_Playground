@@ -56,8 +56,6 @@ void TestSdfTaipei101::OnRender() {
   glUniform1f(glGetUniformLocation(shaderSDF->ID, "sdfSize"), size);
   glUniform3fv(glGetUniformLocation(shaderSDF->ID, "sdfColor"), 1, sdfColor);
   glUniform3fv(glGetUniformLocation(shaderSDF->ID, "lightPosition"), 1, lightPos);
-  glUniform3f(glGetUniformLocation(shaderSDF->ID, "camPosition"), camera->position.x, camera->position.y,
-              camera->position.z);
   camera->update(shaderSDF.get());
   texture->texUnit(*shaderSDF, "taipei101", 0);
   texture->bind();

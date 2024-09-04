@@ -17,11 +17,16 @@ class TestCubeMap : public Test {
   void OnExit() override;
 
  private:
-  const std::vector<std::string> faces = {"./assets/skybox/right.jpg", "./assets/skybox/left.jpg",
-                                          "./assets/skybox/top.jpg",   "./assets/skybox/bottom.jpg",
-                                          "./assets/skybox/front.jpg", "./assets/skybox/back.jpg"};
-  float modelScale = 1.0f;
-  float skyboxScale = 1.0f;
+  std::vector<std::string> faces = {"./assets/skybox/right.jpg", "./assets/skybox/left.jpg",
+                                    "./assets/skybox/top.jpg",   "./assets/skybox/bottom.jpg",
+                                    "./assets/skybox/front.jpg", "./assets/skybox/back.jpg"};
+  // debug
+  // std::vector<std::string> faces = {"./assets/skybox/right_debug.jpg", "./assets/skybox/left_debug.jpg",
+  //                                   "./assets/skybox/top_debug.jpg",   "./assets/skybox/bottom_debug.jpg",
+  //                                   "./assets/skybox/front_debug.jpg", "./assets/skybox/back_debug.jpg"};
+  float modelScale = 0.2f;
+  float skyboxScale = 5.0f;
+  bool fixSkybox = false;
   std::unique_ptr<Shader> skyShader;
   std::unique_ptr<Shader> modelShader;
   std::unique_ptr<CubeMap> skybox;

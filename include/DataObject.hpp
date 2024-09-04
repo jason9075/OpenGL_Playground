@@ -62,9 +62,43 @@ class EBO {
   GLuint ID;
 };
 
+class UBO {
+ public:
+  GLuint ID;
+  UBO();
+  void bind();
+  void unbind();
+  template <typename T>
+  void bufferData(T *data, size_t count, GLenum usage) {
+    glBufferData(GL_UNIFORM_BUFFER, sizeof(T) * count, data, usage);
+  }
+  template <typename T>
+  void bufferSubData(const T *data, size_t count) {
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(T) * count, data);
+  }
+  void del();
+
+ private:
+};
+
+class FBO {
+ public:
+  GLuint ID;
+  GLuint textureID;
+  FBO(float width, float height);
+  void bind();
+  void unbind();
+  void setupTexture();
+  void bindTexture(GLenum textureUnit);
+  void del();
+  float width;
+  float height;
+};
+
 class Texture {
  public:
   const char *type;
+  Texture();
   Texture(const char *image, const char *texType, GLuint slot);
   void texUnit(Shader &shader, const char *uniform, GLuint unit);
   void bind();
@@ -85,28 +119,52 @@ class Mesh {
   VAO vao;
   VBO vbo;
   EBO ebo;
+  UBO ubo;
 
   Mesh(const std::vector<Vertex> &vertices);
   Mesh(const std::vector<Vertex> &vertices, const std::vector<GLuint> &indices);
   Mesh(const std::vector<Vertex> &vertices, const std::vector<GLuint> &indices, const std::vector<Texture> &textures);
 
+  unsigned int numTriangles();
+
+  template <typename T>
+  void setupUBO(const T *data, size_t count, GLenum usage) {
+    ubo.bind();
+    ubo.bufferData(data, count, usage);
+    ubo.unbind();
+  }
+
+  template <typename T>
+  void updateUBO(const T *data, size_t count) {
+    ubo.bind();
+    ubo.bufferSubData(data, count);
+    ubo.unbind();
+  }
   void setTexture(const std::vector<Texture> &textures);
 
   void draw(Shader *shader);
+  void draw(Shader *shader, const unsigned int numVertices, const unsigned int startIdx = 0);
 
   void del();
+
+ private:
+  void setupMeshAttributes();
 };
 
 class CubeMap {
  public:
   VAO vao;
-  CubeMap(const std::vector<std::string> &faces);
+  CubeMap(std::vector<std::string> &faces, bool flip = true);
+
+  void flipHorizontally(unsigned char *data, int width, int height, int channels);
+  void flipVertically(unsigned char *data, int width, int height, int channels);
 
   void draw(Shader *shader);
 
   void del();
 
  private:
+  std::unique_ptr<Mesh> cubeMesh;
   GLuint textureID;
 };
 

@@ -8,6 +8,7 @@ using json = nlohmann::json;
 class Model {
  public:
   Model(const char *path);
+  std::vector<Mesh> meshes;  // one model can have multiple meshes
 
   void draw(Shader *shader);
 
@@ -20,7 +21,6 @@ class Model {
   json JSON;
   std::vector<unsigned char> data;  // binary data
 
-  std::vector<Mesh> meshes;  // one model can have multiple meshes
   std::vector<std::string> loadedTexturesName;
   std::vector<Texture> loadedTextures;
 

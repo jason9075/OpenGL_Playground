@@ -2,7 +2,6 @@
 
 #include "GUI.hpp"
 #include "Window.hpp"
-#include "tests/TestBVH.hpp"
 #include "tests/TestCubeMap.hpp"
 #include "tests/TestGaussian.hpp"
 #include "tests/TestGeometry.hpp"
@@ -10,6 +9,8 @@
 #include "tests/TestLighting.hpp"
 #include "tests/TestModel.hpp"
 #include "tests/TestRoom.hpp"
+#include "tests/TestRtBVH.hpp"
+#include "tests/TestRtSphere.hpp"
 #include "tests/TestSdfBlend.hpp"
 #include "tests/TestSdfTaipei101.hpp"
 #include "tests/TestTriangle.hpp"
@@ -39,7 +40,7 @@ int main(int argc, char *args[]) {
   // SDL_GL_SetSwapInterval(0);  // Disable VSync
 
   // test::Test *currentTest = new test::Test;
-  test::Test *currentTest = new test::TestBVH(SCREEN_WIDTH, SCREEN_HEIGHT);
+  test::Test *currentTest = new test::TestRtSphere(SCREEN_WIDTH, SCREEN_HEIGHT);
   GUI gui(window, context, currentTest);
 
   gui.registerTest<test::Test>("-");  // dummy test
@@ -53,7 +54,8 @@ int main(int argc, char *args[]) {
   gui.registerTest<test::TestSdfBlend>("SDF Blend", SCREEN_WIDTH, SCREEN_HEIGHT);
   gui.registerTest<test::TestSdfTaipei101>("SDF Taipei101", SCREEN_WIDTH, SCREEN_HEIGHT);
   gui.registerTest<test::TestRoom>("Room", SCREEN_WIDTH, SCREEN_HEIGHT);
-  gui.registerTest<test::TestBVH>("ModelBVH", SCREEN_WIDTH, SCREEN_HEIGHT);
+  gui.registerTest<test::TestRtBVH>("RT BVH", SCREEN_WIDTH, SCREEN_HEIGHT);
+  gui.registerTest<test::TestRtSphere>("RT Sphere", SCREEN_WIDTH, SCREEN_HEIGHT);
 
   // main func
   bool quit = false;

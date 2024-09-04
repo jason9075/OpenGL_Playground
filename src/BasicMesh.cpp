@@ -130,3 +130,17 @@ std::unique_ptr<Mesh> createPlaneMesh(const float scale, const glm::vec3 normal)
 
   return std::make_unique<Mesh>(vertices, indices);
 }
+
+std::unique_ptr<Mesh> createFrameMesh() {
+  std::vector<Vertex> vertices = {
+      // pos, normal, color, texCoords
+      {{-1.0f, -1.0f, 0.0f}, {}, {}, {0.0f, 0.0f}},  // 0
+      {{1.0f, -1.0f, 0.0f}, {}, {}, {1.0f, 0.0f}},   // 1
+      {{1.0f, 1.0f, 0.0f}, {}, {}, {1.0f, 1.0f}},    // 2
+      {{-1.0f, 1.0f, 0.0f}, {}, {}, {0.0f, 1.0f}},   // 3
+  };
+
+  std::vector<GLuint> indices = {0, 1, 2, 2, 3, 0};
+
+  return std::make_unique<Mesh>(vertices, indices);
+}

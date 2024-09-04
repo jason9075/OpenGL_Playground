@@ -2,6 +2,7 @@
 
 #include <OPPCH.h>
 
+#include "BasicMesh.hpp"
 #include "stb_image.h"
 
 VAO::VAO() { glGenVertexArrays(1, &ID); }
@@ -52,10 +53,50 @@ void EBO::bufferData(const std::vector<GLuint> &indices) {
 
 void EBO::del() { glDeleteBuffers(1, &ID); }
 
+UBO::UBO() { glGenBuffers(1, &ID); }
+
+void UBO::bind() { glBindBuffer(GL_UNIFORM_BUFFER, ID); }
+
+void UBO::unbind() { glBindBuffer(GL_UNIFORM_BUFFER, 0); }
+
+void UBO::del() { glDeleteBuffers(1, &ID); }
+
+FBO::FBO(float width, float height) : width(width), height(height) {
+  glGenFramebuffers(1, &ID);
+  glGenTextures(1, &textureID);
+}
+
+void FBO::bind() { glBindFramebuffer(GL_FRAMEBUFFER, ID); }
+
+void FBO::unbind() { glBindFramebuffer(GL_FRAMEBUFFER, 0); }
+
+void FBO::setupTexture() {
+  glBindTexture(GL_TEXTURE_2D, textureID);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  bind();
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureID, 0);
+  unbind();
+}
+
+void FBO::bindTexture(GLenum textureUnit) {
+  glActiveTexture(textureUnit);
+  glBindTexture(GL_TEXTURE_2D, textureID);
+}
+
+void FBO::del() {
+  glDeleteFramebuffers(1, &ID);
+  glDeleteTextures(1, &textureID);
+}
+
+Texture::Texture() : ID(0), unit(0), type("") {}
+
 Texture::Texture(const char *image, const char *texType, GLuint slot) : type(texType) {
   int width, height, nrChannels;
 
-  stbi_set_flip_vertically_on_load(true);
   unsigned char *data = stbi_load(image, &width, &height, &nrChannels, 0);
 
   glGenTextures(1, &ID);
@@ -103,47 +144,67 @@ void Texture::unbind() { glBindTexture(GL_TEXTURE_2D, 0); }
 
 void Texture::del() { glDeleteTextures(1, &ID); }
 
-Mesh::Mesh(const std::vector<Vertex> &vertices) : vertices(vertices), vao(), vbo(vertices), ebo() {
+Mesh::Mesh(const std::vector<Vertex> &vertices) : vertices(vertices), vao(), vbo(vertices), ebo(), ubo() {
   vao.bind();
 
-  vao.linkAttr(vbo, 0, 3, GL_FLOAT, sizeof(Vertex), (void *)offsetof(Vertex, position));
-  vao.linkAttr(vbo, 1, 3, GL_FLOAT, sizeof(Vertex), (void *)offsetof(Vertex, normal));
-  vao.linkAttr(vbo, 2, 3, GL_FLOAT, sizeof(Vertex), (void *)offsetof(Vertex, color));
+  setupMeshAttributes();
 
   vao.unbind();
 }
 
 Mesh::Mesh(const std::vector<Vertex> &vertices, const std::vector<GLuint> &indices)
-    : vertices(vertices), indices(indices), vao(), vbo(vertices), ebo() {
+    : vertices(vertices), indices(indices), vao(), vbo(vertices), ebo(), ubo() {
   vao.bind();
   ebo.bind();
   ebo.bufferData(indices);
 
-  vao.linkAttr(vbo, 0, 3, GL_FLOAT, sizeof(Vertex), (void *)offsetof(Vertex, position));
-  vao.linkAttr(vbo, 1, 3, GL_FLOAT, sizeof(Vertex), (void *)offsetof(Vertex, normal));
-  vao.linkAttr(vbo, 2, 3, GL_FLOAT, sizeof(Vertex), (void *)offsetof(Vertex, color));
+  setupMeshAttributes();
 
   vao.unbind();
 }
 
 Mesh::Mesh(const std::vector<Vertex> &vertices, const std::vector<GLuint> &indices,
            const std::vector<Texture> &textures)
-    : vertices(vertices), indices(indices), textures(textures), vao(), vbo(vertices), ebo() {
+    : vertices(vertices), indices(indices), textures(textures), vao(), vbo(vertices), ebo(), ubo() {
   vao.bind();
   ebo.bind();
   ebo.bufferData(indices);
 
-  vao.linkAttr(vbo, 0, 3, GL_FLOAT, sizeof(Vertex), (void *)offsetof(Vertex, position));
-  vao.linkAttr(vbo, 1, 3, GL_FLOAT, sizeof(Vertex), (void *)offsetof(Vertex, normal));
-  vao.linkAttr(vbo, 2, 3, GL_FLOAT, sizeof(Vertex), (void *)offsetof(Vertex, color));
-  vao.linkAttr(vbo, 3, 2, GL_FLOAT, sizeof(Vertex), (void *)offsetof(Vertex, texCoords));
+  setupMeshAttributes();
 
   vao.unbind();
 }
 
+void Mesh::setupMeshAttributes() {
+  vao.linkAttr(vbo, 0, 3, GL_FLOAT, sizeof(Vertex), (void *)offsetof(Vertex, position));
+  vao.linkAttr(vbo, 1, 3, GL_FLOAT, sizeof(Vertex), (void *)offsetof(Vertex, normal));
+  vao.linkAttr(vbo, 2, 3, GL_FLOAT, sizeof(Vertex), (void *)offsetof(Vertex, color));
+  vao.linkAttr(vbo, 3, 2, GL_FLOAT, sizeof(Vertex), (void *)offsetof(Vertex, texCoords));
+}
+
+unsigned int Mesh::numTriangles() { return indices.size() / 3; }
+
 void Mesh::setTexture(const std::vector<Texture> &textures) { this->textures = textures; }
 
 void Mesh::draw(Shader *shader) {
+  vao.bind();
+
+  // Textures
+  // TODO: make texture0 not hard-coded
+  for (unsigned int i = 0; i < textures.size(); i++) {
+    textures[i].texUnit(*shader, "texture0", i);
+    textures[i].bind();
+  }
+
+  glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+
+  vao.unbind();
+  for (unsigned int i = 0; i < textures.size(); i++) {
+    textures[i].unbind();
+  }
+}
+
+void Mesh::draw(Shader *shader, const unsigned int numTriangles, const unsigned int startIdx) {
   vao.bind();
 
   // Textures
@@ -152,7 +213,9 @@ void Mesh::draw(Shader *shader) {
     textures[i].bind();
   }
 
-  glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+  auto startTriangle = std::min(startIdx * 3, static_cast<unsigned int>(indices.size()));
+  auto numIndices = std::min(numTriangles * 3, static_cast<unsigned int>(indices.size()));
+  glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, (void *)(startTriangle * sizeof(GLuint)));
 
   vao.unbind();
   for (unsigned int i = 0; i < textures.size(); i++) {
@@ -167,16 +230,42 @@ void Mesh::del() {
   vao.del();
   vbo.del();
   ebo.del();
+  ubo.del();
 }
 
-CubeMap::CubeMap(const std::vector<std::string> &faces) {
+/*
+  Flip is true if you are using the skybox.
+*/
+CubeMap::CubeMap(std::vector<std::string> &faces, bool flip) {
   glGenTextures(1, &textureID);
   glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+
+  // origin order: right, left, top, bottom, front, back
+  char order[6] = {'r', 'l', 't', 'd', 'f', 'b'};
+
+  // if flip is true, then the order is: right, left, top, bottom, front, back
+  if (flip) std::swap(faces[4], faces[5]);
 
   int width, height, nrChannels;
   for (unsigned int i = 0; i < faces.size(); i++) {
     unsigned char *data = stbi_load(faces[i].c_str(), &width, &height, &nrChannels, 0);
     if (data) {
+      if (flip) {
+        switch (order[i]) {
+          case 'r':
+          case 'l':
+          case 'f':
+          case 'b':
+            flipHorizontally(data, width, height, nrChannels);
+            break;
+          case 't':
+          case 'd':
+            flipVertically(data, width, height, nrChannels);
+            break;
+          default:
+            break;
+        }
+      }
       glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
     } else {
       std::cerr << "Failed to load texture: " << faces[i] << std::endl;
@@ -190,81 +279,50 @@ CubeMap::CubeMap(const std::vector<std::string> &faces) {
   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
   glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
-  float cubeMapPos[108] = {
-      // Front face
-      -1.0f, 1.0f, -1.0f,   // Top-left
-      -1.0f, -1.0f, -1.0f,  // Bottom-left
-      1.0f, -1.0f, -1.0f,   // Bottom-right
-      1.0f, -1.0f, -1.0f,   // Bottom-right
-      1.0f, 1.0f, -1.0f,    // Top-right
-      -1.0f, 1.0f, -1.0f,   // Top-left
+  cubeMesh = createCubeMesh(1.0f);
+}
 
-      // Back face
-      -1.0f, -1.0f, 1.0f,  // Bottom-left
-      -1.0f, 1.0f, 1.0f,   // Top-left
-      1.0f, 1.0f, 1.0f,    // Top-right
-      1.0f, 1.0f, 1.0f,    // Top-right
-      1.0f, -1.0f, 1.0f,   // Bottom-right
-      -1.0f, -1.0f, 1.0f,  // Bottom-left
-
-      // Left face
-      -1.0f, 1.0f, 1.0f,    // Top-left
-      -1.0f, 1.0f, -1.0f,   // Top-right
-      -1.0f, -1.0f, -1.0f,  // Bottom-right
-      -1.0f, -1.0f, -1.0f,  // Bottom-right
-      -1.0f, -1.0f, 1.0f,   // Bottom-left
-      -1.0f, 1.0f, 1.0f,    // Top-left
-
-      // Right face
-      1.0f, 1.0f, 1.0f,    // Top-left
-      1.0f, -1.0f, -1.0f,  // Bottom-right
-      1.0f, 1.0f, -1.0f,   // Top-right
-      1.0f, -1.0f, -1.0f,  // Bottom-right
-      1.0f, 1.0f, 1.0f,    // Top-left
-      1.0f, -1.0f, 1.0f,   // Bottom-left
-
-      // Top face
-      -1.0f, 1.0f, -1.0f,  // Top-left
-      1.0f, 1.0f, -1.0f,   // Top-right
-      1.0f, 1.0f, 1.0f,    // Bottom-right
-      1.0f, 1.0f, 1.0f,    // Bottom-right
-      -1.0f, 1.0f, 1.0f,   // Bottom-left
-      -1.0f, 1.0f, -1.0f,  // Top-left
-
-      // Bottom face
-      -1.0f, -1.0f, -1.0f,  // Top-left
-      -1.0f, -1.0f, 1.0f,   // Bottom-left
-      1.0f, -1.0f, -1.0f,   // Top-right
-      1.0f, -1.0f, -1.0f,   // Top-right
-      -1.0f, -1.0f, 1.0f,   // Bottom-left
-      1.0f, -1.0f, 1.0f     // Bottom-right
-  };
-
-  vao = VAO();
-  std::vector<Vertex> vertices;
-  for (unsigned int i = 0; i < 108; i += 3) {
-    Vertex vertex;
-    vertex.position = glm::vec3(cubeMapPos[i], cubeMapPos[i + 1], cubeMapPos[i + 2]);
-    vertices.push_back(vertex);
+void CubeMap::flipHorizontally(unsigned char *data, int width, int height, int nrChannels) {
+  int rowSize = width * nrChannels;
+  for (int y = 0; y < height; ++y) {
+    unsigned char *rowStart = data + y * rowSize;
+    for (int x = 0; x < width / 2; ++x) {
+      int left = x * nrChannels;
+      int right = (width - 1 - x) * nrChannels;
+      // change the left and right pixels
+      for (int c = 0; c < nrChannels; ++c) {
+        std::swap(rowStart[left + c], rowStart[right + c]);
+      }
+    }
   }
-  VBO vbo = VBO(vertices);
+}
 
-  vao.bind();
-  vao.linkAttr(vbo, 0, 3, GL_FLOAT, sizeof(Vertex), (void *)0);
-  vao.unbind();
+void CubeMap::flipVertically(unsigned char *data, int width, int height, int nrChannels) {
+  int rowSize = width * nrChannels;
+  unsigned char *tempRow = new unsigned char[rowSize];  // 暫存一行的數據
+
+  for (int y = 0; y < height / 2; ++y) {
+    unsigned char *topRowStart = data + y * rowSize;
+    unsigned char *bottomRowStart = data + (height - 1 - y) * rowSize;
+
+    // 交換整行數據
+    std::memcpy(tempRow, topRowStart, rowSize);
+    std::memcpy(topRowStart, bottomRowStart, rowSize);
+    std::memcpy(bottomRowStart, tempRow, rowSize);
+  }
+
+  delete[] tempRow;  // 釋放暫存空間
 }
 
 void CubeMap::draw(Shader *shader) {
-  vao.bind();
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
-  glUniform1i(glGetUniformLocation(shader->ID, "cubemap"), 0);
-  glDrawArrays(GL_TRIANGLES, 0, 36);
-  vao.unbind();
+  glUniform1i(glGetUniformLocation(shader->ID, "cubemapTxt"), 0);
+  cubeMesh->draw(shader);
 }
 
 void CubeMap::del() {
-  vao.del();
+  cubeMesh->del();
   glDeleteTextures(1, &textureID);
 }
 
