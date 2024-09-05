@@ -18,7 +18,6 @@ class TestGaussian : public Test {
   float scaleFactor = 1.0f;
   std::unique_ptr<GaussianSplat> splat;
   std::unique_ptr<Shader> shaderProgram;
-  std::unique_ptr<Camera> camera;
   std::unique_ptr<CameraEventListener> listener;
 };
 }  // namespace test

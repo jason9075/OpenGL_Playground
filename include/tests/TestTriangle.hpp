@@ -21,7 +21,6 @@ class TestTriangle : public Test {
   float triangleColor[3] = {0.2f, 0.8f, 0.2f};
   std::unique_ptr<Shader> shaderProgram;
   std::unique_ptr<Mesh> mesh;
-  std::unique_ptr<Camera> camera;
   std::unique_ptr<CameraEventListener> listener;
 };
 

@@ -25,7 +25,6 @@ class TestSdfTaipei101 : public Test {
   bool isLightMove = true;
   float size = 1.0f;
   float sdfColor[3] = {0.1f, 0.1f, 1.0f};  // blue
-  std::unique_ptr<Camera> camera;
   std::unique_ptr<CameraEventListener> listener;
 };
 

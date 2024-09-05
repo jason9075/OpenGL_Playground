@@ -81,13 +81,6 @@ void TestSdfBlend::OnRender() {
 }
 
 void TestSdfBlend::OnImGuiRender() {
-  ImGui::Text("Camera Position:");
-  ImGui::Text("X:%.2f Y:%.2f Z:%.2f", camera->position.x, camera->position.y, camera->position.z);
-  ImGui::Text("Camera Orientation:");
-  ImGui::Text("X:%.2f Y:%.2f Z:%.2f", camera->orientation.x, camera->orientation.y, camera->orientation.z);
-  ImGui::Text("Look At:");
-  ImGui::Text("X:%.2f Y:%.2f Z:%.2f", camera->position.x + camera->orientation.x,
-              camera->position.y + camera->orientation.y, camera->position.z + camera->orientation.z);
   ImGui::Checkbox("Move Light", &isLightMove);
   ImGui::SliderFloat("Size", &size, 0.5f, 3.0f);
   ImGui::Checkbox("Show SDF", &isShowSdf);

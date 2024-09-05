@@ -85,12 +85,6 @@ void TestGaussian::OnRender() {
   splat->draw(shaderProgram.get());
 }
 
-void TestGaussian::OnImGuiRender() {
-  ImGui::Text("Camera Position:");
-  ImGui::Text("X:%.2f Y:%.2f Z:%.2f", camera->position.x, camera->position.y, camera->position.z);
-  ImGui::Text("Camera Orientation:");
-  ImGui::Text("X:%.2f Y:%.2f Z:%.2f", camera->orientation.x, camera->orientation.y, camera->orientation.z);
-  ImGui::SliderFloat("Render S", &scaleFactor, 0.1f, 10.0f);
-}
+void TestGaussian::OnImGuiRender() { ImGui::SliderFloat("Render S", &scaleFactor, 0.1f, 10.0f); }
 
 }  // namespace test

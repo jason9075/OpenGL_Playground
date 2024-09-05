@@ -22,7 +22,6 @@ class TestRtBVH : public Test {
   std::chrono::time_point<std::chrono::high_resolution_clock> startTS;
   std::unique_ptr<Shader> shaderProgram;
   std::unique_ptr<Model> model;
-  std::unique_ptr<Camera> camera;
   std::unique_ptr<CameraEventListener> listener;
 };
 

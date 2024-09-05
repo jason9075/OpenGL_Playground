@@ -26,7 +26,6 @@ class TestLighting : public Test {
   std::unique_ptr<Shader> pureLightShader;
   std::unique_ptr<Mesh> lightMesh;
   std::unique_ptr<Model> model;
-  std::unique_ptr<Camera> camera;
   std::unique_ptr<CameraEventListener> listener;
 };
 

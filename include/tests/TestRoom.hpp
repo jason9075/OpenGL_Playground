@@ -27,7 +27,6 @@ class TestRoom : public Test {
   std::unique_ptr<Mesh> ceiling;
   std::unique_ptr<Mesh> groundMesh;
   const float backgroundColor[4] = {0.8f, 0.8f, 0.8f, 1.0f};
-  std::unique_ptr<Camera> camera;
   std::unique_ptr<CameraEventListener> listener;
 };
 

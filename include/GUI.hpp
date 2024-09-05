@@ -7,7 +7,7 @@ class GUI {
   test::Test*& currentTest;
 
   GUI(SDL_Window* window, SDL_GLContext context, test::Test*& currentTest);
-  void draw();
+  void draw(std::shared_ptr<Camera> camera);
   void shutdown();
   bool isMouseOverGUI();
 
@@ -22,4 +22,5 @@ class GUI {
   static bool itemGetter(void* data, int idx, const char** out_text);
   std::vector<std::pair<std::string, std::function<test::Test*()>>> allTests;
   int selectedItem = 0;
+  bool isVSync = true;
 };

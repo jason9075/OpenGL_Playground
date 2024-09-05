@@ -24,27 +24,65 @@ bool GUI::itemGetter(void *data, int idx, const char **out_text) {
   return true;
 }
 
-void GUI::draw() {
+void GUI::draw(std::shared_ptr<Camera> camera) {
   ImGui_ImplOpenGL3_NewFrame();
   ImGui_ImplSDL2_NewFrame();
   ImGui::NewFrame();
 
+  // start of the info window
   ImGui::Begin("Info");
+
+  // set the window size
   ImGui::SetWindowPos(ImVec2(0, 0));
+  ImVec2 infoWindowSize = ImGui::GetWindowSize();
+
   ImGui::Text("FPS: %.1f (%.3f ms/f)", ImGui::GetIO().Framerate, 1000.0f / ImGui::GetIO().Framerate);
   if (ImGui::Combo("##combo", &selectedItem, itemGetter, &allTests, allTests.size())) {
     currentTest->OnExit();
     delete currentTest;
     currentTest = allTests[selectedItem].second();
   }
-  ImVec2 infoWindowPos = ImGui::GetWindowPos();
-  ImVec2 infoWindowSize = ImGui::GetWindowSize();
-  ImGui::End();
+  if (ImGui::BeginTabBar("TabBar")) {
+    if (ImGui::BeginTabItem("param")) {
+      currentTest->OnImGuiRender();
+      ImGui::EndTabItem();
+    }
+    if (ImGui::BeginTabItem("cam")) {
+      ImGui::Text("Camera Position:");
+      ImGui::Text("X:%.2f Y:%.2f Z:%.2f", camera->position.x, camera->position.y, camera->position.z);
+      ImGui::Text("Camera Orientation:");
+      ImGui::Text("X:%.2f Y:%.2f Z:%.2f", camera->orientation.x, camera->orientation.y, camera->orientation.z);
+      ImGui::Text("Look At:");
+      ImGui::Text("X:%.2f Y:%.2f Z:%.2f", camera->position.x + camera->orientation.x,
+                  camera->position.y + camera->orientation.y, camera->position.z + camera->orientation.z);
+      ImGui::EndTabItem();
+    }
+    if (ImGui::BeginTabItem("cfg")) {
+      if (ImGui::Checkbox("VSync On", &isVSync)) {
+        SDL_GL_SetSwapInterval(isVSync);
+      }
+      if (ImGui::Button("Exit")) {
+        currentTest->OnExit();
+        delete currentTest;
+        exit(0);
+      }
 
-  ImGui::Begin("Settings");
-  currentTest->OnImGuiRender();
-  ImGui::SetWindowPos(ImVec2(0, infoWindowPos.y + infoWindowSize.y));
+      ImGui::EndTabItem();
+    }
+    if (ImGui::BeginTabItem("help")) {
+      ImGui::Text("wasd: move");
+      ImGui::Text("hjkl: look around");
+      ImGui::Text("space/c: up/down");
+      ImGui::Text("LMB: look around");
+      ImGui::Text("Shift: move faster");
+      ImGui::EndTabItem();
+    }
+    ImGui::EndTabBar();
+  }
+
   ImGui::SetWindowSize(ImVec2(infoWindowSize.x, 0));
+
+  // end of the info window
   ImGui::End();
 
   ImGui::Render();

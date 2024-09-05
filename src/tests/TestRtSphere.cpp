@@ -2,6 +2,8 @@
 
 #include <OPPCH.h>
 
+#include <memory>
+
 #include "BasicMesh.hpp"
 
 namespace test {
@@ -14,7 +16,7 @@ TestRtSphere::TestRtSphere(const float screenWidth, const float screenHeight) {
 
   glm::vec3 position = glm::vec3(9.0f, 1.0f, 15.0f);
   glm::vec3 orientation = glm::vec3(-0.6f, 0.0f, -0.8f);
-  camera = std::make_unique<Camera>(screenWidth, screenHeight, position, orientation);
+  camera = std::make_shared<Camera>(screenWidth, screenHeight, position, orientation);
   listener = std::make_unique<GhostCameraListener>(camera.get());
   camera->setEventListener(listener.get());
 
@@ -134,13 +136,6 @@ void TestRtSphere::OnRender() {
 }
 
 void TestRtSphere::OnImGuiRender() {
-  ImGui::Text("Camera Position:");
-  ImGui::Text("X:%.2f Y:%.2f Z:%.2f", camera->position.x, camera->position.y, camera->position.z);
-  ImGui::Text("Camera Orientation:");
-  ImGui::Text("X:%.2f Y:%.2f Z:%.2f", camera->orientation.x, camera->orientation.y, camera->orientation.z);
-  ImGui::Text("Look At:");
-  ImGui::Text("X:%.2f Y:%.2f Z:%.2f", camera->position.x + camera->orientation.x,
-              camera->position.y + camera->orientation.y, camera->position.z + camera->orientation.z);
   ImGui::SliderInt("Spheres", &numSpheres, 0, MAX_SPHERES);
   ImGui::SliderInt("Bounces", &numBounces, 1, 10);
   ImGui::SliderFloat("Lt Str", &lightStrengthFactor, 1.0f, 10.0f);

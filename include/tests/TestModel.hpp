@@ -24,7 +24,6 @@ class TestModel : public Test {
   glm::vec3 trans{0.0f, 0.0f, 0.0f};
   glm::vec3 scale{1.0f, 1.0f, 1.0f};
   glm::vec3 rot{0.0f, 0.0f, 0.0f};
-  std::unique_ptr<Camera> camera;
   std::unique_ptr<CameraEventListener> listener;
 };
 

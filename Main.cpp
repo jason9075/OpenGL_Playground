@@ -37,7 +37,6 @@ int main(int argc, char *args[]) {
     std::cerr << "Error initializing GLEW! " << glewGetErrorString(glewError) << std::endl;
     exit(1);
   }
-  // SDL_GL_SetSwapInterval(0);  // Disable VSync
 
   // test::Test *currentTest = new test::Test;
   test::Test *currentTest = new test::TestRtSphere(SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -71,7 +70,7 @@ int main(int argc, char *args[]) {
     }
 
     currentTest->OnRender();
-    gui.draw();
+    gui.draw(currentTest->camera);
 
     SDL_GL_SwapWindow(window);
   }

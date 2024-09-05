@@ -92,10 +92,6 @@ void TestGs::OnRender() {
 }
 
 void TestGs::OnImGuiRender() {
-  ImGui::Text("Camera Position:");
-  ImGui::Text("X:%.2f Y:%.2f Z:%.2f", camera->position.x, camera->position.y, camera->position.z);
-  ImGui::Text("Camera Orientation:");
-  ImGui::Text("X:%.2f Y:%.2f Z:%.2f", camera->orientation.x, camera->orientation.y, camera->orientation.z);
   ImGui::SliderFloat("Rot-X", &rotateX, -180., 180.);
   ImGui::SliderFloat("Rot-Z", &rotateZ, -180., 180.);
   ImGui::SliderFloat("ScaleF", &scaleFactor, 0.1f, 3.0f);

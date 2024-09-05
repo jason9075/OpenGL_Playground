@@ -31,7 +31,6 @@ class TestCubeMap : public Test {
   std::unique_ptr<Shader> modelShader;
   std::unique_ptr<CubeMap> skybox;
   std::unique_ptr<Model> model;
-  std::unique_ptr<Camera> camera;
   std::unique_ptr<CameraEventListener> listener;
 };
 

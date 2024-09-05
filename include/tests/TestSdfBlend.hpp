@@ -29,7 +29,6 @@ class TestSdfBlend : public Test {
   float size = 1.0f;
   float sdfColor[3] = {0.0f, 0.5f, 1.0f};    // blue
   float modelColor[3] = {1.0f, 0.5f, 0.0f};  // orange
-  std::unique_ptr<Camera> camera;
   std::unique_ptr<CameraEventListener> listener;
 };
 

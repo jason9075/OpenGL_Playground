@@ -44,7 +44,7 @@ class TestRtSphere : public Test {
   std::unique_ptr<Mesh> frameMesh;
   std::unique_ptr<Shader> shaderProgram;
   std::unique_ptr<Shader> frameShader;
-  std::unique_ptr<Camera> camera;
+  // std::unique_ptr<Camera> camera;
   std::unique_ptr<CameraEventListener> listener;
 };
 
