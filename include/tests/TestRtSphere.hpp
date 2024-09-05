@@ -11,9 +11,11 @@ struct Sphere {
   glm::vec3 center;
   float radius;
   glm::vec4 color;
-  glm::vec4 emissionColor;
-  float padding[3];
-  float shininess;
+  glm::vec4 emissionColor;    // 發光顏色
+  float shininess;            // 發光強度
+  float smoothness;           // 表面粗糙度 PS:當鏡面反射沒開啟時，沒有作用
+  float specularProbability;  // 鏡面反射機率 Specular Bounce Probability
+  float padding;
 };
 
 class TestRtSphere : public Test {
@@ -31,7 +33,8 @@ class TestRtSphere : public Test {
   int numSpheres = 5;
   int numBounces = 3;
   int numRays = 2;
-  float lightStrengthFactor = 1.0f;
+  bool enableSpecularBounce = false;
+  bool isSpecularWhite = false;
   bool isRotate = false;
   bool isFirstSphereLight = true;
   bool isRandomShine = false;

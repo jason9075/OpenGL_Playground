@@ -47,21 +47,24 @@ TestRtSphere::TestRtSphere(const float screenWidth, const float screenHeight) {
   // std::mt19937 gen(42); // fixed seed
   std::mt19937 gen(rd());
   std::uniform_real_distribution<float> posDis{-5.0f, 5.0f};
-  std::uniform_real_distribution<float> radiusDis{0.5f, 1.0f};
-  std::uniform_real_distribution<float> colorDis{0.0f, 1.0f};
+  std::uniform_real_distribution<float> radiusDis{0.3f, 0.8f};
+  std::uniform_real_distribution<float> propertyDis{0.0f, 1.0f};
   for (int i = 0; i < MAX_SPHERES; i++) {
     spheres[i].center = glm::vec3(posDis(gen), posDis(gen), posDis(gen));
     spheres[i].radius = radiusDis(gen);
-    spheres[i].color = glm::vec4(colorDis(gen), colorDis(gen), colorDis(gen), 1.0f);
+    spheres[i].color = glm::vec4(propertyDis(gen), propertyDis(gen), propertyDis(gen), 1.0f);
     spheres[i].emissionColor = spheres[i].color;
     spheres[i].shininess = 0.0f;
+    spheres[i].smoothness = propertyDis(gen);
+    spheres[i].specularProbability = propertyDis(gen);
   }
   // the first sphere is the light source
-  spheres[0].center = glm::vec3(-4.0f, 3.0f, 8.0f);
-  spheres[0].radius = 3.0f;
+  spheres[0].center = glm::vec3(-30.0f, 10.0f, 40.0f);
+  spheres[0].radius = 40.0f;
   spheres[0].color = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
   spheres[0].emissionColor = glm::vec4(1.0f);
-  spheres[0].shininess = 3.0f;
+  spheres[0].shininess = 1.0f;
+  spheres[0].smoothness = 0.0f;
 
   rtMesh->setupUBO(spheres, MAX_SPHERES, GL_DYNAMIC_DRAW);
 
@@ -98,8 +101,8 @@ void TestRtSphere::OnRender() {
   unsigned int ticks = frameIdx + 1;
   float timeValue = SDL_GetTicks() / 1000.0f;
   if (isRotate) {
-    spheres[0].center[0] = 10.0f * sin(timeValue);
-    spheres[0].center[2] = 10.0f * cos(timeValue);
+    spheres[0].center[0] = 50.0f * sin(timeValue);
+    spheres[0].center[2] = 50.0f * cos(timeValue);
   }
   rtMesh->updateUBO(spheres, MAX_SPHERES);
 
@@ -110,7 +113,6 @@ void TestRtSphere::OnRender() {
   glUniform1i(glGetUniformLocation(shaderProgram->ID, "numSpheres"), numSpheres);
   glUniform1i(glGetUniformLocation(shaderProgram->ID, "numBounces"), numBounces);
   glUniform1i(glGetUniformLocation(shaderProgram->ID, "numRays"), numRays);
-  glUniform1f(glGetUniformLocation(shaderProgram->ID, "lightStrengthFactor"), lightStrengthFactor);
 
   rtMesh->draw(shaderProgram.get());
 
@@ -131,23 +133,27 @@ void TestRtSphere::OnRender() {
   glUniform1i(glGetUniformLocation(frameShader->ID, "numFrames"), frameIdx);
   frameMesh->draw(frameShader.get());
 
-  // glBindFramebuffer(GL_FRAMEBUFFER, 0);
   frameIdx++;
 }
 
 void TestRtSphere::OnImGuiRender() {
-  ImGui::SliderInt("Spheres", &numSpheres, 0, MAX_SPHERES);
+  ImGui::Text("Ray Casting:");
   ImGui::SliderInt("Bounces", &numBounces, 1, 10);
-  ImGui::SliderFloat("Lt Str", &lightStrengthFactor, 1.0f, 10.0f);
-  ImGui::SliderInt("Rays", &numRays, 1, 20);
-  if (ImGui::Checkbox("Real Time Toggle", &isRealTime)) {
-    frameIdx = 0;  // reset frame index
-  }
-  ImGui::Checkbox("Rotate Main Light", &isRotate);
-  if (ImGui::Checkbox("Show Main Light", &isFirstSphereLight)) {
+  ImGui::SliderInt("Num", &numRays, 1, 20);
+  ImGui::Text("Main Light:");
+  ImGui::SliderFloat("Height", &spheres[0].center[1], 0.0f, 100.0f);
+  ImGui::SliderFloat("Radius", &spheres[0].radius, 40.0f, 100.0f);
+  if (ImGui::Checkbox("Show", &isFirstSphereLight))
     glUniform1i(glGetUniformLocation(shaderProgram->ID, "isFirstSphereLight"), isFirstSphereLight);
-  }
-  if (ImGui::Checkbox("Random Shine Sphere", &isRandomShine)) {
+  ImGui::Checkbox("Rotate", &isRotate);
+
+  ImGui::Text("Spheres:");
+  ImGui::SliderInt("Num", &numSpheres, 0, MAX_SPHERES);
+  if (ImGui::Checkbox("Enable Specular Bounce", &enableSpecularBounce))
+    glUniform1i(glGetUniformLocation(shaderProgram->ID, "isSpecularBounce"), enableSpecularBounce);
+  if (ImGui::Checkbox("White Specular Light", &isSpecularWhite))
+    glUniform1i(glGetUniformLocation(shaderProgram->ID, "isSpecularWhite"), isSpecularWhite);
+  if (ImGui::Checkbox("Random Shine Spheres", &isRandomShine)) {
     std::random_device rd;
     std::mt19937 gen(rd());
     // 20% of the spheres have shininess
@@ -156,6 +162,10 @@ void TestRtSphere::OnImGuiRender() {
       float shiness = isRandomShine ? shinessDis(gen) : 0.0f;
       spheres[i].shininess = 8.0f < shiness ? 1.2 : 0.0f;
     }
+  }
+  ImGui::Text("Render:");
+  if (ImGui::Checkbox("Real Time Toggle", &isRealTime)) {
+    frameIdx = 0;  // reset frame index
   }
 }
 

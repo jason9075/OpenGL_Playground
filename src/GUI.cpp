@@ -33,8 +33,8 @@ void GUI::draw(std::shared_ptr<Camera> camera) {
   ImGui::Begin("Info");
 
   // set the window size
-  ImGui::SetWindowPos(ImVec2(0, 0));
-  ImVec2 infoWindowSize = ImGui::GetWindowSize();
+  ImGui::SetWindowPos(ImVec2(0, 0));   // top-left corner
+  ImGui::SetWindowSize(ImVec2(0, 0));  // auto resize
 
   ImGui::Text("FPS: %.1f (%.3f ms/f)", ImGui::GetIO().Framerate, 1000.0f / ImGui::GetIO().Framerate);
   if (ImGui::Combo("##combo", &selectedItem, itemGetter, &allTests, allTests.size())) {
@@ -79,8 +79,6 @@ void GUI::draw(std::shared_ptr<Camera> camera) {
     }
     ImGui::EndTabBar();
   }
-
-  ImGui::SetWindowSize(ImVec2(infoWindowSize.x, 0));
 
   // end of the info window
   ImGui::End();

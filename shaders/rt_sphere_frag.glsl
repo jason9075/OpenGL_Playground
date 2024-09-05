@@ -12,17 +12,20 @@ const int MAX_SPHERES = 100;
 uniform int numSpheres = 2;
 uniform int numBounces = 2;
 uniform int numRays = 1;
-uniform float lightStrengthFactor = 1.0; // Lambert's cosine law
 uniform bool isFirstSphereLight = true;
+uniform bool isSpecularBounce = false;
+uniform bool isSpecularWhite = false;
 
 struct Sphere {
   vec3 center;
   float radius;
   // Material properties
-  vec4 color;          // 16 bytes
-  vec4 emissionColor;  // 16 bytes
-  vec3 padding;        // 12 bytes
-  float shininess;     // 4 bytes
+  vec4 color;                 // 16 bytes
+  vec4 emissionColor;         // 16 bytes
+  float shininess;            // 4 bytes
+  float smoothness;           // 4 bytes
+  float specularProbability;  // 4 bytes
+  float padding;              // 4 bytes
 };
 struct HitInfo {
   bool didHit;
@@ -33,6 +36,8 @@ struct HitInfo {
   vec4 color;
   vec4 emissionColor;
   float shininess;
+  float smoothness;
+  float specularProbability;
 };
 
 /*
@@ -65,6 +70,13 @@ vec3 randomDirOnSurface(inout uint state, vec3 normal) {
     return dir * sign(dot(dir, normal));
   }
   return vec3(0);
+}
+
+vec3 randomDir(inout uint state) {
+  float x = rand(state) * 2.0 - 1.0;
+  float y = rand(state) * 2.0 - 1.0;
+  float z = rand(state) * 2.0 - 1.0;
+  return normalize(vec3(x, y, z));
 }
 
 HitInfo raySphere(vec3 ro, vec3 rd, vec3 sphereCenter, float sphereRadius) {
@@ -113,6 +125,8 @@ HitInfo calcClosestHit(vec3 ro, vec3 rd) {
       closestHit.color = sphere.color;
       closestHit.emissionColor = sphere.emissionColor;
       closestHit.shininess = sphere.shininess;
+      closestHit.smoothness = sphere.smoothness;
+      closestHit.specularProbability = sphere.specularProbability;
     }
   }
 
@@ -127,14 +141,18 @@ vec3 trace(vec3 ro, vec3 rd, inout uint state) {
     if (hitInfo.didHit) {
       // If the light hits the surface, return the direction of the reflected ray
       ro = hitInfo.hitPos;
-      rd = randomDirOnSurface(state, hitInfo.normal);
+      vec3 diffuseDir;
+      diffuseDir = normalize(hitInfo.normal + randomDir(state));
+      vec3 specularDir = reflect(rd, hitInfo.normal);
+      bool isSpecular = isSpecularBounce ? rand(state) < hitInfo.specularProbability : false;
+      rd = mix(diffuseDir, specularDir, hitInfo.smoothness * float(isSpecular));
 
       vec4 emittedLight = hitInfo.emissionColor * hitInfo.shininess;
-      float lightStrength = dot(hitInfo.normal, rd);
       // add the color of the light
-      incomingLight += rayColor * emittedLight;  
+      incomingLight += rayColor * emittedLight;
       // absorb the color of the surface and prepared for the next bounce
-      rayColor *= hitInfo.color * lightStrength * lightStrengthFactor; 
+      vec4 specularColor = isSpecularWhite ? vec4(1.0f) : hitInfo.color;
+      rayColor *= mix(hitInfo.color, specularColor, float(isSpecular));
     } else {
       break;
     }
