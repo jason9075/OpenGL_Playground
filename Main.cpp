@@ -8,6 +8,7 @@
 #include "tests/TestGs.hpp"
 #include "tests/TestLighting.hpp"
 #include "tests/TestModel.hpp"
+#include "tests/TestParallaxMapping.hpp"
 #include "tests/TestRoom.hpp"
 #include "tests/TestRtBVH.hpp"
 #include "tests/TestRtSphere.hpp"
@@ -39,7 +40,7 @@ int main(int argc, char *args[]) {
   }
 
   // test::Test *currentTest = new test::Test;
-  test::Test *currentTest = new test::TestRtSphere(SCREEN_WIDTH, SCREEN_HEIGHT);
+  test::Test *currentTest = new test::TestParallaxMapping(SCREEN_WIDTH, SCREEN_HEIGHT);
   GUI gui(window, context, currentTest);
 
   gui.registerTest<test::Test>("-");  // dummy test
@@ -64,6 +65,9 @@ int main(int argc, char *args[]) {
     while (SDL_PollEvent(&e) != 0) {
       if (e.type == SDL_QUIT || (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_q)) {
         quit = true;
+      }
+      if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_r) {
+        currentTest->OnReload();
       }
       if (!gui.isMouseOverGUI()) currentTest->OnEvent(e);
       ImGui_ImplSDL2_ProcessEvent(&e);  // let imgui interact with SDL

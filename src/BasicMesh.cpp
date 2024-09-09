@@ -106,7 +106,8 @@ std::unique_ptr<Mesh> createCubeMesh(float scale) {
   return std::make_unique<Mesh>(vertices, indices);
 }
 
-std::unique_ptr<Mesh> createPlaneMesh(const float scale, const glm::vec3 normal) {
+std::unique_ptr<Mesh> createPlaneMesh(const float scale, const glm::vec3 normal, const glm::vec3 color,
+                                      const glm::vec3 center) {
   std::vector<Vertex> vertices;
   // Step 1: Find two orthogonal vectors to the normal
   glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -122,10 +123,14 @@ std::unique_ptr<Mesh> createPlaneMesh(const float scale, const glm::vec3 normal)
   bitangent = glm::normalize(glm::cross(normal, tangent));
 
   // Step 2: Define the four vertices of the plane
-  vertices.push_back({-scale * tangent - scale * bitangent, normal});
-  vertices.push_back({scale * tangent - scale * bitangent, normal});
-  vertices.push_back({scale * tangent + scale * bitangent, normal});
-  vertices.push_back({-scale * tangent + scale * bitangent, normal});
+  vertices.push_back({-scale * tangent - scale * bitangent, normal, color, {0.0f, 0.0f}});
+  vertices.push_back({scale * tangent - scale * bitangent, normal, color, {1.0f, 0.0f}});
+  vertices.push_back({scale * tangent + scale * bitangent, normal, color, {1.0f, 1.0f}});
+  vertices.push_back({-scale * tangent + scale * bitangent, normal, color, {0.0f, 1.0f}});
+
+  for (auto &vertex : vertices) {
+    vertex.position += center;
+  }
   std::vector<GLuint> indices = {0, 1, 2, 2, 3, 0};
 
   return std::make_unique<Mesh>(vertices, indices);

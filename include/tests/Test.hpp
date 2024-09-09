@@ -11,6 +11,7 @@ class Test {
 
   virtual void OnEvent(SDL_Event& event);
   virtual void OnRender();
+  virtual void OnReload();
   virtual void OnImGuiRender();
   virtual void OnExit();
 };

@@ -7,6 +7,8 @@ std::unique_ptr<Mesh> createCuboidMesh(float width = 1.0f, float height = 1.0f, 
 
 std::unique_ptr<Mesh> createCubeMesh(float scale = 1.0f);
 
-std::unique_ptr<Mesh> createPlaneMesh(const float scale = 1.0f, const glm::vec3 normal = glm::vec3(0.0f, 0.0f, 1.0f));
+std::unique_ptr<Mesh> createPlaneMesh(const float scale = 1.0f, const glm::vec3 normal = glm::vec3(0.0f, 0.0f, 1.0f),
+                                      const glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f),
+                                      const glm::vec3 center = glm::vec3(0.0f));
 
 std::unique_ptr<Mesh> createFrameMesh();

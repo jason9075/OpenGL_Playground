@@ -3,62 +3,103 @@
 #include <OPPCH.h>
 
 Shader::Shader(const char *vertShaderPath, const char *fragShaderPath) {
-  std::string vertexCode = readFile(vertShaderPath);
-  std::string fragmentCode = readFile(fragShaderPath);
+  vertPath = vertShaderPath;
+  geomPath = nullptr;
+  fragPath = fragShaderPath;
+  std::vector<GLenum> shaderType = {GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
+  std::vector<const char *> shaderPath({vertPath, fragPath});
 
-  const char *vertexShaderSource = vertexCode.c_str();
-  const char *fragmentShaderSource = fragmentCode.c_str();
+  for (int i = 0; i < shaderType.size(); i++) {
+    GLuint shader = loadShader(shaderPath[i], shaderType[i]);
+    shaders.push_back(shader);
+  }
 
-  // Build and compile our shader program
-  // Vertex shader
-  GLuint vertexShader = compileShader(vertexShaderSource, GL_VERTEX_SHADER);
-  checkCompileErrors(vertexShader, "VERTEX");
-  // Fragment shader
-  GLuint fragmentShader = compileShader(fragmentShaderSource, GL_FRAGMENT_SHADER);
-  checkCompileErrors(fragmentShader, "FRAGMENT");
   // Link shaders
   ID = glCreateProgram();
-  glAttachShader(ID, vertexShader);
-  glAttachShader(ID, fragmentShader);
+  for (int i = 0; i < shaders.size(); i++) {
+    glAttachShader(ID, shaders[i]);
+  }
   glLinkProgram(ID);
   checkLinkErrors(ID, "PROGRAM");
-  // Delete the shaders as they're linked into our program now and no longer
-  // necessary
-  glDeleteShader(vertexShader);
-  glDeleteShader(fragmentShader);
+  // Delete the shaders as they're linked into our program now and no longer necessary
+  for (int i = 0; i < shaders.size(); i++) {
+    glDeleteShader(shaders[i]);
+  }
 }
 
-Shader::Shader(const char *vertShaderPath, const char *gertShaderPath, const char *fragShaderPath) {
-  std::string vertexCode = readFile(vertShaderPath);
-  std::string geometryCode = readFile(gertShaderPath);
-  std::string fragmentCode = readFile(fragShaderPath);
+Shader::Shader(const char *vertShaderPath, const char *geomShaderPath, const char *fragShaderPath) {
+  vertPath = vertShaderPath;
+  geomPath = geomShaderPath;
+  fragPath = fragShaderPath;
+  std::vector<GLenum> shaderType = {GL_VERTEX_SHADER, GL_GEOMETRY_SHADER, GL_FRAGMENT_SHADER};
+  std::vector<const char *> shaderPath({vertPath, geomPath, fragPath});
 
-  const char *vertexShaderSource = vertexCode.c_str();
-  const char *geometryShaderSource = geometryCode.c_str();
-  const char *fragmentShaderSource = fragmentCode.c_str();
+  for (int i = 0; i < shaderType.size(); i++) {
+    GLuint shader = loadShader(shaderPath[i], shaderType[i]);
+    shaders.push_back(shader);
+  }
 
-  // Build and compile our shader program
-  // Vertex shader
-  GLuint vertexShader = compileShader(vertexShaderSource, GL_VERTEX_SHADER);
-  checkCompileErrors(vertexShader, "VERTEX");
-  // Geometry shader
-  GLuint geometryShader = compileShader(geometryShaderSource, GL_GEOMETRY_SHADER);
-  checkCompileErrors(geometryShader, "GEOMETRY");
-  // Fragment shader
-  GLuint fragmentShader = compileShader(fragmentShaderSource, GL_FRAGMENT_SHADER);
-  checkCompileErrors(fragmentShader, "FRAGMENT");
   // Link shaders
   ID = glCreateProgram();
-  glAttachShader(ID, vertexShader);
-  glAttachShader(ID, geometryShader);
-  glAttachShader(ID, fragmentShader);
+  for (int i = 0; i < shaders.size(); i++) {
+    glAttachShader(ID, shaders[i]);
+  }
   glLinkProgram(ID);
   checkLinkErrors(ID, "PROGRAM");
-  // Delete the shaders as they're linked into our program now and no longer
-  // necessary
-  glDeleteShader(vertexShader);
-  glDeleteShader(geometryShader);
-  glDeleteShader(fragmentShader);
+  for (int i = 0; i < shaders.size(); i++) {
+    glDeleteShader(shaders[i]);
+  }
+}
+
+GLuint Shader::loadShader(const char *path, GLenum shaderType) {
+  std::string shaderCode = readFile(path);
+
+  const char *shaderSource = shaderCode.c_str();
+  GLuint shader = compileShader(shaderSource, shaderType);
+  checkCompileErrors(shader, path);
+
+  return shader;
+}
+
+void Shader::reload() {
+  // clear the existing shaders
+  for (int i = 0; i < shaders.size(); i++) {
+    glDetachShader(ID, shaders[i]);
+    glDeleteShader(shaders[i]);
+  }
+  shaders.clear();
+
+  std::vector<GLenum> shaderType;
+  std::vector<const char *> shaderPath;
+
+  if (vertPath != nullptr) {
+    shaderType.push_back(GL_VERTEX_SHADER);
+    shaderPath.push_back(vertPath);
+  }
+  if (geomPath != nullptr) {
+    std::cout << "Reloading geometry shader" << std::endl;
+    shaderType.push_back(GL_GEOMETRY_SHADER);
+    shaderPath.push_back(geomPath);
+  }
+  if (fragPath != nullptr) {
+    shaderType.push_back(GL_FRAGMENT_SHADER);
+    shaderPath.push_back(fragPath);
+  }
+  for (int i = 0; i < shaderType.size(); i++) {
+    GLuint shader = loadShader(shaderPath[i], shaderType[i]);
+    shaders.push_back(shader);
+  }
+
+  // Link shaders
+  ID = glCreateProgram();
+  for (int i = 0; i < shaders.size(); i++) {
+    glAttachShader(ID, shaders[i]);
+  }
+  glLinkProgram(ID);
+  checkLinkErrors(ID, "PROGRAM");
+  for (int i = 0; i < shaders.size(); i++) {
+    glDeleteShader(shaders[i]);
+  }
 }
 
 void Shader::use() { glUseProgram(ID); }
@@ -100,13 +141,13 @@ GLuint Shader::compileShader(const char *shaderSource, GLenum shaderType) {
   return shader;
 }
 
-void Shader::checkCompileErrors(GLuint shader, std::string type) {
+void Shader::checkCompileErrors(GLuint shader, const char *shaderPath) {
   GLint success;
   GLchar infoLog[512];
   glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
   if (!success) {
     glGetShaderInfoLog(shader, 512, NULL, infoLog);
-    std::cout << "ERROR::SHADER::" << type << "::COMPILATION_FAILED\n" << infoLog << std::endl;
+    std::cout << "ERROR::SHADER::" << shaderPath << "::COMPILATION_FAILED\n" << infoLog << std::endl;
   }
 }
 

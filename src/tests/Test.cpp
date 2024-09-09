@@ -12,6 +12,7 @@ Test::Test() {
 Test::~Test() {}
 
 void Test::OnEvent(SDL_Event& event) {}
+void Test::OnReload() {}
 void Test::OnRender() {}
 void Test::OnImGuiRender() {}
 void Test::OnExit() {}
