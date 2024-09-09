@@ -144,7 +144,7 @@ void Texture::unbind() { glBindTexture(GL_TEXTURE_2D, 0); }
 
 void Texture::del() { glDeleteTextures(1, &ID); }
 
-Mesh::Mesh(const std::vector<Vertex> &vertices) : vertices(vertices), vao(), vbo(vertices), ebo(), ubo() {
+Mesh::Mesh(const std::vector<Vertex> &vertices) : vertices(vertices), vao(), vbo(vertices), ebo() {
   vao.bind();
 
   setupMeshAttributes();
@@ -153,7 +153,7 @@ Mesh::Mesh(const std::vector<Vertex> &vertices) : vertices(vertices), vao(), vbo
 }
 
 Mesh::Mesh(const std::vector<Vertex> &vertices, const std::vector<GLuint> &indices)
-    : vertices(vertices), indices(indices), vao(), vbo(vertices), ebo(), ubo() {
+    : vertices(vertices), indices(indices), vao(), vbo(vertices), ebo() {
   vao.bind();
   ebo.bind();
   ebo.bufferData(indices);
@@ -165,7 +165,7 @@ Mesh::Mesh(const std::vector<Vertex> &vertices, const std::vector<GLuint> &indic
 
 Mesh::Mesh(const std::vector<Vertex> &vertices, const std::vector<GLuint> &indices,
            const std::vector<Texture> &textures)
-    : vertices(vertices), indices(indices), textures(textures), vao(), vbo(vertices), ebo(), ubo() {
+    : vertices(vertices), indices(indices), textures(textures), vao(), vbo(vertices), ebo() {
   vao.bind();
   ebo.bind();
   ebo.bufferData(indices);
@@ -230,7 +230,9 @@ void Mesh::del() {
   vao.del();
   vbo.del();
   ebo.del();
-  ubo.del();
+  for (auto &ubo : ubo) {
+    ubo.del();
+  }
 }
 
 /*

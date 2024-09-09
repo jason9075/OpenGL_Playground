@@ -8,18 +8,26 @@ uniform vec2 resolution;
 uniform vec3 camPosition;
 uniform mat4 viewMatrix;
 
-const int MAX_SPHERES = 100;
+// Sphere data
+/*
+MAX_SPHERES is const variable, if you want to dynamically change the number of spheres,
+You can use SSBO (Shader Storage Buffer Object) instead of UBO (Uniform Buffer Object),
+But to use SSBO, you need to use OpenGL 4.3 or higher. So we use constant here.
+*/
+const int MAX_SPHERES = 50;
 uniform int numSpheres = 2;
 uniform int numBounces = 2;
 uniform int numRays = 1;
-uniform bool isFirstSphereLight = true;
+uniform bool showSphereLight = true;
 uniform bool isSpecularBounce = false;
 uniform bool isSpecularWhite = false;
 
-struct Sphere {
-  vec3 center;
-  float radius;
-  // Material properties
+// Triangle data
+const int MAX_TRIANGLES = 24;  // 6 Plane (12) + 1 Light Cuboid (12)
+uniform bool showCornellPlanes = true;
+uniform bool showCornellLight = true;
+
+struct Material {             // 48 bytes
   vec4 color;                 // 16 bytes
   vec4 emissionColor;         // 16 bytes
   float shininess;            // 4 bytes
@@ -27,17 +35,32 @@ struct Sphere {
   float specularProbability;  // 4 bytes
   float padding;              // 4 bytes
 };
+
+struct Sphere {
+  vec3 center;        // 12 bytes
+  float radius;       // 4 bytes
+  Material material;  // 48 bytes
+};
+
+struct Triangle {
+  vec3 posA;
+  float padding1;
+  vec3 posB;
+  float padding2;
+  vec3 posC;
+  float padding3;
+  vec3 normal;
+  float padding4;
+  // Material properties
+  Material material;  // 48 bytes
+};
+
 struct HitInfo {
   bool didHit;
   float dst;
   vec3 hitPos;
   vec3 normal;
-  // Material properties
-  vec4 color;
-  vec4 emissionColor;
-  float shininess;
-  float smoothness;
-  float specularProbability;
+  Material material;
 };
 
 /*
@@ -46,13 +69,14 @@ struct HitInfo {
   You have to align the data yourself, and the alignment is 16 bytes
 */
 layout(std140) uniform sphereData { Sphere sphereList[MAX_SPHERES]; };
+layout(std140) uniform triangleData { Triangle triangleList[MAX_TRIANGLES]; };
 
 /*
   Copy from
   github.com/SebLague/Ray-Tracing/blob/main/Assets/Scripts/Shaders/RayTracer.shader
 */
 float rand(inout uint state) {
-  state = ticks * 719393u + state * 747796405u + 2891336453u;
+  state = (ticks * 719413u + state) * 747796405u + 2891336453u;
   uint result = ((state >> ((state >> 28) + 4u)) ^ state) * 277803737u;
   result = (result >> 22) ^ result;
   return result / 4294967295.0;  // 2^32 - 1;
@@ -85,7 +109,7 @@ HitInfo raySphere(vec3 ro, vec3 rd, vec3 sphereCenter, float sphereRadius) {
   hitInfo.dst = 0.0f;
   hitInfo.hitPos = vec3(0.0f);
   hitInfo.normal = vec3(0.0f);
-  hitInfo.color = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+  hitInfo.material.color = vec4(0.0f, 0.0f, 0.0f, 1.0f);
 
   vec3 oc = ro - sphereCenter;
   float a = dot(rd, rd);
@@ -106,27 +130,79 @@ HitInfo raySphere(vec3 ro, vec3 rd, vec3 sphereCenter, float sphereRadius) {
   return hitInfo;
 }
 
+// Möller–Trumbore algorithm
+HitInfo rayTriangle(vec3 ro, vec3 rd, Triangle triangle) {
+  HitInfo hitInfo;
+  hitInfo.didHit = false;
+  hitInfo.dst = 0.0f;
+  hitInfo.hitPos = vec3(0.0f);
+  hitInfo.normal = vec3(0.0f);
+  hitInfo.material.color = vec4(0.0f, 0.0f, 0.0f, 1.0f);  // black
+
+  vec3 edge1 = triangle.posB - triangle.posA;
+  vec3 edge2 = triangle.posC - triangle.posA;
+  vec3 h = cross(rd, edge2);
+  float a = dot(edge1, h);
+  // Check if the ray is parallel to the triangle
+  if (a > -0.00001f && a < 0.00001f) {
+    return hitInfo;
+  }
+
+  // Backface culling: check if the ray is hitting the back of the triangle
+  vec3 normal = triangle.normal;
+  if (dot(rd, normal) > 0.0f) {
+    return hitInfo;  // ray is coming from the back
+  }
+
+  float f = 1.0f / a;
+  vec3 s = ro - triangle.posA;
+  float u = f * dot(s, h);
+  if (u < 0.0f || u > 1.0f) {
+    return hitInfo;
+  }
+
+  vec3 q = cross(s, edge1);
+  float v = f * dot(rd, q);
+  if (v < 0.0f || u + v > 1.0f) {
+    return hitInfo;
+  }
+
+  float t = f * dot(edge2, q);
+  if (t > 0.00001f) {
+    hitInfo.didHit = true;
+    hitInfo.dst = t;
+    hitInfo.hitPos = ro + rd * t;
+    hitInfo.normal = triangle.normal;
+  }
+
+  return hitInfo;
+}
+
 HitInfo calcClosestHit(vec3 ro, vec3 rd) {
   HitInfo closestHit;
   closestHit.didHit = false;
   closestHit.dst = 1000000.0f;
 
-  int index = isFirstSphereLight ? 0 : 1;
+  // Sphere intersection
+  int index = showSphereLight ? 0 : 1;
   for (int i = index; i < numSpheres; i++) {
     Sphere sphere = sphereList[i];
-    // If the sphere is a light source, set the radius to 1
-    if (i != 0 && 0 < sphere.shininess) {
-      // sphere.emissionColor = vec4(1.0f);
-      sphere.radius = 0.25f;
-    }
     HitInfo hitInfo = raySphere(ro, rd, sphere.center, sphere.radius);
     if (hitInfo.didHit && hitInfo.dst < closestHit.dst) {
       closestHit = hitInfo;
-      closestHit.color = sphere.color;
-      closestHit.emissionColor = sphere.emissionColor;
-      closestHit.shininess = sphere.shininess;
-      closestHit.smoothness = sphere.smoothness;
-      closestHit.specularProbability = sphere.specularProbability;
+      closestHit.material = sphere.material;
+    }
+  }
+
+  // Triangle intersection
+  int startIndex = showCornellPlanes ? 0 : 12;
+  int endIndex = showCornellLight ? MAX_TRIANGLES : MAX_TRIANGLES - 12;
+  for (int i = startIndex; i < endIndex; i++) {
+    Triangle triangle = triangleList[i];
+    HitInfo hitInfo = rayTriangle(ro, rd, triangle);
+    if (hitInfo.didHit && hitInfo.dst < closestHit.dst) {
+      closestHit = hitInfo;
+      closestHit.material = triangle.material;
     }
   }
 
@@ -139,20 +215,20 @@ vec3 trace(vec3 ro, vec3 rd, inout uint state) {
   for (int i = 0; i < numBounces; i++) {
     HitInfo hitInfo = calcClosestHit(ro, rd);
     if (hitInfo.didHit) {
+      Material material = hitInfo.material;
       // If the light hits the surface, return the direction of the reflected ray
       ro = hitInfo.hitPos;
-      vec3 diffuseDir;
-      diffuseDir = normalize(hitInfo.normal + randomDir(state));
+      vec3 diffuseDir = normalize(hitInfo.normal + randomDir(state));
       vec3 specularDir = reflect(rd, hitInfo.normal);
-      bool isSpecular = isSpecularBounce ? rand(state) < hitInfo.specularProbability : false;
-      rd = mix(diffuseDir, specularDir, hitInfo.smoothness * float(isSpecular));
+      bool isSpecular = isSpecularBounce ? rand(state) < material.specularProbability : false;
+      rd = mix(diffuseDir, specularDir, material.smoothness * float(isSpecular));
 
-      vec4 emittedLight = hitInfo.emissionColor * hitInfo.shininess;
+      vec4 emittedLight = material.emissionColor * material.shininess;
       // add the color of the light
       incomingLight += rayColor * emittedLight;
       // absorb the color of the surface and prepared for the next bounce
-      vec4 specularColor = isSpecularWhite ? vec4(1.0f) : hitInfo.color;
-      rayColor *= mix(hitInfo.color, specularColor, float(isSpecular));
+      vec4 specularColor = isSpecularWhite ? vec4(1.0f) : material.color;
+      rayColor *= mix(material.color, specularColor, float(isSpecular));
     } else {
       break;
     }

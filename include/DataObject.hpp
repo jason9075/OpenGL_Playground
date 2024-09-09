@@ -119,7 +119,7 @@ class Mesh {
   VAO vao;
   VBO vbo;
   EBO ebo;
-  UBO ubo;
+  std::vector<UBO> ubo;
 
   Mesh(const std::vector<Vertex> &vertices);
   Mesh(const std::vector<Vertex> &vertices, const std::vector<GLuint> &indices);
@@ -128,17 +128,20 @@ class Mesh {
   unsigned int numTriangles();
 
   template <typename T>
-  void setupUBO(const T *data, size_t count, GLenum usage) {
-    ubo.bind();
-    ubo.bufferData(data, count, usage);
-    ubo.unbind();
+  void setupUBO(const T *data, size_t count, GLenum usage, size_t index = 0) {
+    if (ubo.size() <= index) {
+      ubo.resize(index + 1);
+    }
+    ubo[index].bind();
+    ubo[index].bufferData(data, count, usage);
+    ubo[index].unbind();
   }
 
   template <typename T>
-  void updateUBO(const T *data, size_t count) {
-    ubo.bind();
-    ubo.bufferSubData(data, count);
-    ubo.unbind();
+  void updateUBO(const T *data, size_t count, size_t index = 0) {
+    ubo[index].bind();
+    ubo[index].bufferSubData(data, count);
+    ubo[index].unbind();
   }
   void setTexture(const std::vector<Texture> &textures);
 

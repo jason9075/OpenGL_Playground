@@ -75,6 +75,7 @@ void GUI::draw(std::shared_ptr<Camera> camera) {
       ImGui::Text("space/c: up/down");
       ImGui::Text("LMB: look around");
       ImGui::Text("Shift: move faster");
+      ImGui::Text("r: reload shader");
       ImGui::EndTabItem();
     }
     ImGui::EndTabBar();
