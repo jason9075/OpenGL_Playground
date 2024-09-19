@@ -19,8 +19,8 @@
 
 // Global variables
 const char *WINDOW_TITLE = "OpenGL Demo";
-const int SCREEN_WIDTH = 1366;
-const int SCREEN_HEIGHT = 768;
+const int SCREEN_WIDTH = 1536;
+const int SCREEN_HEIGHT = 864;
 
 int main(int argc, char *args[]) {
   // init SDL

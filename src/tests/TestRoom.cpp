@@ -79,7 +79,6 @@ void TestRoom::OnRender() {
 void TestRoom::OnImGuiRender() {}
 
 void TestRoom::OnExit() {
-  glUseProgram(0);
   for (auto &texture : textures) {
     texture.del();
   }

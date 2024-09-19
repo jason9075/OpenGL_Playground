@@ -48,7 +48,6 @@ void TestTriangle::OnImGuiRender() {
 }
 
 void TestTriangle::OnExit() {
-  glUseProgram(0);
   mesh->del();
   shaderProgram->del();
 }

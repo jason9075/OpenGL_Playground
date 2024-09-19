@@ -71,7 +71,6 @@ void TestSdfTaipei101::OnImGuiRender() {
 }
 
 void TestSdfTaipei101::OnExit() {
-  glUseProgram(0);
   sdfMesh->del();
   shaderSDF->del();
 }

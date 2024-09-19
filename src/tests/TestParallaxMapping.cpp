@@ -57,8 +57,5 @@ void TestParallaxMapping::OnReload() {
               camera->position.z);
 }
 
-void TestParallaxMapping::OnExit() {
-  glUseProgram(0);
-  shader->del();
-}
+void TestParallaxMapping::OnExit() { shader->del(); }
 }  // namespace test

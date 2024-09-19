@@ -38,6 +38,7 @@ void GUI::draw(std::shared_ptr<Camera> camera) {
 
   ImGui::Text("FPS: %.1f (%.3f ms/f)", ImGui::GetIO().Framerate, 1000.0f / ImGui::GetIO().Framerate);
   if (ImGui::Combo("##combo", &selectedItem, itemGetter, &allTests, allTests.size())) {
+    glUseProgram(0);
     currentTest->OnExit();
     delete currentTest;
     currentTest = allTests[selectedItem].second();

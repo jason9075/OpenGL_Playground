@@ -91,7 +91,6 @@ void TestSdfBlend::OnImGuiRender() {
 }
 
 void TestSdfBlend::OnExit() {
-  glUseProgram(0);
   modelMesh->del();
   sdfMesh->del();
   shaderSDF->del();
