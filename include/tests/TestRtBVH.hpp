@@ -20,6 +20,12 @@ class TestRtBVH : public Test {
 
  private:
   std::chrono::time_point<std::chrono::high_resolution_clock> startTS;
+  std::unique_ptr<Mesh> beam;
+
+  glm::mat4 beamModelMatrix = glm::mat4(1.0f);
+  glm::quat beamRotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+  // beam rotation in 3D space
+
   std::unique_ptr<Shader> shaderProgram;
   std::unique_ptr<Model> model;
   std::unique_ptr<CameraEventListener> listener;

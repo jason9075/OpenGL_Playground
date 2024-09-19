@@ -60,13 +60,8 @@ TestRtSphere::TestRtSphere(const float screenWidth, const float screenHeight) {
   rtMesh->setupUBO(triangles, MAX_TRIANGLES, GL_DYNAMIC_DRAW, 1);
 
   shaderProgram->use();
-  glUniform1i(glGetUniformLocation(shaderProgram->ID, "numSpheres"), numSpheres);
   glUniform1f(glGetUniformLocation(shaderProgram->ID, "fov"), camera->fov);
   glUniform2f(glGetUniformLocation(shaderProgram->ID, "resolution"), screenWidth, screenHeight);
-  glUniform3fv(glGetUniformLocation(shaderProgram->ID, "lightColor"), 1, glm::value_ptr(glm::vec3(1.0f)));
-  glUniform1i(glGetUniformLocation(shaderProgram->ID, "isSpecularBounce"), enableSpecularBounce);
-  glUniform1i(glGetUniformLocation(shaderProgram->ID, "isSpecularWhite"), isSpecularWhite);
-  glUniform1i(glGetUniformLocation(shaderProgram->ID, "isFirstSphereLight"), showSphereLight);
   glUniformBlockBinding(shaderProgram->ID, glGetUniformBlockIndex(shaderProgram->ID, "sphereData"), 0);
   glBindBufferBase(GL_UNIFORM_BUFFER, 0, rtMesh->ubo[0].ID);
   glUniformBlockBinding(shaderProgram->ID, glGetUniformBlockIndex(shaderProgram->ID, "triangleData"), 1);
@@ -94,9 +89,8 @@ void TestRtSphere::OnRender() {
   camera->moveCamera();
 
   // some time based animation
-  unsigned int ticks = frameIdx + 1;
-  float timeValue = SDL_GetTicks() / 1000.0f;
   if (isRotate) {
+    float timeValue = SDL_GetTicks() / 1000.0f;
     spheres[0].center[0] = 9.0f * sin(timeValue);
     spheres[0].center[1] = CBS + 9.0f * cos(timeValue);
     spheres[0].center[2] = 9.0f * cos(timeValue);
@@ -107,10 +101,16 @@ void TestRtSphere::OnRender() {
   shaderProgram->use();
   camera->update(shaderProgram.get());
 
-  glUniform1ui(glGetUniformLocation(shaderProgram->ID, "ticks"), ticks);
+  glUniform1ui(glGetUniformLocation(shaderProgram->ID, "frameIdx"), frameIdx);
   glUniform1i(glGetUniformLocation(shaderProgram->ID, "numSpheres"), numSpheres);
   glUniform1i(glGetUniformLocation(shaderProgram->ID, "numBounces"), numBounces);
   glUniform1i(glGetUniformLocation(shaderProgram->ID, "numRays"), numRays);
+  glUniform1i(glGetUniformLocation(shaderProgram->ID, "isSpecularBounce"), enableSpecularBounce);
+  glUniform1i(glGetUniformLocation(shaderProgram->ID, "isSpecularWhite"), isSpecularWhite);
+  glUniform1f(glGetUniformLocation(shaderProgram->ID, "ambientLight"), ambientLight);
+  glUniform1i(glGetUniformLocation(shaderProgram->ID, "showSphereLight"), showSphereLight);
+  glUniform1i(glGetUniformLocation(shaderProgram->ID, "showCornellLight"), isShowCornellLight);
+  glUniform1i(glGetUniformLocation(shaderProgram->ID, "showCornellPlanes"), isShowCornellPlanes);
 
   rtMesh->draw(shaderProgram.get());
 
@@ -135,96 +135,63 @@ void TestRtSphere::OnRender() {
 }
 
 void TestRtSphere::OnImGuiRender() {
-  ImGui::Text("Ray Casting:");
+  ImGui::BulletText("Ray Casting:");
   ImGui::SliderInt("Bounces", &numBounces, 1, 10);
   ImGui::SliderInt("Ray Num", &numRays, 1, 20);
-  if (ImGui::Checkbox("Enable Specular Bounce", &enableSpecularBounce))
-    glUniform1i(glGetUniformLocation(shaderProgram->ID, "isSpecularBounce"), enableSpecularBounce);
-  if (ImGui::Checkbox("White Light Reflect", &isSpecularWhite))
-    glUniform1i(glGetUniformLocation(shaderProgram->ID, "isSpecularWhite"), isSpecularWhite);
+  ImGui::Checkbox("Enable Specular Bounce", &enableSpecularBounce);
+  ImGui::Checkbox("White Light Reflect", &isSpecularWhite);
 
-  ImGui::Text("Cornell Box:");
-  if (ImGui::Checkbox("Show Cornell Planes", &isShowCornellPlanes))
-    glUniform1i(glGetUniformLocation(shaderProgram->ID, "showCornellPlanes"), isShowCornellPlanes);
-  if (ImGui::ColorEdit3("Back Wall", glm::value_ptr(backWallColor))) {
-    for (int i = 10; i < 12; i++) {
-      triangles[i].material.color = glm::vec4(backWallColor, 1.0f);
-    }
+  ImGui::BulletText("Light:");
+  ImGui::SliderFloat("Ambient", &ambientLight, 0.0f, 1.0f);
+  ImGui::Checkbox("Cornell Light", &isShowCornellLight);
+  if (ImGui::SliderFloat("CL Str", &mainLightShininess, 0.0f, 15.0f)) {
+    for (int i = 12; i < 24; i++) triangles[i].material.shininess = mainLightShininess;
+  }
+  ImGui::Text(" - Sphere Light:");
+  ImGui::Checkbox("Show Sphere Light", &showSphereLight);
+  ImGui::SliderFloat("SL Str", &spheres[0].material.shininess, 0.0f, 15.0f);
+  ImGui::SliderFloat("Radius", &spheres[0].radius, 0.5f, 4.0f);
+  ImGui::Checkbox("Rotate", &isRotate);
+  if (ImGui::SliderFloat3("Offset", sphereLightOffset, -10.0f, 10.0f)) {
+    spheres[0].center = glm::vec3(sphereLightOffset[0], CBS + sphereLightOffset[1], sphereLightOffset[2]);
+  }
+
+  ImGui::BulletText("Cornell Box:");
+  ImGui::Checkbox("Show Cornell Planes", &isShowCornellPlanes);
+  if (ImGui::ColorEdit3("Back Col", glm::value_ptr(backWallColor))) {
+    for (int i = 10; i < 12; i++) triangles[i].material.color = glm::vec4(backWallColor, 1.0f);
   }
   ImGui::Text(" - Reflectivity:");
-  if (ImGui::SliderFloat("Red", &redWallReflectivity, 0.0f, 0.995f)) {
-    for (int i = 0; i < 2; i++) {
-      triangles[i].material.smoothness = redWallReflectivity;
-      triangles[i].material.specularProbability = redWallReflectivity;
-    }
-  }
-  if (ImGui::SliderFloat("Green", &greenWallReflectivity, 0.0f, 0.995f)) {
-    for (int i = 2; i < 4; i++) {
-      triangles[i].material.smoothness = greenWallReflectivity;
-      triangles[i].material.specularProbability = greenWallReflectivity;
-    }
-  }
-  if (ImGui::SliderFloat("Floor", &floorReflectivity, 0.0f, 0.995f)) {
-    for (int i = 4; i < 6; i++) {
-      triangles[i].material.smoothness = floorReflectivity;
-      triangles[i].material.specularProbability = floorReflectivity;
-    }
-  }
-  if (ImGui::SliderFloat("Ceiling", &ceilingReflectivity, 0.0f, 0.995f)) {
-    for (int i = 6; i < 8; i++) {
-      triangles[i].material.smoothness = ceilingReflectivity;
-      triangles[i].material.specularProbability = ceilingReflectivity;
-    }
-  }
-  if (ImGui::SliderFloat("Front", &frontWallReflectivity, 0.0f, 0.995f)) {
-    for (int i = 8; i < 10; i++) {
-      triangles[i].material.smoothness = frontWallReflectivity;
-      triangles[i].material.specularProbability = frontWallReflectivity;
-    }
-  }
-  if (ImGui::SliderFloat("Back", &backWallReflectivity, 0.0f, 0.995f)) {
-    for (int i = 10; i < 12; i++) {
-      triangles[i].material.smoothness = backWallReflectivity;
-      triangles[i].material.specularProbability = backWallReflectivity;
-    }
-  }
-  if (ImGui::Checkbox("Show Light", &isShowCornellLight))
-    glUniform1i(glGetUniformLocation(shaderProgram->ID, "showCornellLight"), isShowCornellLight);
-  if (ImGui::SliderFloat("C Str", &mainLightShininess, 0.0f, 15.0f)) {
-    for (int i = 12; i < 24; i++) {
-      triangles[i].material.shininess = mainLightShininess;
-    }
-  }
+  if (ImGui::SliderFloat("Red", &redWallReflectivity, 0.0f, MAX_REFLECTIVITY))
+    setReflectivity(triangles, 0, 2, redWallReflectivity);
+  if (ImGui::SliderFloat("Green", &greenWallReflectivity, 0.0f, MAX_REFLECTIVITY))
+    setReflectivity(triangles, 2, 4, greenWallReflectivity);
+  if (ImGui::SliderFloat("Floor", &floorReflectivity, 0.0f, MAX_REFLECTIVITY))
+    setReflectivity(triangles, 4, 6, floorReflectivity);
+  if (ImGui::SliderFloat("Ceiling", &ceilingReflectivity, 0.0f, MAX_REFLECTIVITY))
+    setReflectivity(triangles, 6, 8, ceilingReflectivity);
+  if (ImGui::SliderFloat("Front", &frontWallReflectivity, 0.0f, MAX_REFLECTIVITY))
+    setReflectivity(triangles, 8, 10, frontWallReflectivity);
+  if (ImGui::SliderFloat("Back", &backWallReflectivity, 0.0f, MAX_REFLECTIVITY))
+    setReflectivity(triangles, 10, 12, backWallReflectivity);
 
-  ImGui::Text("Spheres:");
+  ImGui::BulletText("Spheres:");
   ImGui::SliderInt("Num", &numSpheres, 0, MAX_SPHERES);
   if (ImGui::Checkbox("Random Shine Spheres", &isRandomShine)) {
     std::random_device rd;
     std::mt19937 gen(rd());
     // 20% of the spheres have shininess
-    std::uniform_real_distribution<float> shinessDis{0.0f, 10.0f};
+    std::uniform_real_distribution<float> shinessDis{0.0f, 1.0f};
     for (int i = 1; i < MAX_SPHERES; i++) {
       float shiness = isRandomShine ? shinessDis(gen) : 0.0f;
-      spheres[i].material.shininess = 8.0f < shiness ? 1.0f : 0.0f;
+      spheres[i].material.shininess = 0.8f < shiness ? 1.0f : 0.0f;
     }
   }
   if (ImGui::Button("Reset Spheres")) {
     randomizeSpheres(spheres, numSpheres);
   }
 
-  ImGui::Text("Spheres Light:");
-  // ImGui::SliderFloat("X", &spheres[0].center[0], -10.0f, 10.0f);
-  // ImGui::SliderFloat("Y", &spheres[0].center[1], 0.0f, 10.0f);
-  // ImGui::SliderFloat("Z", &spheres[0].center[2], -10.0f, 10.0f);
-  if (ImGui::SliderFloat3("Offset", sphereLightOffset, -10.0f, 10.0f)) {
-    spheres[0].center = glm::vec3(sphereLightOffset[0], CBS + sphereLightOffset[1], sphereLightOffset[2]);
-  }
-  ImGui::SliderFloat("Radius", &spheres[0].radius, 0.5f, 4.0f);
-  ImGui::SliderFloat("S Str", &spheres[0].material.shininess, 0.0f, 15.0f);
-  if (ImGui::Checkbox("Show Sphere Light", &showSphereLight))
-    glUniform1i(glGetUniformLocation(shaderProgram->ID, "showSphereLight"), showSphereLight);
-  ImGui::Checkbox("Rotate", &isRotate);
-  ImGui::Text("Render:");
+  ImGui::BulletText("Render:");
   if (ImGui::Checkbox("Real Time Toggle", &isRealTime)) {
     frameIdx = 0;  // reset frame index
   }
@@ -255,6 +222,13 @@ void TestRtSphere::randomizeSpheres(Sphere* spheres, const int numSpheres) {
     spheres[i].material.shininess = 0.0f;
     spheres[i].material.smoothness = propertyDis(gen);
     spheres[i].material.specularProbability = propertyDis(gen);
+  }
+}
+
+void TestRtSphere::setReflectivity(Triangle* triangles, const int start, const int end, const float reflectivity) {
+  for (int i = start; i < end; i++) {
+    triangles[i].material.smoothness = reflectivity;
+    triangles[i].material.specularProbability = reflectivity;
   }
 }
 
@@ -399,10 +373,14 @@ void TestRtSphere::makeCornellBox(Triangle* triangles) {
 
   for (int i = 12; i < 24; i++) {
     triangles[i].material.color = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-    triangles[i].material.emissionColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
     triangles[i].material.shininess = mainLightShininess;
     triangles[i].material.smoothness = 0.0f;
     triangles[i].material.specularProbability = 0.0f;
+  }
+
+  // set emission color is same as color
+  for (int i = 0; i < 24; i++) {
+    triangles[i].material.emissionColor = triangles[i].material.color;
   }
 }
 

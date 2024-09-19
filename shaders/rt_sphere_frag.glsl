@@ -3,10 +3,17 @@
 out vec4 fragColor;
 
 uniform float fov;  // eg. 45.0 degrees
-uniform uint ticks = 1u;
+uniform uint frameIdx = 1u;
 uniform vec2 resolution;
 uniform vec3 camPosition;
 uniform mat4 viewMatrix;
+
+// Ray tracing settings
+uniform int numBounces = 2;
+uniform int numRays = 1;
+uniform bool isSpecularBounce = false;
+uniform bool isSpecularWhite = false;
+uniform float ambientLight = 0.0f;
 
 // Sphere data
 /*
@@ -16,11 +23,7 @@ But to use SSBO, you need to use OpenGL 4.3 or higher. So we use constant here.
 */
 const int MAX_SPHERES = 50;
 uniform int numSpheres = 2;
-uniform int numBounces = 2;
-uniform int numRays = 1;
-uniform bool showSphereLight = true;
-uniform bool isSpecularBounce = false;
-uniform bool isSpecularWhite = false;
+uniform bool showSphereLight = true;  // index 0 is the light source
 
 // Triangle data
 const int MAX_TRIANGLES = 24;  // 6 Plane (12) + 1 Light Cuboid (12)
@@ -43,14 +46,14 @@ struct Sphere {
 };
 
 struct Triangle {
-  vec3 posA;
-  float padding1;
-  vec3 posB;
-  float padding2;
-  vec3 posC;
-  float padding3;
-  vec3 normal;
-  float padding4;
+  vec3 posA;       // 12 bytes
+  float padding1;  // 4 bytes
+  vec3 posB;       // 12 bytes
+  float padding2;  // 4 bytes
+  vec3 posC;       // 12 bytes
+  float padding3;  // 4 bytes
+  vec3 normal;     // 12 bytes
+  float padding4;  // 4 bytes
   // Material properties
   Material material;  // 48 bytes
 };
@@ -76,7 +79,7 @@ layout(std140) uniform triangleData { Triangle triangleList[MAX_TRIANGLES]; };
   github.com/SebLague/Ray-Tracing/blob/main/Assets/Scripts/Shaders/RayTracer.shader
 */
 float rand(inout uint state) {
-  state = (ticks * 719413u + state) * 747796405u + 2891336453u;
+  state = (frameIdx * 719413u + state) * 747796405u + 2891336453u;
   uint result = ((state >> ((state >> 28) + 4u)) ^ state) * 277803737u;
   result = (result >> 22) ^ result;
   return result / 4294967295.0;  // 2^32 - 1;
@@ -223,7 +226,7 @@ vec3 trace(vec3 ro, vec3 rd, inout uint state) {
       bool isSpecular = isSpecularBounce ? rand(state) < material.specularProbability : false;
       rd = mix(diffuseDir, specularDir, material.smoothness * float(isSpecular));
 
-      vec4 emittedLight = material.emissionColor * material.shininess;
+      vec4 emittedLight = material.emissionColor * (material.shininess + ambientLight);
       // add the color of the light
       incomingLight += rayColor * emittedLight;
       // absorb the color of the surface and prepared for the next bounce

@@ -49,12 +49,14 @@ class TestRtSphere : public Test {
   static const int MAX_TRIANGLES = 24;  // 6 Plane (12) + 1 Light Cuboid (12)
   static constexpr float CBS = 10.0f;   // Cornell Box Size
   static constexpr float CBS2 = 2 * CBS;
+  static constexpr float MAX_REFLECTIVITY = 0.995f;
   // ray casting
   int numBounces = 3;
   int numRays = 3;
   bool enableSpecularBounce = true;
   bool isSpecularWhite = false;
   float sphereLightOffset[3] = {-6.0f, 1.0f, 8.0f};
+  float ambientLight = 0.0f;
   // cornell box
   bool isShowCornellPlanes = true;
   glm::vec3 backWallColor = glm::vec3(0.2f, 0.2f, 0.2f);
@@ -88,6 +90,7 @@ class TestRtSphere : public Test {
   std::unique_ptr<Shader> frameShader;
   std::unique_ptr<CameraEventListener> listener;
 
+  void setReflectivity(Triangle* triangles, const int start, const int end, const float reflectivity);
   void makeCornellBox(Triangle* triangles);
   void randomizeSpheres(Sphere* spheres, const int numSpheres);
 };
