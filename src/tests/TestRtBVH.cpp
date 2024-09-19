@@ -60,7 +60,7 @@ void TestRtBVH::OnRender() {
   glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   auto elapsed = std::chrono::high_resolution_clock::now() - startTS;
   auto numTriangles = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count();
-  model->meshes[0].draw(shaderProgram.get(), numTriangles, 0);
+  model->meshes[0].drawTri(shaderProgram.get(), numTriangles, 0);
 
   glUniform1i(glGetUniformLocation(shaderProgram->ID, "enableLighting"), 0);
   glUniformMatrix4fv(glGetUniformLocation(shaderProgram->ID, "modelMatrix"), 1, GL_FALSE,

@@ -9,6 +9,7 @@ class VAO {
   VAO();
   void linkAttr(VBO &VBO, GLuint layout, GLuint numComponents, GLenum type, GLsizeiptr stride, const void *offset);
   void linkAttrDiv(VBO &VBO, GLuint layout, GLuint numComponents, GLenum type, GLsizeiptr stride, const void *offset);
+  void linkMat4(VBO &VBO, GLuint layout);
   void bind();
   void unbind();
   void del();
@@ -22,6 +23,7 @@ struct Vertex {
   glm::vec3 normal;
   glm::vec3 color;
   glm::vec2 texCoords;
+  glm::mat4 modelMatrix;
 };
 
 struct Point {
@@ -43,6 +45,7 @@ class VBO {
  public:
   template <typename T>
   VBO(const std::vector<T> &data);
+  VBO();
   void bind();
   void unbind();
   void del();
@@ -118,6 +121,7 @@ class Mesh {
 
   VAO vao;
   VBO vbo;
+  VBO instanceMatrixVBO;
   EBO ebo;
   std::vector<UBO> ubo;
 
@@ -144,9 +148,11 @@ class Mesh {
     ubo[index].unbind();
   }
   void setTexture(const std::vector<Texture> &textures);
+  void setupInstanceMatrices(std::vector<glm::mat4> &instanceMatrices);
+  void updateInstanceMatrices(std::vector<glm::mat4> &instanceMatrices);
 
-  void draw(Shader *shader);
-  void draw(Shader *shader, const unsigned int numVertices, const unsigned int startIdx = 0);
+  void draw(Shader *shader, const unsigned int instanceCount = 1);
+  void drawTri(Shader *shader, const unsigned int numVertices, const unsigned int startIdx = 0);
 
   void del();
 

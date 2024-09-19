@@ -8,6 +8,7 @@
 #include "tests/TestGs.hpp"
 #include "tests/TestLighting.hpp"
 #include "tests/TestModel.hpp"
+#include "tests/TestMultipleObj.hpp"
 #include "tests/TestParallaxMapping.hpp"
 #include "tests/TestRoom.hpp"
 #include "tests/TestRtBVH.hpp"
@@ -18,7 +19,7 @@
 
 // Global variables
 const char *WINDOW_TITLE = "OpenGL Demo";
-const int SCREEN_WIDTH = 1024;
+const int SCREEN_WIDTH = 1366;
 const int SCREEN_HEIGHT = 768;
 
 int main(int argc, char *args[]) {
@@ -40,12 +41,13 @@ int main(int argc, char *args[]) {
   }
 
   // test::Test *currentTest = new test::Test;
-  test::Test *currentTest = new test::TestRtSphere(SCREEN_WIDTH, SCREEN_HEIGHT);
+  test::Test *currentTest = new test::TestMultipleObj(SCREEN_WIDTH, SCREEN_HEIGHT);
   GUI gui(window, context, currentTest);
 
   gui.registerTest<test::Test>("-");  // dummy test
   gui.registerTest<test::TestTriangle>("Triangle", SCREEN_WIDTH, SCREEN_HEIGHT);
   gui.registerTest<test::TestModel>("Model", SCREEN_WIDTH, SCREEN_HEIGHT, "./assets/gltf_duck/Duck.gltf");
+  gui.registerTest<test::TestMultipleObj>("Multiple Models", SCREEN_WIDTH, SCREEN_HEIGHT);
   gui.registerTest<test::TestLighting>("Lighting", SCREEN_WIDTH, SCREEN_HEIGHT);
   gui.registerTest<test::TestCubeMap>("CubeMap", SCREEN_WIDTH, SCREEN_HEIGHT);
   gui.registerTest<test::TestGs>("Gaussian Splat", SCREEN_WIDTH, SCREEN_HEIGHT);

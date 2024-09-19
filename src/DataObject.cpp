@@ -23,6 +23,19 @@ void VAO::linkAttrDiv(VBO &VBO, GLuint layout, GLuint numComponents, GLenum type
   VBO.unbind();
 }
 
+void VAO::linkMat4(VBO &VBO, GLuint layout) {
+  VBO.bind();
+  std::size_t vec4Size = sizeof(glm::vec4);
+
+  for (GLuint i = 0; i < 4; i++) {
+    glEnableVertexAttribArray(layout + i);
+    glVertexAttribPointer(layout + i, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (void *)(i * vec4Size));
+    glVertexAttribDivisor(layout + i, 1);
+  }
+
+  VBO.unbind();
+}
+
 void VAO::bind() { glBindVertexArray(ID); }
 
 void VAO::unbind() { glBindVertexArray(0); }
@@ -35,6 +48,8 @@ VBO::VBO(const std::vector<T> &data) {
   glBindBuffer(GL_ARRAY_BUFFER, ID);
   glBufferData(GL_ARRAY_BUFFER, sizeof(T) * data.size(), data.data(), GL_STATIC_DRAW);
 }
+
+VBO::VBO() { glGenBuffers(1, &ID); }
 
 void VBO::bind() { glBindBuffer(GL_ARRAY_BUFFER, ID); }
 
@@ -144,7 +159,7 @@ void Texture::unbind() { glBindTexture(GL_TEXTURE_2D, 0); }
 
 void Texture::del() { glDeleteTextures(1, &ID); }
 
-Mesh::Mesh(const std::vector<Vertex> &vertices) : vertices(vertices), vao(), vbo(vertices), ebo() {
+Mesh::Mesh(const std::vector<Vertex> &vertices) : vertices(vertices), vao(), vbo(vertices), instanceMatrixVBO(), ebo() {
   vao.bind();
 
   setupMeshAttributes();
@@ -186,7 +201,23 @@ unsigned int Mesh::numTriangles() { return indices.size() / 3; }
 
 void Mesh::setTexture(const std::vector<Texture> &textures) { this->textures = textures; }
 
-void Mesh::draw(Shader *shader) {
+void Mesh::setupInstanceMatrices(std::vector<glm::mat4> &instanceMatrices) {
+  vao.bind();
+  instanceMatrixVBO.bind();
+  glBufferData(GL_ARRAY_BUFFER, sizeof(glm::mat4) * instanceMatrices.size(), instanceMatrices.data(), GL_STATIC_DRAW);
+
+  vao.linkMat4(instanceMatrixVBO, 4);
+  vao.unbind();
+}
+
+void Mesh::updateInstanceMatrices(std::vector<glm::mat4> &instanceMatrices) {
+  vao.bind();
+  instanceMatrixVBO.bind();
+  glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(glm::mat4) * instanceMatrices.size(), instanceMatrices.data());
+  vao.unbind();
+}
+
+void Mesh::draw(Shader *shader, const unsigned int instanceCount) {
   vao.bind();
 
   // Textures
@@ -196,7 +227,11 @@ void Mesh::draw(Shader *shader) {
     textures[i].bind();
   }
 
-  glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+  if (indices.size() > 0) {
+    glDrawElementsInstanced(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0, instanceCount);
+  } else {
+    glDrawArraysInstanced(GL_TRIANGLES, 0, vertices.size(), instanceCount);
+  }
 
   vao.unbind();
   for (unsigned int i = 0; i < textures.size(); i++) {
@@ -204,7 +239,7 @@ void Mesh::draw(Shader *shader) {
   }
 }
 
-void Mesh::draw(Shader *shader, const unsigned int numTriangles, const unsigned int startIdx) {
+void Mesh::drawTri(Shader *shader, const unsigned int numTriangles, const unsigned int startIdx) {
   vao.bind();
 
   // Textures
@@ -215,7 +250,11 @@ void Mesh::draw(Shader *shader, const unsigned int numTriangles, const unsigned 
 
   auto startTriangle = std::min(startIdx * 3, static_cast<unsigned int>(indices.size()));
   auto numIndices = std::min(numTriangles * 3, static_cast<unsigned int>(indices.size()));
-  glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, (void *)(startTriangle * sizeof(GLuint)));
+  if (indices.size() > 0) {
+    glDrawElements(GL_TRIANGLES, numIndices, GL_UNSIGNED_INT, (void *)(startTriangle * sizeof(GLuint)));
+  } else {
+    glDrawArrays(GL_TRIANGLES, startTriangle, numIndices);
+  }
 
   vao.unbind();
   for (unsigned int i = 0; i < textures.size(); i++) {
@@ -229,6 +268,7 @@ void Mesh::del() {
   }
   vao.del();
   vbo.del();
+  instanceMatrixVBO.del();
   ebo.del();
   for (auto &ubo : ubo) {
     ubo.del();

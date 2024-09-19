@@ -10,7 +10,7 @@ class Model {
   Model(const char *path);
   std::vector<Mesh> meshes;  // one model can have multiple meshes
 
-  void draw(Shader *shader);
+  void draw(Shader *shader, const unsigned int instanceCount = 1);
 
   void setModelMatrix(glm::mat4 matrix);
 

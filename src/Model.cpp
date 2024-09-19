@@ -240,10 +240,10 @@ std::vector<Vertex> Model::assembleVertices(const std::vector<glm::vec3> &positi
 
 void Model::setModelMatrix(glm::mat4 matrix) { modelMatrix = matrix; }
 
-void Model::draw(Shader *shader) {
+void Model::draw(Shader *shader, const unsigned int instanceCount) {
   glUniformMatrix4fv(glGetUniformLocation(shader->ID, "modelMatrix"), 1, GL_FALSE, glm::value_ptr(modelMatrix));
   for (unsigned int i = 0; i < meshes.size(); i++) {
-    meshes[i].draw(shader);
+    meshes[i].draw(shader, instanceCount);
   }
 }
 

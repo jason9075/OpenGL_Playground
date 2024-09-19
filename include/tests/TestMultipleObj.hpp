@@ -6,10 +6,10 @@
 #include "tests/Test.hpp"
 
 namespace test {
-class TestModel : public Test {
+class TestMultipleObj : public Test {
  public:
-  TestModel(const float screenWidth, const float screenHeight, const char* path);
-  ~TestModel();
+  TestMultipleObj(const float screenWidth, const float screenHeight);
+  ~TestMultipleObj();
 
   void OnEvent(SDL_Event& event) override;
   void OnRender() override;
@@ -17,11 +17,14 @@ class TestModel : public Test {
   void OnExit() override;
 
  private:
+  std::vector<glm::mat4> instanceMatrices;
+  // Note: if you want to use lower row and col, you have to use setupInstanceMatrices instead of updateInstanceMatrices
+  int row = 100;
+  int col = 100;
+  void updateInstanceMatrices();
+  const float OFFSET = 3.0f;
   std::unique_ptr<Shader> shaderProgram;
   std::unique_ptr<Model> model;
-  glm::vec3 trans{0.0f, 0.0f, 0.0f};
-  glm::vec3 scale{1.0f, 1.0f, 1.0f};
-  glm::vec3 rot{0.0f, 0.0f, 0.0f};
   std::unique_ptr<CameraEventListener> listener;
 };
 
