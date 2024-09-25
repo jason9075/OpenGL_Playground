@@ -11,10 +11,9 @@ TestGeometry::TestGeometry(const float screenWidth, const float screenHeight) {
       std::make_unique<Shader>("./shaders/geo_vert.glsl", "./shaders/geo_gert.glsl", "./shaders/geo_frag.glsl");
 
   vao = VAO();
-  std::vector<Vertex> vertices;
   Vertex vertex;
   vertex.position = glm::vec3(0.0f, 0.0f, 0.0f);
-  vertices.push_back(vertex);
+  const std::vector<Vertex> vertices = {vertex};
   VBO vbo = VBO(vertices);
 
   vao.bind();

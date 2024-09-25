@@ -40,7 +40,7 @@ TestRtSphere::TestRtSphere(const float screenWidth, const float screenHeight) {
     std::cerr << "New framebuffer is not complete! Error code: " << fboStatus << std::endl;
   }
   newFrame->unbind();
-  frameMesh = createFrameMesh();
+  frameMesh = createPlaneMesh();
 
   // the first sphere is the light source
   spheres[0].center = glm::vec3(sphereLightOffset[0], CBS + sphereLightOffset[1], sphereLightOffset[2]);

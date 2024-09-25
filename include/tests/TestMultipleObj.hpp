@@ -21,11 +21,12 @@ class TestMultipleObj : public Test {
   // Note: if you want to use lower row and col, you have to use setupInstanceMatrices instead of updateInstanceMatrices
   int row = 100;
   int col = 100;
-  void updateInstanceMatrices();
   const float OFFSET = 3.0f;
   std::unique_ptr<Shader> shaderProgram;
   std::unique_ptr<Model> model;
   std::unique_ptr<CameraEventListener> listener;
+
+  void updateInstanceMatrices();
 };
 
 }  // namespace test

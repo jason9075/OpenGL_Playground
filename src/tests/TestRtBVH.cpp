@@ -24,7 +24,7 @@ TestRtBVH::TestRtBVH(const float screenWidth, const float screenHeight) {
     }
   }
 
-  beam = createCuboidMesh(0.05f, 10.0f, 0.05f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f);
+  beam = createCuboidMesh(0.05f, 10.0f, 0.05f, glm::vec3(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
   // move the beam position to z = -6.0f
   beamModelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -6.0f));
 

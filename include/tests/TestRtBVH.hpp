@@ -1,7 +1,5 @@
 #pragma once
 
-#include <chrono>
-
 #include "Camera.hpp"
 #include "Model.hpp"
 #include "ShaderClass.hpp"

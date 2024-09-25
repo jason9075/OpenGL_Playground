@@ -8,6 +8,7 @@ using json = nlohmann::json;
 class Model {
  public:
   Model(const char *path);
+  Model();
   std::vector<Mesh> meshes;  // one model can have multiple meshes
 
   void draw(Shader *shader, const unsigned int instanceCount = 1);

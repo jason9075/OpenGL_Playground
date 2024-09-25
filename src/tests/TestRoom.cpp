@@ -12,18 +12,18 @@ TestRoom::TestRoom(const float screenWidth, const float screenHeight) {
   shaderRoom = std::make_unique<Shader>("./shaders/room_vert.glsl", "./shaders/room_frag.glsl");
 
   textures = {Texture("./assets/textures/marble2.png", "normal", 0)};
-  floor = createCuboidMesh(30.0f, 0.3f, 20.0f, 0.0f, 0.0f, 0.0f);
+  floor = createCuboidMesh(30.0f, 0.3f, 20.0f, glm::vec3(0.0f, 0.0f, 0.0f));
   floor->setTexture(textures);
   textures = {Texture("./assets/textures/marble1.png", "normal", 0)};
-  northWall = createCuboidMesh(30.0f, 16.0f, 0.1f, 0.0f, 8.0f, 10.0f);
+  northWall = createCuboidMesh(30.0f, 16.0f, 0.1f, glm::vec3(0.0f, 8.0f, 10.0f));
   northWall->setTexture(textures);
-  southWall = createCuboidMesh(30.0f, 16.0f, 0.1f, 0.0f, 8.0f, -10.0f);
+  southWall = createCuboidMesh(30.0f, 16.0f, 0.1f, glm::vec3(0.0f, 8.0f, -10.0f));
   southWall->setTexture(textures);
-  eastWall = createCuboidMesh(0.1f, 16.0f, 20.0f, 15.0f, 8.0f, 0.0f);
+  eastWall = createCuboidMesh(0.1f, 16.0f, 20.0f, glm::vec3(15.0f, 8.0f, 0.0f));
   eastWall->setTexture(textures);
-  westWall = createCuboidMesh(0.1f, 16.0f, 20.0f, -15.0f, 8.0f, 0.0f);
+  westWall = createCuboidMesh(0.1f, 16.0f, 20.0f, glm::vec3(-15.0f, 8.0f, 0.0f));
   westWall->setTexture(textures);
-  ceiling = createCuboidMesh(30.0f, 0.1f, 20.0f, 0.0f, 16.0f, 0.0f);
+  ceiling = createCuboidMesh(30.0f, 0.1f, 20.0f, glm::vec3(0.0f, 16.0f, 0.0f));
 
   groundMesh = createPlaneMesh(100.0f, glm::vec3(0.0f, 1.0f, 0.0f));
 

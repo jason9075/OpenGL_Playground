@@ -44,8 +44,17 @@ struct GaussianSphere {
 class VBO {
  public:
   template <typename T>
-  VBO(const std::vector<T> &data);
+  VBO(const std::vector<T> &data) {
+    glGenBuffers(1, &ID);
+    glBindBuffer(GL_ARRAY_BUFFER, ID);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(T) * data.size(), data.data(), GL_STATIC_DRAW);
+  }
   VBO();
+  template <typename T>
+  void bufferData(const std::vector<T> &data) {
+    glBindBuffer(GL_ARRAY_BUFFER, ID);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(T) * data.size(), data.data(), GL_STATIC_DRAW);
+  }
   void bind();
   void unbind();
   void del();
@@ -150,6 +159,7 @@ class Mesh {
   void setTexture(const std::vector<Texture> &textures);
   void setupInstanceMatrices(std::vector<glm::mat4> &instanceMatrices);
   void updateInstanceMatrices(std::vector<glm::mat4> &instanceMatrices);
+  void rotate(float angle, glm::vec3 axis);
 
   void draw(Shader *shader, const unsigned int instanceCount = 1);
   void drawTri(Shader *shader, const unsigned int numVertices, const unsigned int startIdx = 0);

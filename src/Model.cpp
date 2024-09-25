@@ -19,6 +19,8 @@ Model::Model(const char *path) {
   data.clear();
 }
 
+Model::Model() { modelMatrix = glm::mat4(1.0f); }
+
 void Model::loadMesh(unsigned int indMesh, glm::mat4 matrix) {
   json primitive = JSON["meshes"][indMesh]["primitives"][0];
 

@@ -42,13 +42,6 @@ void VAO::unbind() { glBindVertexArray(0); }
 
 void VAO::del() { glDeleteVertexArrays(1, &ID); }
 
-template <typename T>
-VBO::VBO(const std::vector<T> &data) {
-  glGenBuffers(1, &ID);
-  glBindBuffer(GL_ARRAY_BUFFER, ID);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(T) * data.size(), data.data(), GL_STATIC_DRAW);
-}
-
 VBO::VBO() { glGenBuffers(1, &ID); }
 
 void VBO::bind() { glBindBuffer(GL_ARRAY_BUFFER, ID); }
@@ -159,8 +152,9 @@ void Texture::unbind() { glBindTexture(GL_TEXTURE_2D, 0); }
 
 void Texture::del() { glDeleteTextures(1, &ID); }
 
-Mesh::Mesh(const std::vector<Vertex> &vertices) : vertices(vertices), vao(), vbo(vertices), instanceMatrixVBO(), ebo() {
+Mesh::Mesh(const std::vector<Vertex> &vertices) : vertices(vertices), vao(), vbo(), instanceMatrixVBO(), ebo() {
   vao.bind();
+  vbo.bufferData(vertices);
 
   setupMeshAttributes();
 
@@ -168,11 +162,12 @@ Mesh::Mesh(const std::vector<Vertex> &vertices) : vertices(vertices), vao(), vbo
 }
 
 Mesh::Mesh(const std::vector<Vertex> &vertices, const std::vector<GLuint> &indices)
-    : vertices(vertices), indices(indices), vao(), vbo(vertices), ebo() {
+    : vertices(vertices), indices(indices), vao(), vbo(), ebo() {
   vao.bind();
   ebo.bind();
   ebo.bufferData(indices);
 
+  vbo.bufferData(vertices);
   setupMeshAttributes();
 
   vao.unbind();
@@ -180,11 +175,12 @@ Mesh::Mesh(const std::vector<Vertex> &vertices, const std::vector<GLuint> &indic
 
 Mesh::Mesh(const std::vector<Vertex> &vertices, const std::vector<GLuint> &indices,
            const std::vector<Texture> &textures)
-    : vertices(vertices), indices(indices), textures(textures), vao(), vbo(vertices), ebo() {
+    : vertices(vertices), indices(indices), textures(textures), vao(), vbo(), ebo() {
   vao.bind();
   ebo.bind();
   ebo.bufferData(indices);
 
+  vbo.bufferData(vertices);
   setupMeshAttributes();
 
   vao.unbind();
@@ -239,6 +235,21 @@ void Mesh::draw(Shader *shader, const unsigned int instanceCount) {
   }
 }
 
+void Mesh::rotate(float angle, glm::vec3 axis) {
+  for (auto &vertex : vertices) {
+    vertex.position = glm::rotate(vertex.position, glm::radians(angle), axis);
+    vertex.normal = glm::rotate(vertex.normal, glm::radians(angle), axis);
+  }
+
+  vao.bind();
+  vbo.bind();
+  glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(Vertex) * vertices.size(), vertices.data());
+  vbo.unbind();
+}
+
+/*
+ * Draw triangles with the given number of vertices.
+ */
 void Mesh::drawTri(Shader *shader, const unsigned int numTriangles, const unsigned int startIdx) {
   vao.bind();
 
