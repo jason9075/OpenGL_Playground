@@ -384,3 +384,60 @@ std::unique_ptr<Mesh> createArrowMesh(float shaftWidth, float shaftHeight, float
 
   return std::make_unique<Mesh>(vertices, indices);
 }
+
+std::unique_ptr<Mesh> createSphereMesh(float radius, glm::vec3 pos, glm::vec3 color, int rings, int sectors) {
+  rings = std::max(3, rings);
+  sectors = std::max(3, sectors);
+
+  std::vector<Vertex> vertices;
+  vertices.reserve((rings + 1) * (sectors + 1));
+
+  std::vector<GLuint> indices;
+  indices.reserve(rings * sectors * 6);
+
+  const float PI = 3.14159265358979323846f;
+  const float TWO_PI = 2.0f * PI;
+
+  // 產生頂點
+  for (int i = 0; i <= rings; ++i) {
+    const float v = static_cast<float>(i) / rings;  // [0,1]
+    const float theta = v * PI;                     // [0,π]
+    const float y = std::cos(theta);
+    const float r = std::sin(theta);
+
+    for (int j = 0; j <= sectors; ++j) {
+      const float u = static_cast<float>(j) / sectors;  // [0,1]
+      const float phi = u * TWO_PI;                     // [0,2π]
+      const float x = r * std::cos(phi);
+      const float z = r * std::sin(phi);
+
+      glm::vec3 p = pos + radius * glm::vec3(x, y, z);
+      glm::vec3 n = glm::normalize(glm::vec3(x, y, z));  // 從球心指向外
+      glm::vec2 uv(u, v);
+
+      vertices.push_back({p, n, color, uv});
+    }
+  }
+
+  // 產生索引（每個格子兩個三角形）
+  const int stride = sectors + 1;
+  for (int i = 0; i < rings; ++i) {
+    for (int j = 0; j < sectors; ++j) {
+      GLuint i0 = i * stride + j;
+      GLuint i1 = i * stride + (j + 1);
+      GLuint i2 = (i + 1) * stride + (j + 1);
+      GLuint i3 = (i + 1) * stride + j;
+
+      // CCW：i0 -> i1 -> i2,  i2 -> i3 -> i0（外向面）
+      indices.push_back(i0);
+      indices.push_back(i1);
+      indices.push_back(i2);
+
+      indices.push_back(i2);
+      indices.push_back(i3);
+      indices.push_back(i0);
+    }
+  }
+
+  return std::make_unique<Mesh>(vertices, indices);
+}

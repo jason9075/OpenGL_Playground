@@ -9,6 +9,7 @@ Use #define GLM_ENABLE_EXPERIMENTAL before including it, if you really want to u
 #include <GL/glew.h>
 #include <SDL2/SDL.h>
 
+#include <algorithm>
 #include <chrono>
 #include <fstream>
 #include <functional>
@@ -20,6 +21,7 @@ Use #define GLM_ENABLE_EXPERIMENTAL before including it, if you really want to u
 #include <random>
 #include <sstream>
 #include <string>
+#include <thread>
 #include <unordered_map>
 #include <vector>
 

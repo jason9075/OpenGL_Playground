@@ -11,3 +11,10 @@
 ## json
 
 [Link](https://github.com/nlohmann/json?tab=readme-ov-file#embedded)
+
+## PhysX
+
+```bash
+git submodule add https://github.com/NVIDIA-Omniverse/PhysX.git physx
+git submodule update --init --recursive
+```

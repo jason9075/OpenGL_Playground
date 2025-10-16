@@ -1,7 +1,8 @@
-#!/user/bin/env bash
+#!/usr/bin/env bash
+# set -euo pipefail
 
-if [ "$1" == "-r" ]; then
-    rm -rf build
+if [[ "${1:-}" == "-r" ]]; then
+  rm -rf build
 fi
 
 mkdir -p build

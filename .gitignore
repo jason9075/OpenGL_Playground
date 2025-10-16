@@ -51,7 +51,9 @@ build
 
 # external dependencies
 external/imgui/**
+external/physx/**
 !external/imgui/.keep
+
 
 assets/**
 

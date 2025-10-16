@@ -17,3 +17,6 @@ std::unique_ptr<Mesh> createFrameMesh(float width, float height, float depth, fl
 std::unique_ptr<Mesh> createArrowMesh(float shaftWidth, float shaftHeight, float headWidth, float headHeight,
                                       float thickness, glm::vec3 position = glm::vec3(0.0f),
                                       glm::vec3 color = glm::vec3(1.0f));
+
+std::unique_ptr<Mesh> createSphereMesh(float radius = 0.5f, glm::vec3 pos = glm::vec3(0.0f),
+                                       glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f), int rings = 16, int sectors = 32);

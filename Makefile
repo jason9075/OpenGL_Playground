@@ -3,6 +3,9 @@
 # 預設目標
 all: build run
 
+dev:
+	fd . | entr -r sh -c 'make build && make run'
+
 # 建立目標
 build:
 	@echo "執行 build.sh..."

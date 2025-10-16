@@ -13,6 +13,8 @@ class Model {
 
   void draw(Shader *shader, const unsigned int instanceCount = 1);
 
+  void drawTri(Shader *shader, const unsigned int numTriangles, const unsigned int instanceCount = 1);
+
   void setModelMatrix(glm::mat4 matrix);
 
   void del();

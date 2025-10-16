@@ -2,6 +2,7 @@
   description = "flake.nix";
 
   inputs = {
+    nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
     nixpkgs.url = "github:nixos/nixpkgs/nixos-24.05";
     nixgl.url = "github:nix-community/nixGL";
   };
@@ -23,6 +24,7 @@
           glm
           nlohmann_json
           entr
+          python3
         ];
 
         shellHook = ''
