@@ -40,6 +40,7 @@ namespace test {
 TestPhysXHelloWorld::TestPhysXHelloWorld(const float screenWidth, const float screenHeight) {
   glViewport(0, 0, screenWidth, screenHeight);
 
+  // camera init
   glm::vec3 position = glm::vec3(6.0f, 3.0f, 8.0f);
   glm::vec3 orientation = glm::vec3(-0.5f, -0.1f, -0.7f);
   camera = std::make_unique<Camera>(screenWidth, screenHeight, position, orientation);
@@ -93,7 +94,6 @@ void TestPhysXHelloWorld::OnRender() {
 
   // 同步 PhysX → uniform
   // 先設 modelMatrix，再畫球
-  glUniform1i(glGetUniformLocation(shader->ID, "classId"), 1);
   for (auto& b : mBalls) {
     const PxTransform pose = b.actor->getGlobalPose();
     const glm::mat4 M = pxToGlm(pose);
@@ -180,9 +180,6 @@ void TestPhysXHelloWorld::spawnBall(float radius, const glm::vec3& pos, const gl
   auto mesh =
       createSphereMesh(radius, glm::vec3(0.0f), glm::vec3(oneRange(rd), oneRange(rd), oneRange(rd)), /*rings*/ 24,
                        /*sectors*/ 48);
-  // 初始對齊
-  // mesh->setModelMatrix(pxToGlm(actor->getGlobalPose()));
-
   mBalls.push_back(Ball{actor, std::move(mesh), radius});
 }
 

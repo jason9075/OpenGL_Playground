@@ -12,6 +12,7 @@
 #include "tests/TestMultipleObj.hpp"
 #include "tests/TestParallaxMapping.hpp"
 #include "tests/TestPhysXHelloWorld.hpp"
+#include "tests/TestPhysXMaterial.hpp"
 #include "tests/TestRoom.hpp"
 #include "tests/TestRtBVH.hpp"
 #include "tests/TestRtSphere.hpp"
@@ -43,7 +44,7 @@ int main(int argc, char *args[]) {
   }
 
   // test::Test *currentTest = new test::Test;
-  test::Test *currentTest = new test::TestPhysXHelloWorld(SCREEN_WIDTH, SCREEN_HEIGHT);
+  test::Test *currentTest = new test::TestPhysXMaterial(SCREEN_WIDTH, SCREEN_HEIGHT);
   GUI gui(window, context, currentTest);
 
   gui.registerTest<test::Test>("-");  // dummy test
@@ -62,6 +63,7 @@ int main(int argc, char *args[]) {
   gui.registerTest<test::TestRtSphere>("RT Sphere", SCREEN_WIDTH, SCREEN_HEIGHT);
   gui.registerTest<test::TestParallaxMapping>("Parallax Mapping", SCREEN_WIDTH, SCREEN_HEIGHT);
   gui.registerTest<test::TestPhysXHelloWorld>("PhysX HelloWorld", SCREEN_WIDTH, SCREEN_HEIGHT);
+  gui.registerTest<test::TestPhysXMaterial>("PhysX Material", SCREEN_WIDTH, SCREEN_HEIGHT);
   gui.registerTest<test::TestCudaMatMul>("CUDA MatMul", SCREEN_WIDTH, SCREEN_HEIGHT);
 
   // main func
