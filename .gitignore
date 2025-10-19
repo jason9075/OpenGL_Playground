@@ -62,8 +62,8 @@ assets/**
 !assets/gltf_duck/**
 !assets/skybox/
 !assets/skybox/**
-!assets/textures/
-!assets/textures/test0.png
+!assets/textures
+!assets/textures/**
 
 # imgui
 imgui.ini

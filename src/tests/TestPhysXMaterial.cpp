@@ -64,7 +64,7 @@ TestPhysXMaterial::TestPhysXMaterial(const float screenWidth, const float screen
   // 斜坡位置往 +Y 稍微抬高，避免與地板共面
   glm::vec3 slopePos = glm::vec3(-5.0f, 1.0f, -5.0f);
 
-  plateMesh = createPlaneMesh(20.0f, slopeN, glm::vec3(0.82f), slopePos);
+  rampMesh = createPlaneMesh(20.0f, slopeN, glm::vec3(0.82f), slopePos);
 
   initPhysX(slopeN, slopePos);
 
@@ -102,7 +102,7 @@ void TestPhysXMaterial::OnRender() {
   // 同步 PhysX → uniform
   glUniformMatrix4fv(glGetUniformLocation(shader->ID, "modelMatrix"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
   glUniform1i(glGetUniformLocation(shader->ID, "useTexture"), false);
-  plateMesh->draw(shader.get());
+  rampMesh->draw(shader.get());
 
   // 地板：單位矩陣
   glUniformMatrix4fv(glGetUniformLocation(shader->ID, "modelMatrix"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
@@ -166,7 +166,7 @@ void TestPhysXMaterial::initPhysX(glm::vec3 slopeN, glm::vec3 slopePos) {
   sceneDesc.filterShader = PxDefaultSimulationFilterShader;
   mScene = mPhysics->createScene(sceneDesc);
 
-  // Material of floor and plate
+  // Material of floor and ramp
   mMaterial = mPhysics->createMaterial(0.6f, 0.55f, 0.05f);
   mMaterial->setFrictionCombineMode(PxCombineMode::eMIN);
   mMaterial->setRestitutionCombineMode(PxCombineMode::eMAX);
@@ -175,14 +175,14 @@ void TestPhysXMaterial::initPhysX(glm::vec3 slopeN, glm::vec3 slopePos) {
   mGround = PxCreatePlane(*mPhysics, PxPlane(0, 1, 0, 0), *mMaterial);
   mScene->addActor(*mGround);
 
-  // Plate
+  // Ramp
   const PxVec3 n(slopeN.x, slopeN.y, slopeN.z);
   const float d = -glm::dot(slopeN, slopePos);
   PxPlane plane(n, d);
   PxTransform pose = PxTransformFromPlaneEquation(plane);
-  mPlate = PxCreatePlane(*mPhysics, plane, *mMaterial);
-  mPlate->setGlobalPose(pose);
-  mScene->addActor(*mPlate);
+  mRamp = PxCreatePlane(*mPhysics, plane, *mMaterial);
+  mRamp->setGlobalPose(pose);
+  mScene->addActor(*mRamp);
 
   spawnCubes();
 }
@@ -254,9 +254,9 @@ void TestPhysXMaterial::shutdownPhysX() {
     mGround->release();
     mGround = nullptr;
   }
-  if (mPlate) {
-    mPlate->release();
-    mPlate = nullptr;
+  if (mRamp) {
+    mRamp->release();
+    mRamp = nullptr;
   }
 
   if (mScene) {

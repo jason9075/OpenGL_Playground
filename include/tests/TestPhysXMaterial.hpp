@@ -33,7 +33,7 @@ class TestPhysXMaterial : public Test {
   };
   std::vector<Cube> mCubes;
   std::unique_ptr<Mesh> groundMesh;
-  std::unique_ptr<Mesh> plateMesh;
+  std::unique_ptr<Mesh> rampMesh;
 
   // --- PhysX core pointers ---
   physx::PxFoundation* mFoundation = nullptr;
@@ -42,11 +42,11 @@ class TestPhysXMaterial : public Test {
   physx::PxMaterial* mMaterial = nullptr;
   physx::PxDefaultCpuDispatcher* mDispatcher = nullptr;
   std::vector<physx::PxMaterial*> mOwnedMaterials;
-  bool mLockRolling = true;  // 預設禁止滾動（只滑）
+  bool mLockRolling = false;  // 預設禁止滾動（只滑）
 
   // Actors
   physx::PxRigidStatic* mGround = nullptr;
-  physx::PxRigidStatic* mPlate = nullptr;
+  physx::PxRigidStatic* mRamp = nullptr;
 
   // --- Timing for fixed-step simulation (60 Hz) ---
   std::chrono::high_resolution_clock::time_point mLast;
