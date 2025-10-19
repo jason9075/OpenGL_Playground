@@ -101,12 +101,12 @@ void TestPhysXMaterial::OnRender() {
 
   // 同步 PhysX → uniform
   glUniformMatrix4fv(glGetUniformLocation(shader->ID, "modelMatrix"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
-  glUniform1i(glGetUniformLocation(shader->ID, "classId"), 1);
+  glUniform1i(glGetUniformLocation(shader->ID, "useTexture"), false);
   plateMesh->draw(shader.get());
 
   // 地板：單位矩陣
   glUniformMatrix4fv(glGetUniformLocation(shader->ID, "modelMatrix"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
-  glUniform1i(glGetUniformLocation(shader->ID, "classId"), 2);
+  glUniform1i(glGetUniformLocation(shader->ID, "useTexture"), false);
   groundMesh->draw(shader.get());
 
   // Cube
@@ -114,7 +114,7 @@ void TestPhysXMaterial::OnRender() {
     const PxTransform pose = c.actor->getGlobalPose();
     const glm::mat4 M = pxToGlm(pose);
     glUniformMatrix4fv(glGetUniformLocation(shader->ID, "modelMatrix"), 1, GL_FALSE, glm::value_ptr(M));
-    glUniform1i(glGetUniformLocation(shader->ID, "classId"), 3);
+    glUniform1i(glGetUniformLocation(shader->ID, "useTexture"), c.mesh->hasTexture());
     c.mesh->draw(shader.get());
   }
 
@@ -201,7 +201,8 @@ PxMaterial& TestPhysXMaterial::mkMat(float sf, float df, float rest) {
   return *m;
 }
 
-void TestPhysXMaterial::spawnCube(float scale, const glm::vec3& pos, const glm::vec3& color, PxMaterial& material) {
+void TestPhysXMaterial::spawnCube(short cid, float scale, const glm::vec3& pos, const glm::vec3& color,
+                                  PxMaterial& material, const char* texturePath) {
   // PhysX actor
   PxRigidDynamic* actor =
       PxCreateDynamic(*mPhysics, PxTransform(PxVec3(pos.x, pos.y, pos.z)), PxBoxGeometry(scale, scale, scale), material,
@@ -213,20 +214,29 @@ void TestPhysXMaterial::spawnCube(float scale, const glm::vec3& pos, const glm::
   mScene->addActor(*actor);
 
   auto mesh = createCubeMesh(scale, color);
-  mCubes.push_back(Cube{actor, std::move(mesh), scale});
+
+  if (texturePath != nullptr) {
+    std::vector<Texture> textures;
+    textures.emplace_back(texturePath, "normal", 0);
+    mesh->setTexture(textures);
+  }
+  mCubes.push_back(Cube{cid, actor, std::move(mesh), scale});
 }
 
 void TestPhysXMaterial::spawnCubes() {
   float height = 10.0f;
   // rubber, wood, ice, steel
   // 高摩擦低彈 （黏、幾乎不彈）
-  spawnCube(1.0f, glm::vec3(-5.0f, height, -15.0f), glm::vec3(0.9f, 0.2f, 0.2f), mkMat(2.0f, 1.8f, 0.05f));
+  spawnCube(0, 1.0f, glm::vec3(-5.0f, height, -15.0f), glm::vec3(0.9f, 0.2f, 0.2f), mkMat(2.0f, 1.8f, 0.05f), nullptr);
   // 中摩擦中彈 （中性)
-  spawnCube(1.0f, glm::vec3(0.0f, height, -15.0f), glm::vec3(0.6f, 0.4f, 0.2f), mkMat(0.6f, 0.45f, 0.2f));
+  spawnCube(1, 1.0f, glm::vec3(0.0f, height, -15.0f), glm::vec3(0.6f, 0.4f, 0.2f), mkMat(0.6f, 0.45f, 0.2f),
+            "./assets/textures/wooden.jpg");
   // 低摩擦高彈 （幾乎無摩擦；彈可高可低）
-  spawnCube(1.0f, glm::vec3(5.0f, height, -15.0f), glm::vec3(0.6f, 0.8f, 1.0f), mkMat(0.02f, 0.01f, 0.8f));
+  spawnCube(2, 1.0f, glm::vec3(5.0f, height, -15.0f), glm::vec3(0.6f, 0.8f, 1.0f), mkMat(0.02f, 0.01f, 0.8f),
+            "./assets/textures/ice.png");
   // 低摩擦低彈 （滑、不彈）
-  spawnCube(1.0f, glm::vec3(10.0f, height, -15.0f), glm::vec3(0.8f, 0.8f, 0.8f), mkMat(0.2f, 0.15f, 0.05f));
+  spawnCube(3, 1.0f, glm::vec3(10.0f, height, -15.0f), glm::vec3(0.8f, 0.8f, 0.8f), mkMat(0.2f, 0.15f, 0.05f),
+            "./assets/textures/steel.png");
 }
 void TestPhysXMaterial::applyRollingLock(PxRigidDynamic* actor, bool enable) {
   const PxRigidDynamicLockFlags flags = PxRigidDynamicLockFlag::eLOCK_ANGULAR_X |

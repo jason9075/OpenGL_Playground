@@ -197,6 +197,8 @@ unsigned int Mesh::numTriangles() { return indices.size() / 3; }
 
 void Mesh::setTexture(const std::vector<Texture> &textures) { this->textures = textures; }
 
+bool Mesh::hasTexture() { return !this->textures.empty(); }
+
 void Mesh::setupInstanceMatrices(std::vector<glm::mat4> &instanceMatrices) {
   vao.bind();
   instanceMatrixVBO.bind();

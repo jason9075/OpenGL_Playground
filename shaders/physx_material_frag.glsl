@@ -3,12 +3,15 @@
 in vec3 FragPos;
 in vec3 Normal;
 in vec3 Color;
+in vec2 TexCoord;
 
 out vec4 FragColor;
 
+uniform bool useTexture = false;
 uniform vec3 lightColor = vec3(1.0f);
 uniform vec3 lightPosition = vec3(3.0f,10.0f,-3.0f);
 uniform vec3 camPosition;
+uniform sampler2D texture0;
 
 uniform bool ambientEnabled = true;
 uniform bool diffuseEnabled = true;
@@ -38,7 +41,7 @@ vec4 calcPointLight(vec3 normal, vec3 fragPos, vec3 lightPos, vec3 lightCol) {
   diffuse = diffuseEnabled ? diffuse : 0.0f;
   specular = specularEnabled ? specular : 0.0f;
 
-  vec4 baseColor =  vec4(Color, 1.0f);
+  vec4 baseColor = useTexture ? texture(texture0, TexCoord) : vec4(Color, 1.0f);
 
   return baseColor * (ambient + diffuse + specular) * vec4(lightCol, 1.0f);
 }

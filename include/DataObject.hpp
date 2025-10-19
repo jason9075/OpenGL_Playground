@@ -157,6 +157,7 @@ class Mesh {
     ubo[index].unbind();
   }
   void setTexture(const std::vector<Texture> &textures);
+  bool hasTexture();
   void setupInstanceMatrices(std::vector<glm::mat4> &instanceMatrices);
   void updateInstanceMatrices(std::vector<glm::mat4> &instanceMatrices);
   void rotate(float angle, glm::vec3 axis);

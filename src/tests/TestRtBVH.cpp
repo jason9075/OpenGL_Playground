@@ -12,24 +12,25 @@ TestRtBVH::TestRtBVH(const float screenWidth, const float screenHeight) {
   shaderProgram = std::make_unique<Shader>("./shaders/rt_bvh_vert.glsl", "./shaders/rt_bvh_frag.glsl");
   model = std::make_unique<Model>("./assets/gltf_duck/Duck.gltf");
   // iterate over all triangles vertices
-  for (auto &mesh : model->meshes) {
-    // indices
-    for (int i = 0; i < mesh.indices.size(); i += 3) {
-      glm::vec3 v0 = mesh.vertices[mesh.indices[i]].position;
-      glm::vec3 v1 = mesh.vertices[mesh.indices[i + 1]].position;
-      glm::vec3 v2 = mesh.vertices[mesh.indices[i + 2]].position;
-      std::cout << "v0: " << v0.x << " " << v0.y << " " << v0.z << std::endl;
-      std::cout << "v1: " << v1.x << " " << v1.y << " " << v1.z << std::endl;
-      std::cout << "v2: " << v2.x << " " << v2.y << " " << v2.z << std::endl;
-    }
-  }
+  // for (auto &mesh : model->meshes) {
+  //   // indices
+  //   for (int i = 0; i < mesh.indices.size(); i += 3) {
+  //     glm::vec3 v0 = mesh.vertices[mesh.indices[i]].position;
+  //     glm::vec3 v1 = mesh.vertices[mesh.indices[i + 1]].position;
+  //     glm::vec3 v2 = mesh.vertices[mesh.indices[i + 2]].position;
+  //     std::cout << "v0: " << v0.x << " " << v0.y << " " << v0.z << std::endl;
+  //     std::cout << "v1: " << v1.x << " " << v1.y << " " << v1.z << std::endl;
+  //     std::cout << "v2: " << v2.x << " " << v2.y << " " << v2.z << std::endl;
+  //   }
+  // }
 
   beam = createCuboidMesh(0.05f, 10.0f, 0.05f, glm::vec3(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
   // move the beam position to z = -6.0f
   beamModelMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -6.0f));
 
-  glm::vec3 position = glm::vec3(5.0f, 5.0f, -9.0f);
-  glm::vec3 orientation = glm::vec3(-0.54f, -0.41f, 0.66f);
+  // glm::vec3 position = glm::vec3(5.0f, 5.0f, -9.0f);
+  glm::vec3 position = glm::vec3(0.0f, 1.0f, -3.0f);
+  glm::vec3 orientation = glm::vec3(0.0f, 0.0f, 1.0f);
   camera = std::make_unique<Camera>(screenWidth, screenHeight, position, orientation);
   listener = std::make_unique<GhostCameraListener>(camera.get());
   camera->setEventListener(listener.get());
@@ -52,7 +53,11 @@ void TestRtBVH::OnRender() {
 
   shaderProgram->use();
   camera->update(shaderProgram.get());
-  model->setModelMatrix(glm::mat4(1.0f));
+  // rotate the model with time
+  auto time = std::chrono::high_resolution_clock::now() - startTS;
+  float angle = std::chrono::duration_cast<std::chrono::milliseconds>(time).count() / 1000.0f;
+  glm::mat4 modelMatrix = glm::rotate(glm::mat4(1.0f), angle, glm::vec3(0.0f, 1.0f, 0.0f));
+  model->setModelMatrix(modelMatrix);
 
   glUniform1i(glGetUniformLocation(shaderProgram->ID, "enableLighting"), 1);
   glUniformMatrix4fv(glGetUniformLocation(shaderProgram->ID, "modelMatrix"), 1, GL_FALSE,
@@ -60,7 +65,10 @@ void TestRtBVH::OnRender() {
   glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   auto elapsed = std::chrono::high_resolution_clock::now() - startTS;
   auto numTriangles = std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count();
-  model->meshes[0].drawTri(shaderProgram.get(), numTriangles, 0);
+  numTriangles = numTriangles / 5;
+  // mod with the number of triangles
+  numTriangles = numTriangles % model->meshes[0].numTriangles();
+  model->drawTri(shaderProgram.get(), numTriangles, 0);
 
   glUniform1i(glGetUniformLocation(shaderProgram->ID, "enableLighting"), 0);
   glUniformMatrix4fv(glGetUniformLocation(shaderProgram->ID, "modelMatrix"), 1, GL_FALSE,

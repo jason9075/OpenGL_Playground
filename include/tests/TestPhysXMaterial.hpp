@@ -26,6 +26,7 @@ class TestPhysXMaterial : public Test {
   std::unique_ptr<CameraEventListener> listener;
 
   struct Cube {
+    short cid;
     physx::PxRigidDynamic* actor = nullptr;
     std::unique_ptr<Mesh> mesh;
     float scale;
@@ -58,7 +59,8 @@ class TestPhysXMaterial : public Test {
   void shutdownPhysX();
   void applyRollingLock(physx::PxRigidDynamic* actor, bool enable);
   physx::PxMaterial& mkMat(float sf, float df, float rest);
-  void spawnCube(float scale, const glm::vec3& pos, const glm::vec3& color, physx::PxMaterial& material);
+  void spawnCube(short cid, float scale, const glm::vec3& pos, const glm::vec3& color, physx::PxMaterial& material,
+                 const char* texturePath);
   void spawnCubes();
 
   // Disable copy
