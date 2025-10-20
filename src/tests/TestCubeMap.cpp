@@ -43,8 +43,8 @@ void TestCubeMap::OnRender() {
   // draw skybox, tips: render skybox after all other objects
   skyShader->use();
   glDepthFunc(GL_LEQUAL);
-  glUniform1f(glGetUniformLocation(skyShader->ID, "scaleFactor"), skyboxScale);
-  glUniform1i(glGetUniformLocation(skyShader->ID, "fixSkybox"), fixSkybox);
+  glUniform1f(glGetUniformLocation(skyShader->PROGRAM_ID, "scaleFactor"), skyboxScale);
+  glUniform1i(glGetUniformLocation(skyShader->PROGRAM_ID, "fixSkybox"), fixSkybox);
   camera->update(skyShader.get());
   skybox->draw(skyShader.get());
 }
@@ -58,8 +58,6 @@ void TestCubeMap::OnImGuiRender() {
 
 void TestCubeMap::OnExit() {
   model->del();
-  skybox->del();
-  skyShader->del();
   modelShader->del();
 }
 

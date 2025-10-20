@@ -41,10 +41,10 @@ void TestGeometry::OnRender() {
 
   shaderProgram->use();
   camera->update(shaderProgram.get());
-  glUniform1f(glGetUniformLocation(shaderProgram->ID, "geoRadius"), geoRadius);
-  glUniform3f(glGetUniformLocation(shaderProgram->ID, "pointColor"), 0.0f, 1.0f, 1.0f);
-  glUniform1f(glGetUniformLocation(shaderProgram->ID, "smoothValue"), smoothValue);
-  glUniform1f(glGetUniformLocation(shaderProgram->ID, "mask"), mask);
+  glUniform1f(glGetUniformLocation(shaderProgram->PROGRAM_ID, "geoRadius"), geoRadius);
+  glUniform3f(glGetUniformLocation(shaderProgram->PROGRAM_ID, "pointColor"), 0.0f, 1.0f, 1.0f);
+  glUniform1f(glGetUniformLocation(shaderProgram->PROGRAM_ID, "smoothValue"), smoothValue);
+  glUniform1f(glGetUniformLocation(shaderProgram->PROGRAM_ID, "mask"), mask);
   vao.bind();
   glDrawArrays(GL_POINTS, 0, 1);
   vao.unbind();

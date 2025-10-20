@@ -60,18 +60,19 @@ TestRtSphere::TestRtSphere(const float screenWidth, const float screenHeight) {
   rtMesh->setupUBO(triangles, MAX_TRIANGLES, GL_DYNAMIC_DRAW, 1);
 
   shaderProgram->use();
-  glUniform1f(glGetUniformLocation(shaderProgram->ID, "fov"), camera->fov);
-  glUniform2f(glGetUniformLocation(shaderProgram->ID, "resolution"), screenWidth, screenHeight);
-  glUniformBlockBinding(shaderProgram->ID, glGetUniformBlockIndex(shaderProgram->ID, "sphereData"), 0);
+  glUniform1f(glGetUniformLocation(shaderProgram->PROGRAM_ID, "fov"), camera->fov);
+  glUniform2f(glGetUniformLocation(shaderProgram->PROGRAM_ID, "resolution"), screenWidth, screenHeight);
+  glUniformBlockBinding(shaderProgram->PROGRAM_ID, glGetUniformBlockIndex(shaderProgram->PROGRAM_ID, "sphereData"), 0);
   glBindBufferBase(GL_UNIFORM_BUFFER, 0, rtMesh->ubo[0].ID);
-  glUniformBlockBinding(shaderProgram->ID, glGetUniformBlockIndex(shaderProgram->ID, "triangleData"), 1);
+  glUniformBlockBinding(shaderProgram->PROGRAM_ID, glGetUniformBlockIndex(shaderProgram->PROGRAM_ID, "triangleData"),
+                        1);
   glBindBufferBase(GL_UNIFORM_BUFFER, 1, rtMesh->ubo[1].ID);
 
   frameShader->use();
   oldFrame->bindTexture(GL_TEXTURE0);
-  glUniform1i(glGetUniformLocation(frameShader->ID, "oldFrame"), 0);  // texture unit 0
+  glUniform1i(glGetUniformLocation(frameShader->PROGRAM_ID, "oldFrame"), 0);  // texture unit 0
   newFrame->bindTexture(GL_TEXTURE1);
-  glUniform1i(glGetUniformLocation(frameShader->ID, "newFrame"), 1);  // texture unit 1
+  glUniform1i(glGetUniformLocation(frameShader->PROGRAM_ID, "newFrame"), 1);  // texture unit 1
 }
 
 TestRtSphere::~TestRtSphere() {}
@@ -101,16 +102,16 @@ void TestRtSphere::OnRender() {
   shaderProgram->use();
   camera->update(shaderProgram.get());
 
-  glUniform1ui(glGetUniformLocation(shaderProgram->ID, "frameIdx"), frameIdx);
-  glUniform1i(glGetUniformLocation(shaderProgram->ID, "numSpheres"), numSpheres);
-  glUniform1i(glGetUniformLocation(shaderProgram->ID, "numBounces"), numBounces);
-  glUniform1i(glGetUniformLocation(shaderProgram->ID, "numRays"), numRays);
-  glUniform1i(glGetUniformLocation(shaderProgram->ID, "isSpecularBounce"), enableSpecularBounce);
-  glUniform1i(glGetUniformLocation(shaderProgram->ID, "isSpecularWhite"), isSpecularWhite);
-  glUniform1f(glGetUniformLocation(shaderProgram->ID, "ambientLight"), ambientLight);
-  glUniform1i(glGetUniformLocation(shaderProgram->ID, "showSphereLight"), showSphereLight);
-  glUniform1i(glGetUniformLocation(shaderProgram->ID, "showCornellLight"), isShowCornellLight);
-  glUniform1i(glGetUniformLocation(shaderProgram->ID, "showCornellPlanes"), isShowCornellPlanes);
+  glUniform1ui(glGetUniformLocation(shaderProgram->PROGRAM_ID, "frameIdx"), frameIdx);
+  glUniform1i(glGetUniformLocation(shaderProgram->PROGRAM_ID, "numSpheres"), numSpheres);
+  glUniform1i(glGetUniformLocation(shaderProgram->PROGRAM_ID, "numBounces"), numBounces);
+  glUniform1i(glGetUniformLocation(shaderProgram->PROGRAM_ID, "numRays"), numRays);
+  glUniform1i(glGetUniformLocation(shaderProgram->PROGRAM_ID, "isSpecularBounce"), enableSpecularBounce);
+  glUniform1i(glGetUniformLocation(shaderProgram->PROGRAM_ID, "isSpecularWhite"), isSpecularWhite);
+  glUniform1f(glGetUniformLocation(shaderProgram->PROGRAM_ID, "ambientLight"), ambientLight);
+  glUniform1i(glGetUniformLocation(shaderProgram->PROGRAM_ID, "showSphereLight"), showSphereLight);
+  glUniform1i(glGetUniformLocation(shaderProgram->PROGRAM_ID, "showCornellLight"), isShowCornellLight);
+  glUniform1i(glGetUniformLocation(shaderProgram->PROGRAM_ID, "showCornellPlanes"), isShowCornellPlanes);
 
   rtMesh->draw(shaderProgram.get());
 
@@ -128,7 +129,7 @@ void TestRtSphere::OnRender() {
   }
 
   // 5. render the frame buffer to the screen
-  glUniform1i(glGetUniformLocation(frameShader->ID, "numFrames"), frameIdx);
+  glUniform1i(glGetUniformLocation(frameShader->PROGRAM_ID, "numFrames"), frameIdx);
   frameMesh->draw(frameShader.get());
 
   frameIdx++;

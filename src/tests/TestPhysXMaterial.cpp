@@ -52,7 +52,8 @@ TestPhysXMaterial::TestPhysXMaterial(const float screenWidth, const float screen
 
   shader = std::make_unique<Shader>("./shaders/physx_material_vert.glsl", "./shaders/physx_material_frag.glsl");
   shader->use();
-  glUniformMatrix4fv(glGetUniformLocation(shader->ID, "modelMatrix"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
+  glUniformMatrix4fv(glGetUniformLocation(shader->PROGRAM_ID, "modelMatrix"), 1, GL_FALSE,
+                     glm::value_ptr(glm::mat4(1.0f)));
 
   groundMesh = createPlaneMesh(100.0f, glm::vec3(0, 1, 0), glm::vec3(0.6f), glm::vec3(0.0f));
 
@@ -100,21 +101,23 @@ void TestPhysXMaterial::OnRender() {
   camera->update(shader.get());
 
   // 同步 PhysX → uniform
-  glUniformMatrix4fv(glGetUniformLocation(shader->ID, "modelMatrix"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
-  glUniform1i(glGetUniformLocation(shader->ID, "useTexture"), false);
+  glUniformMatrix4fv(glGetUniformLocation(shader->PROGRAM_ID, "modelMatrix"), 1, GL_FALSE,
+                     glm::value_ptr(glm::mat4(1.0f)));
+  glUniform1i(glGetUniformLocation(shader->PROGRAM_ID, "useTexture"), false);
   rampMesh->draw(shader.get());
 
   // 地板：單位矩陣
-  glUniformMatrix4fv(glGetUniformLocation(shader->ID, "modelMatrix"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
-  glUniform1i(glGetUniformLocation(shader->ID, "useTexture"), false);
+  glUniformMatrix4fv(glGetUniformLocation(shader->PROGRAM_ID, "modelMatrix"), 1, GL_FALSE,
+                     glm::value_ptr(glm::mat4(1.0f)));
+  glUniform1i(glGetUniformLocation(shader->PROGRAM_ID, "useTexture"), false);
   groundMesh->draw(shader.get());
 
   // Cube
   for (auto& c : mCubes) {
     const PxTransform pose = c.actor->getGlobalPose();
     const glm::mat4 M = pxToGlm(pose);
-    glUniformMatrix4fv(glGetUniformLocation(shader->ID, "modelMatrix"), 1, GL_FALSE, glm::value_ptr(M));
-    glUniform1i(glGetUniformLocation(shader->ID, "useTexture"), c.mesh->hasTexture());
+    glUniformMatrix4fv(glGetUniformLocation(shader->PROGRAM_ID, "modelMatrix"), 1, GL_FALSE, glm::value_ptr(M));
+    glUniform1i(glGetUniformLocation(shader->PROGRAM_ID, "useTexture"), c.mesh->hasTexture());
     c.mesh->draw(shader.get());
   }
 

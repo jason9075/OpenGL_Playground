@@ -2,136 +2,78 @@
 
 #include <OPPCH.h>
 
-Shader::Shader(const char *vertShaderPath, const char *fragShaderPath) {
-  vertPath = vertShaderPath;
-  geomPath = nullptr;
-  fragPath = fragShaderPath;
-  std::vector<GLenum> shaderType = {GL_VERTEX_SHADER, GL_FRAGMENT_SHADER};
-  std::vector<const char *> shaderPath({vertPath, fragPath});
-
-  for (int i = 0; i < shaderType.size(); i++) {
-    GLuint shader = loadShader(shaderPath[i], shaderType[i]);
-    shaders.push_back(shader);
-  }
-
-  // Link shaders
-  ID = glCreateProgram();
-  for (int i = 0; i < shaders.size(); i++) {
-    glAttachShader(ID, shaders[i]);
-  }
-  glLinkProgram(ID);
-  checkLinkErrors(ID, "PROGRAM");
-  // Delete the shaders as they're linked into our program now and no longer necessary
-  for (int i = 0; i < shaders.size(); i++) {
-    glDeleteShader(shaders[i]);
-  }
+Shader::Shader(const char *vertShaderPath, const char *fragShaderPath)
+    : vertPath_(vertShaderPath ? vertShaderPath : ""), fragPath_(fragShaderPath ? fragShaderPath : "") {
+  PROGRAM_ID = buildProgram(vertPath_.c_str(), nullptr, fragPath_.c_str());
 }
 
-Shader::Shader(const char *vertShaderPath, const char *geomShaderPath, const char *fragShaderPath) {
-  vertPath = vertShaderPath;
-  geomPath = geomShaderPath;
-  fragPath = fragShaderPath;
-  std::vector<GLenum> shaderType = {GL_VERTEX_SHADER, GL_GEOMETRY_SHADER, GL_FRAGMENT_SHADER};
-  std::vector<const char *> shaderPath({vertPath, geomPath, fragPath});
-
-  for (int i = 0; i < shaderType.size(); i++) {
-    GLuint shader = loadShader(shaderPath[i], shaderType[i]);
-    shaders.push_back(shader);
-  }
-
-  // Link shaders
-  ID = glCreateProgram();
-  for (int i = 0; i < shaders.size(); i++) {
-    glAttachShader(ID, shaders[i]);
-  }
-  glLinkProgram(ID);
-  checkLinkErrors(ID, "PROGRAM");
-  for (int i = 0; i < shaders.size(); i++) {
-    glDeleteShader(shaders[i]);
-  }
+Shader::Shader(const char *vertShaderPath, const char *geomShaderPath, const char *fragShaderPath)
+    : vertPath_(vertShaderPath ? vertShaderPath : ""),
+      geomPath_(geomShaderPath ? geomShaderPath : ""),
+      fragPath_(fragShaderPath ? fragShaderPath : "") {
+  PROGRAM_ID = buildProgram(vertPath_.c_str(), geomPath_.empty() ? nullptr : geomPath_.c_str(), fragPath_.c_str());
 }
 
-GLuint Shader::loadShader(const char *path, GLenum shaderType) {
-  std::string shaderCode = readFile(path);
+Shader::~Shader() { reset(); }
 
-  const char *shaderSource = shaderCode.c_str();
-  GLuint shader = compileShader(shaderSource, shaderType);
-  checkCompileErrors(shader, path);
-
-  return shader;
+Shader::Shader(Shader &&other) noexcept
+    : vertPath_(std::move(other.vertPath_)),
+      geomPath_(std::move(other.geomPath_)),
+      fragPath_(std::move(other.fragPath_)),
+      PROGRAM_ID(other.PROGRAM_ID) {
+  other.PROGRAM_ID = 0;
 }
 
-void Shader::reload() {
-  // clear the existing shaders
-  for (int i = 0; i < shaders.size(); i++) {
-    glDetachShader(ID, shaders[i]);
-    glDeleteShader(shaders[i]);
+Shader &Shader::operator=(Shader &&other) noexcept {
+  if (this != &other) {
+    reset();
+    vertPath_ = std::move(other.vertPath_);
+    geomPath_ = std::move(other.geomPath_);
+    fragPath_ = std::move(other.fragPath_);
+    PROGRAM_ID = other.PROGRAM_ID;
+    other.PROGRAM_ID = 0;
   }
-  shaders.clear();
-
-  std::vector<GLenum> shaderType;
-  std::vector<const char *> shaderPath;
-
-  if (vertPath != nullptr) {
-    shaderType.push_back(GL_VERTEX_SHADER);
-    shaderPath.push_back(vertPath);
-  }
-  if (geomPath != nullptr) {
-    std::cout << "Reloading geometry shader" << std::endl;
-    shaderType.push_back(GL_GEOMETRY_SHADER);
-    shaderPath.push_back(geomPath);
-  }
-  if (fragPath != nullptr) {
-    shaderType.push_back(GL_FRAGMENT_SHADER);
-    shaderPath.push_back(fragPath);
-  }
-  for (int i = 0; i < shaderType.size(); i++) {
-    GLuint shader = loadShader(shaderPath[i], shaderType[i]);
-    shaders.push_back(shader);
-  }
-
-  // Link shaders
-  ID = glCreateProgram();
-  for (int i = 0; i < shaders.size(); i++) {
-    glAttachShader(ID, shaders[i]);
-  }
-  glLinkProgram(ID);
-  checkLinkErrors(ID, "PROGRAM");
-  for (int i = 0; i < shaders.size(); i++) {
-    glDeleteShader(shaders[i]);
-  }
+  return *this;
 }
 
-void Shader::use() { glUseProgram(ID); }
+bool Shader::reload() {
+  GLuint newProg =
+      buildProgram(vertPath_.empty() ? nullptr : vertPath_.c_str(), geomPath_.empty() ? nullptr : geomPath_.c_str(),
+                   fragPath_.empty() ? nullptr : fragPath_.c_str());
 
-void Shader::del() { glDeleteProgram(ID); }
+  if (!newProg) return false;
+  reset();
+  PROGRAM_ID = newProg;
+  return true;
+}
+
+void Shader::use() { glUseProgram(PROGRAM_ID); }
+
+void Shader::del() { glDeleteProgram(PROGRAM_ID); }
 
 std::string Shader::readFile(const char *filePath) {
-  std::string content;
-  std::ifstream fileStream(filePath, std::ios::in);
-  if (!fileStream.is_open()) {
-    std::cerr << "Could not read file " << filePath << ". File does not exist." << std::endl;
+  std::ifstream file(filePath, std::ios::in);
+  if (!file.is_open()) {
+    std::cerr << "Could not read file " << filePath << ". File does not exist.\n";
     return "";
   }
-
+  std::stringstream ss;
   std::string line;
-  std::stringstream contentStream;
-  while (std::getline(fileStream, line)) {
-    if (line.substr(0, 8) == "#include") {
-      // Extract the file name
-      std::string includeFile = line.substr(9);
-      includeFile = includeFile.substr(1, includeFile.length() - 2);  // Remove quotes
-
-      // Recursively load the included file content
-      std::string includeContent = readFile(includeFile.c_str());
-      contentStream << includeContent;
+  while (std::getline(file, line)) {
+    if (line.rfind("#include", 0) == 0) {
+      // 形如: #include "path"
+      auto left = line.find('"');
+      auto right = line.find_last_of('"');
+      if (left != std::string::npos && right != std::string::npos && right > left) {
+        std::string includeFile = line.substr(left + 1, right - left - 1);
+        ss << readFile(includeFile.c_str());
+        ss << "\n";
+      }
     } else {
-      contentStream << line << "\n";
+      ss << line << "\n";
     }
   }
-  fileStream.close();
-
-  return contentStream.str();
+  return ss.str();
 }
 
 GLuint Shader::compileShader(const char *shaderSource, GLenum shaderType) {
@@ -151,12 +93,56 @@ void Shader::checkCompileErrors(GLuint shader, const char *shaderPath) {
   }
 }
 
-void Shader::checkLinkErrors(GLuint shader, std::string type) {
-  GLint success;
-  GLchar infoLog[512];
-  glGetProgramiv(shader, GL_LINK_STATUS, &success);
+void Shader::checkLinkErrors(GLuint program, const char *tag) {
+  GLint success = GL_FALSE;
+  glGetProgramiv(program, GL_LINK_STATUS, &success);
   if (!success) {
-    glGetProgramInfoLog(shader, 512, NULL, infoLog);
-    std::cout << "ERROR::SHADER::" << type << "::LINKING_FAILED\n" << infoLog << std::endl;
+    GLchar infoLog[2048];
+    glGetProgramInfoLog(program, sizeof(infoLog), nullptr, infoLog);
+    std::cerr << "ERROR::SHADER::" << tag << "::LINKING_FAILED\n" << infoLog << "\n";
+  }
+}
+
+GLuint Shader::buildProgram(const char *vert, const char *geom, const char *frag) {
+  std::vector<GLuint> shaders;
+  shaders.reserve(3);
+
+  auto attach = [&](const char *path, GLenum type) {
+    if (!path) return;
+    std::string code = readFile(path);
+    GLuint sh = compileShader(code.c_str(), type);
+    checkCompileErrors(sh, path);
+    shaders.push_back(sh);
+  };
+
+  attach(vert, GL_VERTEX_SHADER);
+  attach(geom, GL_GEOMETRY_SHADER);
+  attach(frag, GL_FRAGMENT_SHADER);
+
+  GLuint prog = glCreateProgram();
+  for (auto sh : shaders) glAttachShader(prog, sh);
+  glLinkProgram(prog);
+  checkLinkErrors(prog, "PROGRAM");
+
+  // 無論成功與否都刪 shader 物件
+  for (auto sh : shaders) {
+    glDetachShader(prog, sh);
+    glDeleteShader(sh);
+  }
+
+  // 連結失敗則刪 program 並回 0
+  GLint linked = GL_FALSE;
+  glGetProgramiv(prog, GL_LINK_STATUS, &linked);
+  if (!linked) {
+    glDeleteProgram(prog);
+    return 0;
+  }
+  return prog;
+}
+
+void Shader::reset() {
+  if (PROGRAM_ID) {
+    glDeleteProgram(PROGRAM_ID);
+    PROGRAM_ID = 0;
   }
 }

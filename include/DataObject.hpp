@@ -7,6 +7,20 @@ class VBO;
 class VAO {
  public:
   VAO();
+  ~VAO() { reset(); };
+
+  VAO(const VAO &) = delete;
+  VAO &operator=(const VAO &) = delete;
+
+  VAO(VAO &&other) noexcept : ID(other.ID) { other.ID = 0; }
+  VAO &operator=(VAO &&other) noexcept {
+    if (this != &other) {
+      reset();
+      ID = other.ID;
+      other.ID = 0;
+    }
+    return *this;
+  }
   void linkAttr(VBO &VBO, GLuint layout, GLuint numComponents, GLenum type, GLsizeiptr stride, const void *offset);
   void linkAttrDiv(VBO &VBO, GLuint layout, GLuint numComponents, GLenum type, GLsizeiptr stride, const void *offset);
   void linkMat4(VBO &VBO, GLuint layout);
@@ -16,6 +30,12 @@ class VAO {
   GLuint ID;
 
  private:
+  void reset() {
+    if (ID) {
+      glDeleteVertexArrays(1, &ID);
+      ID = 0;
+    }
+  }
 };
 
 struct Vertex {
@@ -43,13 +63,25 @@ struct GaussianSphere {
 
 class VBO {
  public:
+  VBO();
   template <typename T>
   VBO(const std::vector<T> &data) {
     glGenBuffers(1, &ID);
     glBindBuffer(GL_ARRAY_BUFFER, ID);
     glBufferData(GL_ARRAY_BUFFER, sizeof(T) * data.size(), data.data(), GL_STATIC_DRAW);
   }
-  VBO();
+  ~VBO() { reset(); }
+  VBO(const VBO &) = delete;
+  VBO &operator=(const VBO &) = delete;
+  VBO(VBO &&o) noexcept : ID(o.ID) { o.ID = 0; }
+  VBO &operator=(VBO &&o) noexcept {
+    if (this != &o) {
+      reset();
+      ID = o.ID;
+      o.ID = 0;
+    }
+    return *this;
+  }
   template <typename T>
   void bufferData(const std::vector<T> &data) {
     glBindBuffer(GL_ARRAY_BUFFER, ID);
@@ -60,17 +92,42 @@ class VBO {
   void del();
 
  private:
+  void reset() {
+    if (ID) {
+      glDeleteBuffers(1, &ID);
+      ID = 0;
+    }
+  }
   GLuint ID;
 };
 
 class EBO {
  public:
   EBO();
+  ~EBO() { reset(); }
+  EBO(const EBO &) = delete;
+  EBO &operator=(const EBO &) = delete;
+  EBO(EBO &&o) noexcept : ID(o.ID) { o.ID = 0; }
+  EBO &operator=(EBO &&o) noexcept {
+    if (this != &o) {
+      reset();
+      ID = o.ID;
+      o.ID = 0;
+    }
+    return *this;
+  }
+
   void bind();
   void bufferData(const std::vector<GLuint> &indices);
   void del();
 
  private:
+  void reset() {
+    if (ID) {
+      glDeleteBuffers(1, &ID);
+      ID = 0;
+    }
+  }
   GLuint ID;
 };
 
@@ -78,6 +135,19 @@ class UBO {
  public:
   GLuint ID;
   UBO();
+  ~UBO() { reset(); }
+  UBO(const UBO &) = delete;
+  UBO &operator=(const UBO &) = delete;
+  UBO(UBO &&o) noexcept : ID(o.ID) { o.ID = 0; }
+  UBO &operator=(UBO &&o) noexcept {
+    if (this != &o) {
+      reset();
+      ID = o.ID;
+      o.ID = 0;
+    }
+    return *this;
+  }
+
   void bind();
   void unbind();
   template <typename T>
@@ -91,6 +161,12 @@ class UBO {
   void del();
 
  private:
+  void reset() {
+    if (ID) {
+      glDeleteBuffers(1, &ID);
+      ID = 0;
+    }
+  }
 };
 
 class FBO {
@@ -98,6 +174,25 @@ class FBO {
   GLuint ID;
   GLuint textureID;
   FBO(float width, float height);
+  FBO(const FBO &) = delete;
+  FBO &operator=(const FBO &) = delete;
+  FBO(FBO &&o) noexcept : ID(o.ID), textureID(o.textureID), width(o.width), height(o.height) {
+    o.ID = 0;
+    o.textureID = 0;
+  }
+  FBO &operator=(FBO &&o) noexcept {
+    if (this != &o) {
+      reset();
+      ID = o.ID;
+      textureID = o.textureID;
+      width = o.width;
+      height = o.height;
+      o.ID = 0;
+      o.textureID = 0;
+    }
+    return *this;
+  }
+  ~FBO() { reset(); }
   void bind();
   void unbind();
   void setupTexture();
@@ -105,6 +200,18 @@ class FBO {
   void del();
   float width;
   float height;
+
+ private:
+  void reset() {
+    if (textureID) {
+      glDeleteTextures(1, &textureID);
+      textureID = 0;
+    }
+    if (ID) {
+      glDeleteFramebuffers(1, &ID);
+      ID = 0;
+    }
+  }
 };
 
 class Texture {
@@ -161,6 +268,12 @@ class Mesh {
   Mesh(const std::vector<Vertex> &vertices, const std::vector<GLuint> &indices,
        std::vector<std::shared_ptr<Texture>> textures);
 
+  ~Mesh() = default;
+  Mesh(const Mesh &) = delete;
+  Mesh &operator=(const Mesh &) = delete;
+  Mesh(Mesh &&) noexcept = default;
+  Mesh &operator=(Mesh &&) noexcept = default;
+
   unsigned int numTriangles();
 
   template <typename T>
@@ -179,8 +292,8 @@ class Mesh {
     ubo[index].bufferSubData(data, count);
     ubo[index].unbind();
   }
-  void setTexture(std::vector<std::shared_ptr<Texture>> textures);
-  bool hasTexture();
+  void setTexture(const std::vector<std::shared_ptr<Texture>> textures);
+  bool hasTexture() const;
   void setupInstanceMatrices(std::vector<glm::mat4> &instanceMatrices);
   void updateInstanceMatrices(std::vector<glm::mat4> &instanceMatrices);
   void rotate(float angle, glm::vec3 axis);
@@ -196,19 +309,23 @@ class Mesh {
 
 class CubeMap {
  public:
-  VAO vao;
   CubeMap(std::vector<std::string> &faces, bool flip = true);
+  ~CubeMap();
 
-  void flipHorizontally(unsigned char *data, int width, int height, int channels);
-  void flipVertically(unsigned char *data, int width, int height, int channels);
+  CubeMap(const CubeMap &) = delete;
+  CubeMap &operator=(const CubeMap &) = delete;
+  CubeMap(CubeMap &&other) noexcept;
+  CubeMap &operator=(CubeMap &&other) noexcept;
 
   void draw(Shader *shader);
 
-  void del();
-
  private:
+  void reset();
+  VAO vao;
   std::unique_ptr<Mesh> cubeMesh;
   GLuint textureID;
+  static void flipHorizontally(unsigned char *data, int width, int height, int channels);
+  static void flipVertically(unsigned char *data, int width, int height, int channels);
 };
 
 class PointCloud {

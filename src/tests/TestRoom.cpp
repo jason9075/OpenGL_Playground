@@ -43,9 +43,10 @@ TestRoom::TestRoom(const float screenWidth, const float screenHeight) {
   camera->setEventListener(listener.get());
 
   shaderRoom->use();
-  glUniformMatrix4fv(glGetUniformLocation(shaderRoom->ID, "modelMatrix"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
+  glUniformMatrix4fv(glGetUniformLocation(shaderRoom->PROGRAM_ID, "modelMatrix"), 1, GL_FALSE,
+                     glm::value_ptr(glm::mat4(1.0f)));
   // background color
-  glUniform3f(glGetUniformLocation(shaderRoom->ID, "backgroundColor"), backgroundColor[0], backgroundColor[1],
+  glUniform3f(glGetUniformLocation(shaderRoom->PROGRAM_ID, "backgroundColor"), backgroundColor[0], backgroundColor[1],
               backgroundColor[2]);
 
   // glUniformMatrix4fv(glGetUniformLocation(shaderProgram->ID, "modelMatrix"), 1, GL_FALSE,
@@ -72,17 +73,17 @@ void TestRoom::OnRender() {
 
   shaderRoom->use();
   camera->update(shaderRoom.get());
-  glUniform1i(glGetUniformLocation(shaderRoom->ID, "classId"), 0);
+  glUniform1i(glGetUniformLocation(shaderRoom->PROGRAM_ID, "classId"), 0);
   groundMesh->draw(shaderRoom.get());
 
-  glUniform1i(glGetUniformLocation(shaderRoom->ID, "classId"), 1);
+  glUniform1i(glGetUniformLocation(shaderRoom->PROGRAM_ID, "classId"), 1);
   northWall->draw(shaderRoom.get());
   southWall->draw(shaderRoom.get());
   eastWall->draw(shaderRoom.get());
   westWall->draw(shaderRoom.get());
-  glUniform1i(glGetUniformLocation(shaderRoom->ID, "classId"), 2);
+  glUniform1i(glGetUniformLocation(shaderRoom->PROGRAM_ID, "classId"), 2);
   floor->draw(shaderRoom.get());
-  glUniform1i(glGetUniformLocation(shaderRoom->ID, "classId"), 3);
+  glUniform1i(glGetUniformLocation(shaderRoom->PROGRAM_ID, "classId"), 3);
   ceiling->draw(shaderRoom.get());
 }
 

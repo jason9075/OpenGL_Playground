@@ -30,10 +30,10 @@ TestSdfTaipei101::TestSdfTaipei101(const float screenWidth, const float screenHe
 
   // sdf shader
   shaderSDF->use();
-  glUniform2f(glGetUniformLocation(shaderSDF->ID, "resolution"), screenWidth, screenHeight);
-  glUniform3f(glGetUniformLocation(shaderSDF->ID, "sdfCenter"), 0.0f, 0.0f, 0.0f);
-  glUniform1f(glGetUniformLocation(shaderSDF->ID, "fov"), camera->fov);
-  glUniform3fv(glGetUniformLocation(shaderSDF->ID, "lightColor"), 1, glm::value_ptr(glm::vec3(1.0f)));
+  glUniform2f(glGetUniformLocation(shaderSDF->PROGRAM_ID, "resolution"), screenWidth, screenHeight);
+  glUniform3f(glGetUniformLocation(shaderSDF->PROGRAM_ID, "sdfCenter"), 0.0f, 0.0f, 0.0f);
+  glUniform1f(glGetUniformLocation(shaderSDF->PROGRAM_ID, "fov"), camera->fov);
+  glUniform3fv(glGetUniformLocation(shaderSDF->PROGRAM_ID, "lightColor"), 1, glm::value_ptr(glm::vec3(1.0f)));
 }
 
 TestSdfTaipei101::~TestSdfTaipei101() {}
@@ -53,9 +53,9 @@ void TestSdfTaipei101::OnRender() {
   }
 
   shaderSDF->use();
-  glUniform1f(glGetUniformLocation(shaderSDF->ID, "sdfSize"), size);
-  glUniform3fv(glGetUniformLocation(shaderSDF->ID, "sdfColor"), 1, sdfColor);
-  glUniform3fv(glGetUniformLocation(shaderSDF->ID, "lightPosition"), 1, lightPos);
+  glUniform1f(glGetUniformLocation(shaderSDF->PROGRAM_ID, "sdfSize"), size);
+  glUniform3fv(glGetUniformLocation(shaderSDF->PROGRAM_ID, "sdfColor"), 1, sdfColor);
+  glUniform3fv(glGetUniformLocation(shaderSDF->PROGRAM_ID, "lightPosition"), 1, lightPos);
   camera->update(shaderSDF.get());
   texture->texUnit(*shaderSDF, "taipei101", 0);
   texture->bind();

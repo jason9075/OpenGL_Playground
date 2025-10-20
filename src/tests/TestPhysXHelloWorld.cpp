@@ -55,7 +55,8 @@ TestPhysXHelloWorld::TestPhysXHelloWorld(const float screenWidth, const float sc
 
   shader = std::make_unique<Shader>("./shaders/physx_hello_vert.glsl", "./shaders/physx_hello_frag.glsl");
   shader->use();
-  glUniformMatrix4fv(glGetUniformLocation(shader->ID, "modelMatrix"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
+  glUniformMatrix4fv(glGetUniformLocation(shader->PROGRAM_ID, "modelMatrix"), 1, GL_FALSE,
+                     glm::value_ptr(glm::mat4(1.0f)));
 
   groundMesh = createPlaneMesh(100.0f, glm::vec3(0, 1, 0), glm::vec3(0.6f), glm::vec3(0.0f));
 
@@ -97,14 +98,15 @@ void TestPhysXHelloWorld::OnRender() {
   for (auto& b : mBalls) {
     const PxTransform pose = b.actor->getGlobalPose();
     const glm::mat4 M = pxToGlm(pose);
-    glUniformMatrix4fv(glGetUniformLocation(shader->ID, "modelMatrix"), 1, GL_FALSE, glm::value_ptr(M));
-    glUniform1i(glGetUniformLocation(shader->ID, "classId"), 1);
+    glUniformMatrix4fv(glGetUniformLocation(shader->PROGRAM_ID, "modelMatrix"), 1, GL_FALSE, glm::value_ptr(M));
+    glUniform1i(glGetUniformLocation(shader->PROGRAM_ID, "classId"), 1);
     b.mesh->draw(shader.get());
   }
 
   // 地板：單位矩陣
-  glUniformMatrix4fv(glGetUniformLocation(shader->ID, "modelMatrix"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
-  glUniform1i(glGetUniformLocation(shader->ID, "classId"), 2);
+  glUniformMatrix4fv(glGetUniformLocation(shader->PROGRAM_ID, "modelMatrix"), 1, GL_FALSE,
+                     glm::value_ptr(glm::mat4(1.0f)));
+  glUniform1i(glGetUniformLocation(shader->PROGRAM_ID, "classId"), 2);
   groundMesh->draw(shader.get());
 
   camera->moveCamera();

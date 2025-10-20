@@ -34,8 +34,8 @@ void TestTriangle::OnRender() {
 
   camera->moveCamera();
 
-  glUniform3fv(glGetUniformLocation(shaderProgram->ID, "color"), 1, triangleColor);
-  glUniformMatrix4fv(glGetUniformLocation(shaderProgram->ID, "modelMatrix"), 1, GL_FALSE,
+  glUniform3fv(glGetUniformLocation(shaderProgram->PROGRAM_ID, "color"), 1, triangleColor);
+  glUniformMatrix4fv(glGetUniformLocation(shaderProgram->PROGRAM_ID, "modelMatrix"), 1, GL_FALSE,
                      glm::value_ptr(glm::mat4(1.0f)));
   camera->update(shaderProgram.get());
   mesh->draw(shaderProgram.get());

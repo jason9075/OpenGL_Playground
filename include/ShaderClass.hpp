@@ -4,25 +4,33 @@ class Shader {
  public:
   Shader(const char *vertShaderPath, const char *fragShaderPath);
   Shader(const char *vertShaderPath, const char *geomShaderPath, const char *fragShaderPath);
-  GLuint ID;
+  ~Shader();
 
-  void reload();
+  Shader(const Shader &) = delete;
+  Shader &operator=(const Shader &) = delete;
+  Shader(Shader &&other) noexcept;
+  Shader &operator=(Shader &&other) noexcept;
+
+  GLuint PROGRAM_ID = 0;
+
+  bool reload();
   void use();
   void del();
 
  protected:
-  std::string readFile(const char *filePath);
+  static std::string readFile(const char *filePath);
 
-  GLuint compileShader(const char *shaderSource, GLenum shaderType);
+  static GLuint compileShader(const char *shaderSource, GLenum shaderType);
 
-  void checkCompileErrors(GLuint shader, const char *shaderPath);
+  static void checkCompileErrors(GLuint shader, const char *shaderPath);
 
-  void checkLinkErrors(GLuint shader, std::string type);
+  static void checkLinkErrors(GLuint program, const char *tag);
 
  private:
-  const char *vertPath;
-  const char *geomPath;
-  const char *fragPath;
-  std::vector<GLuint> shaders;
-  GLuint loadShader(const char *path, GLenum shaderType);
+  static GLuint buildProgram(const char *vert, const char *geom, const char *frag);
+  void reset();
+
+  std::string vertPath_;
+  std::string geomPath_;
+  std::string fragPath_;
 };

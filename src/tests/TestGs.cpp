@@ -73,20 +73,20 @@ void TestGs::OnRender() {
 
   shaderProgram->use();
   glUniformMatrix4fv(
-      glGetUniformLocation(shaderProgram->ID, "modelMatrix"), 1, GL_FALSE,
+      glGetUniformLocation(shaderProgram->PROGRAM_ID, "modelMatrix"), 1, GL_FALSE,
       glm::value_ptr(glm::rotate(glm::rotate(glm::mat4(1.0f), glm::radians(rotateX), glm::vec3(1.0f, 0.0f, 0.0f)),
                                  glm::radians(rotateZ), glm::vec3(0.0f, 0.0f, 1.0f))));
-  glUniform1f(glGetUniformLocation(shaderProgram->ID, "scaleFactor"), scaleFactor);
-  glUniform1f(glGetUniformLocation(shaderProgram->ID, "W"), 1024.0f);
-  glUniform1f(glGetUniformLocation(shaderProgram->ID, "H"), 768.0f);
+  glUniform1f(glGetUniformLocation(shaderProgram->PROGRAM_ID, "scaleFactor"), scaleFactor);
+  glUniform1f(glGetUniformLocation(shaderProgram->PROGRAM_ID, "W"), 1024.0f);
+  glUniform1f(glGetUniformLocation(shaderProgram->PROGRAM_ID, "H"), 768.0f);
   float tan_fovx = tan(glm::radians(45.0f) / 2.0f);
   float tan_fovy = tan(glm::radians(45.0f) / 2.0f);
   float focal_y = 768.0f / (2.0f * tan_fovy);
   float focal_x = 1024.0f / (2.0f * tan_fovx);
-  glUniform1f(glGetUniformLocation(shaderProgram->ID, "focal_x"), focal_x);
-  glUniform1f(glGetUniformLocation(shaderProgram->ID, "focal_y"), focal_y);
-  glUniform1f(glGetUniformLocation(shaderProgram->ID, "tan_fovx"), tan_fovx);
-  glUniform1f(glGetUniformLocation(shaderProgram->ID, "tan_fovy"), tan_fovy);
+  glUniform1f(glGetUniformLocation(shaderProgram->PROGRAM_ID, "focal_x"), focal_x);
+  glUniform1f(glGetUniformLocation(shaderProgram->PROGRAM_ID, "focal_y"), focal_y);
+  glUniform1f(glGetUniformLocation(shaderProgram->PROGRAM_ID, "tan_fovx"), tan_fovx);
+  glUniform1f(glGetUniformLocation(shaderProgram->PROGRAM_ID, "tan_fovy"), tan_fovy);
   camera->update(shaderProgram.get());
   splat->draw(shaderProgram.get());
 }

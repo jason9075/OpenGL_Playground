@@ -23,7 +23,8 @@ TestParallaxMapping::TestParallaxMapping(const float screenWidth, const float sc
   camera->setEventListener(listener.get());
 
   shader->use();
-  glUniformMatrix4fv(glGetUniformLocation(shader->ID, "modelMatrix"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
+  glUniformMatrix4fv(glGetUniformLocation(shader->PROGRAM_ID, "modelMatrix"), 1, GL_FALSE,
+                     glm::value_ptr(glm::mat4(1.0f)));
 
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LESS);
@@ -39,9 +40,10 @@ void TestParallaxMapping::OnRender() {
 
   camera->moveCamera();
 
-  glUniform1f(glGetUniformLocation(shader->ID, "farFactor"), farFactor);
-  glUniformMatrix4fv(glGetUniformLocation(shader->ID, "modelMatrix"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
-  glUniform3f(glGetUniformLocation(shader->ID, "camPosition"), camera->position.x, camera->position.y,
+  glUniform1f(glGetUniformLocation(shader->PROGRAM_ID, "farFactor"), farFactor);
+  glUniformMatrix4fv(glGetUniformLocation(shader->PROGRAM_ID, "modelMatrix"), 1, GL_FALSE,
+                     glm::value_ptr(glm::mat4(1.0f)));
+  glUniform3f(glGetUniformLocation(shader->PROGRAM_ID, "camPosition"), camera->position.x, camera->position.y,
               camera->position.z);
   camera->update(shader.get());
   wall->draw(shader.get());
@@ -53,8 +55,9 @@ void TestParallaxMapping::OnImGuiRender() { ImGui::SliderFloat("Far Factor", &fa
 void TestParallaxMapping::OnReload() {
   shader->reload();
   shader->use();
-  glUniformMatrix4fv(glGetUniformLocation(shader->ID, "modelMatrix"), 1, GL_FALSE, glm::value_ptr(glm::mat4(1.0f)));
-  glUniform3f(glGetUniformLocation(shader->ID, "camPosition"), camera->position.x, camera->position.y,
+  glUniformMatrix4fv(glGetUniformLocation(shader->PROGRAM_ID, "modelMatrix"), 1, GL_FALSE,
+                     glm::value_ptr(glm::mat4(1.0f)));
+  glUniform3f(glGetUniformLocation(shader->PROGRAM_ID, "camPosition"), camera->position.x, camera->position.y,
               camera->position.z);
 }
 

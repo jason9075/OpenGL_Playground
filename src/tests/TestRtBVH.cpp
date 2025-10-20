@@ -59,8 +59,8 @@ void TestRtBVH::OnRender() {
   glm::mat4 modelMatrix = glm::rotate(glm::mat4(1.0f), angle, glm::vec3(0.0f, 1.0f, 0.0f));
   model->setModelMatrix(modelMatrix);
 
-  glUniform1i(glGetUniformLocation(shaderProgram->ID, "enableLighting"), 1);
-  glUniformMatrix4fv(glGetUniformLocation(shaderProgram->ID, "modelMatrix"), 1, GL_FALSE,
+  glUniform1i(glGetUniformLocation(shaderProgram->PROGRAM_ID, "enableLighting"), 1);
+  glUniformMatrix4fv(glGetUniformLocation(shaderProgram->PROGRAM_ID, "modelMatrix"), 1, GL_FALSE,
                      glm::value_ptr(glm::mat4(1.0)));
   glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   auto elapsed = std::chrono::high_resolution_clock::now() - startTS;
@@ -70,8 +70,8 @@ void TestRtBVH::OnRender() {
   numTriangles = numTriangles % model->meshes[0].numTriangles();
   model->drawTri(shaderProgram.get(), numTriangles, 0);
 
-  glUniform1i(glGetUniformLocation(shaderProgram->ID, "enableLighting"), 0);
-  glUniformMatrix4fv(glGetUniformLocation(shaderProgram->ID, "modelMatrix"), 1, GL_FALSE,
+  glUniform1i(glGetUniformLocation(shaderProgram->PROGRAM_ID, "enableLighting"), 0);
+  glUniformMatrix4fv(glGetUniformLocation(shaderProgram->PROGRAM_ID, "modelMatrix"), 1, GL_FALSE,
                      glm::value_ptr(beamModelMatrix * glm::mat4_cast(beamRotation)));
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   beam->draw(shaderProgram.get());

@@ -140,7 +140,7 @@ Texture::Texture(const char *image, const char *texType, GLuint slot) : type(tex
 }
 
 void Texture::texUnit(Shader &shader, const char *uniform, GLuint unit) {
-  glUniform1i(glGetUniformLocation(shader.ID, uniform), unit);
+  glUniform1i(glGetUniformLocation(shader.PROGRAM_ID, uniform), unit);
 }
 
 void Texture::bind() {
@@ -195,9 +195,9 @@ void Mesh::setupMeshAttributes() {
 
 unsigned int Mesh::numTriangles() { return indices.size() / 3; }
 
-void Mesh::setTexture(std::vector<std::shared_ptr<Texture>> textures) { this->textures = std::move(textures); }
+void Mesh::setTexture(const std::vector<std::shared_ptr<Texture>> textures) { this->textures = std::move(textures); }
 
-bool Mesh::hasTexture() { return !this->textures.empty(); }
+bool Mesh::hasTexture() const { return !this->textures.empty(); }
 
 void Mesh::setupInstanceMatrices(std::vector<glm::mat4> &instanceMatrices) {
   vao.bind();
@@ -337,6 +337,8 @@ CubeMap::CubeMap(std::vector<std::string> &faces, bool flip) {
   cubeMesh = createCubeMesh(1.0f);
 }
 
+CubeMap::~CubeMap() { reset(); }
+
 void CubeMap::flipHorizontally(unsigned char *data, int width, int height, int nrChannels) {
   int rowSize = width * nrChannels;
   for (int y = 0; y < height; ++y) {
@@ -372,13 +374,15 @@ void CubeMap::flipVertically(unsigned char *data, int width, int height, int nrC
 void CubeMap::draw(Shader *shader) {
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
-  glUniform1i(glGetUniformLocation(shader->ID, "cubemapTxt"), 0);
+  glUniform1i(glGetUniformLocation(shader->PROGRAM_ID, "cubemapTxt"), 0);
   cubeMesh->draw(shader);
 }
 
-void CubeMap::del() {
-  cubeMesh->del();
-  glDeleteTextures(1, &textureID);
+void CubeMap::reset() {
+  if (textureID) {
+    glDeleteTextures(1, &textureID);
+    textureID = 0;
+  }
 }
 
 PointCloud::PointCloud(const std::vector<Point> &points) : points(points), vao(), vbo(points) {
