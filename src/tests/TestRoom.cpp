@@ -11,19 +11,29 @@ TestRoom::TestRoom(const float screenWidth, const float screenHeight) {
 
   shaderRoom = std::make_unique<Shader>("./shaders/room_vert.glsl", "./shaders/room_frag.glsl");
 
-  textures = {Texture("./assets/textures/marble2.png", "normal", 0)};
-  floor = createCuboidMesh(30.0f, 0.3f, 20.0f, glm::vec3(0.0f, 0.0f, 0.0f));
-  floor->setTexture(textures);
-  textures = {Texture("./assets/textures/marble1.png", "normal", 0)};
-  northWall = createCuboidMesh(30.0f, 16.0f, 0.1f, glm::vec3(0.0f, 8.0f, 10.0f));
-  northWall->setTexture(textures);
-  southWall = createCuboidMesh(30.0f, 16.0f, 0.1f, glm::vec3(0.0f, 8.0f, -10.0f));
-  southWall->setTexture(textures);
-  eastWall = createCuboidMesh(0.1f, 16.0f, 20.0f, glm::vec3(15.0f, 8.0f, 0.0f));
-  eastWall->setTexture(textures);
-  westWall = createCuboidMesh(0.1f, 16.0f, 20.0f, glm::vec3(-15.0f, 8.0f, 0.0f));
-  westWall->setTexture(textures);
-  ceiling = createCuboidMesh(30.0f, 0.1f, 20.0f, glm::vec3(0.0f, 16.0f, 0.0f));
+  auto texMarble1 = std::make_shared<Texture>("./assets/textures/marble1.png", "albedo", 0);
+  auto texMarble2 = std::make_shared<Texture>("./assets/textures/marble2.png", "albedo", 0);
+
+  auto V1 = std::vector<std::shared_ptr<Texture>>{texMarble1};
+  auto V2 = std::vector<std::shared_ptr<Texture>>{texMarble2};
+
+  floor = createCuboidMesh(30.0f, 0.3f, 20.0f, {0, 0, 0});
+  floor->setTexture(V2);
+
+  northWall = createCuboidMesh(30.0f, 16.0f, 0.1f, {0, 8, 10});
+  northWall->setTexture(V1);
+
+  southWall = createCuboidMesh(30.0f, 16.0f, 0.1f, {0, 8, -10});
+  southWall->setTexture(V1);
+
+  eastWall = createCuboidMesh(0.1f, 16.0f, 20.0f, {15, 8, 0});
+  eastWall->setTexture(V1);
+
+  westWall = createCuboidMesh(0.1f, 16.0f, 20.0f, {-15, 8, 0});
+  westWall->setTexture(V1);
+
+  ceiling = createCuboidMesh(30.0f, 0.1f, 20.0f, {0, 16, 0});
+  ceiling->setTexture(V2);
 
   groundMesh = createPlaneMesh(100.0f, glm::vec3(0.0f, 1.0f, 0.0f));
 

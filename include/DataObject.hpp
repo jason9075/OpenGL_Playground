@@ -109,13 +109,35 @@ class FBO {
 
 class Texture {
  public:
-  const char *type;
+  std::string type;
   Texture();
   Texture(const char *image, const char *texType, GLuint slot);
   void texUnit(Shader &shader, const char *uniform, GLuint unit);
   void bind();
   void unbind();
   void del();
+
+  // 禁止拷貝，允許移動（避免重複管理同一個 GL 物件）
+  Texture(const Texture &) = delete;
+  Texture &operator=(const Texture &) = delete;
+  Texture(Texture &&other) noexcept { *this = std::move(other); }
+  Texture &operator=(Texture &&other) noexcept {
+    if (this != &other) {
+      // 先釋放自己舊的 GL 資源（若你有擁有權）
+      if (ID) glDeleteTextures(1, &ID);
+
+      ID = other.ID;
+      unit = other.unit;
+      type = std::move(other.type);
+
+      other.ID = 0;  // 防止重複刪
+    }
+    return *this;
+  }
+
+  ~Texture() {
+    if (ID) glDeleteTextures(1, &ID);
+  }
 
  private:
   GLuint ID;
@@ -126,7 +148,7 @@ class Mesh {
  public:
   std::vector<Vertex> vertices;
   std::vector<GLuint> indices;
-  std::vector<Texture> textures;
+  std::vector<std::shared_ptr<Texture>> textures;
 
   VAO vao;
   VBO vbo;
@@ -136,7 +158,8 @@ class Mesh {
 
   Mesh(const std::vector<Vertex> &vertices);
   Mesh(const std::vector<Vertex> &vertices, const std::vector<GLuint> &indices);
-  Mesh(const std::vector<Vertex> &vertices, const std::vector<GLuint> &indices, const std::vector<Texture> &textures);
+  Mesh(const std::vector<Vertex> &vertices, const std::vector<GLuint> &indices,
+       std::vector<std::shared_ptr<Texture>> textures);
 
   unsigned int numTriangles();
 
@@ -156,7 +179,7 @@ class Mesh {
     ubo[index].bufferSubData(data, count);
     ubo[index].unbind();
   }
-  void setTexture(const std::vector<Texture> &textures);
+  void setTexture(std::vector<std::shared_ptr<Texture>> textures);
   bool hasTexture();
   void setupInstanceMatrices(std::vector<glm::mat4> &instanceMatrices);
   void updateInstanceMatrices(std::vector<glm::mat4> &instanceMatrices);

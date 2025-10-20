@@ -25,7 +25,7 @@ class Model {
   std::vector<unsigned char> data;  // binary data
 
   std::vector<std::string> loadedTexturesName;
-  std::vector<Texture> loadedTextures;
+  std::vector<std::shared_ptr<Texture>> loadedTextures;
 
   glm::mat4 modelMatrix;
 
@@ -37,7 +37,7 @@ class Model {
 
   std::vector<float> getFloats(json accessor);
   std::vector<GLuint> getIndices(json accessor);
-  std::vector<Texture> getTextures();
+  std::vector<std::shared_ptr<Texture>> getTextures();
 
   std::vector<Vertex> assembleVertices(const std::vector<glm::vec3> &positions, const std::vector<glm::vec3> &normals,
                                        const std::vector<glm::vec2> &texCoords);

@@ -216,8 +216,8 @@ void TestPhysXMaterial::spawnCube(short cid, float scale, const glm::vec3& pos, 
   auto mesh = createCubeMesh(scale, color);
 
   if (texturePath != nullptr) {
-    std::vector<Texture> textures;
-    textures.emplace_back(texturePath, "normal", 0);
+    std::vector<std::shared_ptr<Texture>> textures;
+    textures.emplace_back(std::make_shared<Texture>(texturePath, "normal", 0));
     mesh->setTexture(textures);
   }
   mCubes.push_back(Cube{cid, actor, std::move(mesh), scale});

@@ -174,8 +174,8 @@ Mesh::Mesh(const std::vector<Vertex> &vertices, const std::vector<GLuint> &indic
 }
 
 Mesh::Mesh(const std::vector<Vertex> &vertices, const std::vector<GLuint> &indices,
-           const std::vector<Texture> &textures)
-    : vertices(vertices), indices(indices), textures(textures), vao(), vbo(), ebo() {
+           std::vector<std::shared_ptr<Texture>> textures)
+    : vertices(vertices), indices(indices), textures(std::move(textures)), vao(), vbo(), ebo() {
   vao.bind();
   ebo.bind();
   ebo.bufferData(indices);
@@ -195,7 +195,7 @@ void Mesh::setupMeshAttributes() {
 
 unsigned int Mesh::numTriangles() { return indices.size() / 3; }
 
-void Mesh::setTexture(const std::vector<Texture> &textures) { this->textures = textures; }
+void Mesh::setTexture(std::vector<std::shared_ptr<Texture>> textures) { this->textures = std::move(textures); }
 
 bool Mesh::hasTexture() { return !this->textures.empty(); }
 
@@ -221,8 +221,8 @@ void Mesh::draw(Shader *shader, const unsigned int instanceCount) {
   // Textures
   // TODO: make texture0 not hard-coded
   for (unsigned int i = 0; i < textures.size(); i++) {
-    textures[i].texUnit(*shader, "texture0", i);
-    textures[i].bind();
+    textures[i]->texUnit(*shader, "texture0", i);
+    textures[i]->bind();
   }
 
   if (indices.size() > 0) {
@@ -233,7 +233,7 @@ void Mesh::draw(Shader *shader, const unsigned int instanceCount) {
 
   vao.unbind();
   for (unsigned int i = 0; i < textures.size(); i++) {
-    textures[i].unbind();
+    textures[i]->unbind();
   }
 }
 
@@ -257,8 +257,8 @@ void Mesh::drawTri(Shader *shader, const unsigned int numTriangles, const unsign
 
   // Textures
   for (unsigned int i = 0; i < textures.size(); i++) {
-    textures[i].texUnit(*shader, "texture0", i);
-    textures[i].bind();
+    textures[i]->texUnit(*shader, "texture0", i);
+    textures[i]->bind();
   }
 
   auto startTriangle = std::min(startIdx * 3, static_cast<unsigned int>(indices.size()));
@@ -271,13 +271,13 @@ void Mesh::drawTri(Shader *shader, const unsigned int numTriangles, const unsign
 
   vao.unbind();
   for (unsigned int i = 0; i < textures.size(); i++) {
-    textures[i].unbind();
+    textures[i]->unbind();
   }
 }
 
 void Mesh::del() {
   for (unsigned int i = 0; i < textures.size(); i++) {
-    textures[i].del();
+    textures[i]->del();
   }
   vao.del();
   vbo.del();

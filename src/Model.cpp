@@ -46,7 +46,7 @@ void Model::loadMesh(unsigned int indMesh, glm::mat4 matrix) {
 
   std::vector<Vertex> vertices = assembleVertices(positions, normals, texCoords);
   std::vector<GLuint> indices = getIndices(JSON["accessors"][indAccInd]);
-  std::vector<Texture> textures = getTextures();
+  std::vector<std::shared_ptr<Texture>> textures = getTextures();
 
   meshes.push_back(Mesh(vertices, indices, textures));
 }
@@ -158,66 +158,78 @@ std::vector<float> Model::getFloats(json accessor) {
 std::vector<GLuint> Model::getIndices(json accessor) {
   std::vector<GLuint> indices;
 
-  unsigned int bufferViewIndex = accessor.value("bufferView", 1);
-  unsigned int count = accessor["count"];
-  unsigned int accByteOffset = accessor.value("byteOffset", 0);
-  unsigned int componentType = accessor["componentType"];
+  if (!accessor.contains("bufferView")) throw std::runtime_error("index accessor missing bufferView");
 
-  json bufferView = JSON["bufferViews"][bufferViewIndex];
-  unsigned int byteOffset = bufferView.value("byteOffset", 0);
+  const unsigned count = accessor["count"];
+  const unsigned comp = accessor["componentType"];  // 5121/5123/5125 only
+  const unsigned accOff = accessor.value("byteOffset", 0u);
 
-  unsigned int beginningOfData = byteOffset + accByteOffset;
-  if (componentType == 5122) {
-    for (unsigned int i = beginningOfData; i < beginningOfData + count * 2; i += 2) {
-      unsigned char bytes[] = {data[i], data[i + 1]};
-      short value;
-      std::memcpy(&value, bytes, sizeof(short));
-      indices.push_back((GLuint)value);
+  if (comp != 5121 && comp != 5123 && comp != 5125)
+    throw std::runtime_error("indices componentType must be UNSIGNED_BYTE/SHORT/INT");
+
+  const unsigned bvIdx = accessor["bufferView"];
+  json bufferView = JSON["bufferViews"][bvIdx];
+  const unsigned bvOff = bufferView.value("byteOffset", 0u);
+  const unsigned stride = bufferView.value("byteStride", comp == 5121 ? 1u : (comp == 5123 ? 2u : 4u));
+
+  const size_t begin = static_cast<size_t>(bvOff + accOff);
+  const size_t elem = (comp == 5121 ? 1 : (comp == 5123 ? 2 : 4));
+  const size_t need = begin + static_cast<size_t>(count) * stride;
+
+  if (need > data.size()) throw std::runtime_error("index buffer out of range");
+
+  indices.reserve(count);
+
+  const unsigned char *p = reinterpret_cast<const unsigned char *>(data.data()) + begin;
+
+  if (comp == 5121) {  // UNSIGNED_BYTE
+    for (unsigned k = 0; k < count; ++k) {
+      indices.push_back(static_cast<GLuint>(p[0]));
+      p += stride;
     }
-  } else if (componentType == 5123) {
-    for (unsigned int i = beginningOfData; i < beginningOfData + count * 2; i += 2) {
-      unsigned char bytes[] = {data[i], data[i + 1]};
-      unsigned short value;
-      std::memcpy(&value, bytes, sizeof(unsigned short));
-      indices.push_back((GLuint)value);
+  } else if (comp == 5123) {  // UNSIGNED_SHORT (LE)
+    for (unsigned k = 0; k < count; ++k) {
+      uint16_t v = p[0] | (uint16_t(p[1]) << 8);
+      indices.push_back(static_cast<GLuint>(v));
+      p += stride;
     }
-  } else if (componentType == 5125) {
-    for (unsigned int i = beginningOfData; i < beginningOfData + count * 4; i += 4) {
-      unsigned char bytes[] = {data[i], data[i + 1], data[i + 2], data[i + 3]};
-      unsigned int value;
-      std::memcpy(&value, bytes, sizeof(unsigned int));
-      indices.push_back((GLuint)value);
+  } else {  // 5125 UNSIGNED_INT
+    for (unsigned k = 0; k < count; ++k) {
+      uint32_t v = uint32_t(p[0]) | (uint32_t(p[1]) << 8) | (uint32_t(p[2]) << 16) | (uint32_t(p[3]) << 24);
+      indices.push_back(static_cast<GLuint>(v));
+      p += stride;
     }
-  } else {
-    throw std::runtime_error("Unknown component type: " + std::to_string(componentType));
   }
 
   return indices;
 }
 
-std::vector<Texture> Model::getTextures() {
-  std::vector<Texture> textures;
+std::vector<std::shared_ptr<Texture>> Model::getTextures() {
+  std::vector<std::shared_ptr<Texture>> textures;
 
-  std::string fileStr = std::string(path);
-  std::string fileDir = fileStr.substr(0, fileStr.find_last_of("/"));
+  std::string fileDir = std::string(path).substr(0, std::string(path).find_last_of("/"));
 
-  for (unsigned int i = 0; i < JSON["images"].size(); i++) {
+  for (size_t i = 0; i < JSON["images"].size(); i++) {
     std::string texPath = JSON["images"][i]["uri"];
-    bool skip = false;
-    for (unsigned int j = 0; j < loadedTexturesName.size(); j++) {
+
+    // 先查 cache
+    for (size_t j = 0; j < loadedTexturesName.size(); ++j) {
       if (loadedTexturesName[j] == texPath) {
-        textures.push_back(loadedTextures[j]);
-        skip = true;
-        break;
+        textures.push_back(loadedTextures[j]);  // 拷貝的是 shared_ptr（OK）
+        goto next_image;
       }
     }
 
-    if (skip) continue;
+    // 載入 + 放 cache
+    {
+      auto full = fileDir + "/" + texPath;
+      auto tex = std::make_shared<Texture>(full.c_str(), "albedo", /*slot*/ 0);  // slot 先統一用 0
+      loadedTexturesName.push_back(texPath);
+      loadedTextures.push_back(tex);
+      textures.push_back(std::move(tex));
+    }
 
-    Texture tx = Texture((fileDir + "/" + texPath).c_str(), "normal", loadedTextures.size());
-    textures.push_back(tx);
-    loadedTextures.push_back(tx);
-    loadedTexturesName.push_back(texPath);
+  next_image:;
   }
 
   return textures;

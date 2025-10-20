@@ -10,9 +10,10 @@ TestParallaxMapping::TestParallaxMapping(const float screenWidth, const float sc
   glViewport(0, 0, screenWidth, screenHeight);
 
   shader = std::make_unique<Shader>("./shaders/parallax_vert.glsl", "./shaders/parallax_frag.glsl");
-  std::vector<Texture> textures = {Texture("./assets/textures/room_3.png", "normal", 0)};
   const float wallHeight = 3.0f;
   wall = createPlaneMesh(wallHeight, glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.8f), glm::vec3(0.0, wallHeight, 0.0f));
+  std::vector<std::shared_ptr<Texture>> textures;
+  textures.emplace_back(std::make_shared<Texture>("./assets/textures/room_3.png", "albedo", 0));
   wall->setTexture(textures);
   floor = createPlaneMesh(10.0f, glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.2f));
 
