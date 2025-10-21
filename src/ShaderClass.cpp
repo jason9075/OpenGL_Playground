@@ -47,9 +47,7 @@ bool Shader::reload() {
   return true;
 }
 
-void Shader::use() { glUseProgram(PROGRAM_ID); }
-
-void Shader::del() { glDeleteProgram(PROGRAM_ID); }
+void Shader::use() const { glUseProgram(PROGRAM_ID); }
 
 std::string Shader::readFile(const char *filePath) {
   std::ifstream file(filePath, std::ios::in);

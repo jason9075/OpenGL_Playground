@@ -14,8 +14,7 @@ class Shader {
   GLuint PROGRAM_ID = 0;
 
   bool reload();
-  void use();
-  void del();
+  void use() const;
 
  protected:
   static std::string readFile(const char *filePath);

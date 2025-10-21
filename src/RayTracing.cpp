@@ -2,11 +2,12 @@
 
 #include <OPPCH.h>
 
-Ray::Ray(const glm::vec3 &origin, const glm::vec3 &direction) : origin(origin), direction(glm::normalize(direction)) {}
+Ray::Ray(const glm::vec3 &origin, const glm::vec3 &direction) noexcept
+    : origin(origin), direction(glm::normalize(direction)) {}
 
-glm::vec3 Ray::at(float t) const { return origin + t * direction; }
+glm::vec3 Ray::at(float t) const noexcept { return origin + t * direction; }
 
-Interval::Interval(float min, float max) {
+Interval::Interval(float min, float max) noexcept {
   if (min > max) {
     minValue = max;
     maxValue = min;
@@ -16,16 +17,16 @@ Interval::Interval(float min, float max) {
   maxValue = max;
 }
 
-float Interval::clamp(float x) { return glm::clamp(x, minValue, maxValue); }
+float Interval::clamp(float x) const noexcept { return glm::clamp(x, minValue, maxValue); }
 
-Interval Interval::expand(float delta) {
+Interval Interval::expand(float delta) const noexcept {
   auto padding = delta * 0.5f;
   return Interval(minValue - padding, maxValue + padding);
 }
 
-AABB::AABB() : x(Interval(0, 0)), y(Interval(0, 0)), z(Interval(0, 0)) {}
+AABB::AABB() noexcept : x(Interval(0, 0)), y(Interval(0, 0)), z(Interval(0, 0)) {}
 
-AABB::AABB(const Interval &x, const Interval &y, const Interval &z) : x(x), y(y), z(z) {}
+AABB::AABB(const Interval &x, const Interval &y, const Interval &z) noexcept : x(x), y(y), z(z) {}
 
 const Interval &AABB::axisInterval(int axis) const {
   switch (axis) {
@@ -40,7 +41,7 @@ const Interval &AABB::axisInterval(int axis) const {
   }
 }
 
-bool AABB::hit(const Ray &ray, Interval tInterval) const {
+bool AABB::hit(const Ray &ray, Interval tInterval) const noexcept {
   const glm::vec3 &origin = ray.origin;
   const glm::vec3 &direction = ray.direction;
 
@@ -65,8 +66,7 @@ bool AABB::hit(const Ray &ray, Interval tInterval) const {
   return true;
 }
 
-HitRecord::HitRecord() : t(0), p(glm::vec3(0)), normal(glm::vec3(0)) {}
-HitRecord::HitRecord(float t, const glm::vec3 &p, const glm::vec3 &normal) : t(t), p(p), normal(normal) {}
+HitRecord::HitRecord(float t, const glm::vec3 &p, const glm::vec3 &n) : t(t), p(p), normal(n) {}
 
 Sphere::Sphere(const glm::vec3 &center, float radius) : center(center), radius(radius) {}
 bool Sphere::hit(const Ray &ray, Interval tInterval, HitRecord &record) const {

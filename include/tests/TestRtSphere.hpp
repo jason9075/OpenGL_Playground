@@ -81,9 +81,10 @@ class TestRtSphere : public Test {
   // data
   Sphere spheres[MAX_SPHERES];
   Triangle triangles[MAX_TRIANGLES];
+  int ping = 0;
   unsigned int frameIdx = 0;
-  std::unique_ptr<FBO> oldFrame;
-  std::unique_ptr<FBO> newFrame;
+  std::unique_ptr<FBO> accumFBO[2];
+  std::unique_ptr<FBO> sceneFBO;
   std::unique_ptr<Mesh> rtMesh;
   std::unique_ptr<Mesh> frameMesh;
   std::unique_ptr<Shader> shaderProgram;

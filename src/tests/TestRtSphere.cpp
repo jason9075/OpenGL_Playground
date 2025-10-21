@@ -23,23 +23,34 @@ TestRtSphere::TestRtSphere(const float screenWidth, const float screenHeight) {
   rtMesh = createPlaneMesh();
 
   // setup FBO
-  oldFrame = std::make_unique<FBO>(screenWidth, screenHeight);
-  oldFrame->setupTexture();
 
-  newFrame = std::make_unique<FBO>(screenWidth, screenHeight);
-  newFrame->setupTexture();
+  sceneFBO = std::make_unique<FBO>(screenWidth, screenHeight);
+  sceneFBO->setupTexture();
 
-  oldFrame->bind();
+  accumFBO[0] = std::make_unique<FBO>(screenWidth, screenHeight);
+  accumFBO[0]->setupTexture();
+  accumFBO[1] = std::make_unique<FBO>(screenWidth, screenHeight);
+  accumFBO[1]->setupTexture();
+
+  sceneFBO->bind();
   auto fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
   if (fboStatus != GL_FRAMEBUFFER_COMPLETE) {
-    std::cerr << "Old framebuffer is not complete! Error code: " << fboStatus << std::endl;
+    std::cerr << "Scene FBO is not complete! Error code: " << fboStatus << std::endl;
   }
-  newFrame->bind();
+  sceneFBO->unbind();
+
+  accumFBO[0]->bind();
   fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
   if (fboStatus != GL_FRAMEBUFFER_COMPLETE) {
-    std::cerr << "New framebuffer is not complete! Error code: " << fboStatus << std::endl;
+    std::cerr << "Accum FBO-0 is not complete! Error code: " << fboStatus << std::endl;
   }
-  newFrame->unbind();
+  accumFBO[0]->unbind();
+  accumFBO[1]->bind();
+  fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+  if (fboStatus != GL_FRAMEBUFFER_COMPLETE) {
+    std::cerr << "Accum FBO-1 is not complete! Error code: " << fboStatus << std::endl;
+  }
+  accumFBO[1]->unbind();
   frameMesh = createPlaneMesh();
 
   // the first sphere is the light source
@@ -69,9 +80,9 @@ TestRtSphere::TestRtSphere(const float screenWidth, const float screenHeight) {
   glBindBufferBase(GL_UNIFORM_BUFFER, 1, rtMesh->ubo[1].ID);
 
   frameShader->use();
-  oldFrame->bindTexture(GL_TEXTURE0);
+  accumFBO[0]->bindTexture(GL_TEXTURE0);
   glUniform1i(glGetUniformLocation(frameShader->PROGRAM_ID, "oldFrame"), 0);  // texture unit 0
-  newFrame->bindTexture(GL_TEXTURE1);
+  sceneFBO->bindTexture(GL_TEXTURE1);
   glUniform1i(glGetUniformLocation(frameShader->PROGRAM_ID, "newFrame"), 1);  // texture unit 1
 }
 
@@ -81,7 +92,7 @@ void TestRtSphere::OnEvent(SDL_Event& event) { camera->handle(event); }
 
 void TestRtSphere::OnRender() {
   // 1. bind anything to the framebuffer, including the backgroud
-  newFrame->bind();
+  sceneFBO->bind();
 
   // 2. render the main scene
   glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -116,21 +127,65 @@ void TestRtSphere::OnRender() {
   rtMesh->draw(shaderProgram.get());
 
   // 3. after rendering the main scene, unbind the framebuffer
-  newFrame->unbind();
+  sceneFBO->unbind();
 
   // 4. if not real time, store the new frame texture to the old frame texture
   if (!isRealTime) {
-    oldFrame->bind();
+    const int A = ping;      // 讀取的舊累積
+    const int B = ping ^ 1;  // 寫入的新累積
+
+    accumFBO[B]->bind();
     frameShader->use();
+
+    // 綁 old = accum[A]
+    glActiveTexture(GL_TEXTURE0);
+    accumFBO[A]->bindTexture(GL_TEXTURE0);
+    glUniform1i(glGetUniformLocation(frameShader->PROGRAM_ID, "oldFrame"), 0);
+
+    // 綁 new = sceneFBO
+    glActiveTexture(GL_TEXTURE1);
+    sceneFBO->bindTexture(GL_TEXTURE1);
+    glUniform1i(glGetUniformLocation(frameShader->PROGRAM_ID, "newFrame"), 1);
+
+    // 用 frameIdx 做 1/(N+1) 權重
+    glUniform1i(glGetUniformLocation(frameShader->PROGRAM_ID, "numFrames"), frameIdx);
 
     // render on the new frame
     frameMesh->draw(frameShader.get());
-    oldFrame->unbind();
+    accumFBO[B]->unbind();
+    ping ^= 1;
+  } else {  // Real time mode
+    const int B = ping ^ 1;
+    accumFBO[B]->bind();
+    // 最簡 copy：沿用 frameShader 但讓 weight=1（numFrames=0 ⇒ weight=1）
+    frameShader->use();
+    glActiveTexture(GL_TEXTURE0);
+    // old 隨便綁一張（不會被用到，因為 weight=1）
+    accumFBO[ping]->bindTexture(GL_TEXTURE0);
+    glUniform1i(glGetUniformLocation(frameShader->PROGRAM_ID, "oldFrame"), 0);
+    glActiveTexture(GL_TEXTURE1);
+    sceneFBO->bindTexture(GL_TEXTURE1);
+    glUniform1i(glGetUniformLocation(frameShader->PROGRAM_ID, "newFrame"), 1);
+    glUniform1i(glGetUniformLocation(frameShader->PROGRAM_ID, "numFrames"), 0);
+    frameMesh->draw(frameShader.get());
+    accumFBO[B]->unbind();
+    ping ^= 1;
   }
 
   // 5. render the frame buffer to the screen
-  glUniform1i(glGetUniformLocation(frameShader->PROGRAM_ID, "numFrames"), frameIdx);
+  frameShader->use();
+  glActiveTexture(GL_TEXTURE0);
+  accumFBO[ping]->bindTexture(GL_TEXTURE0);
+  glUniform1i(glGetUniformLocation(frameShader->PROGRAM_ID, "oldFrame"), 0);
+  glActiveTexture(GL_TEXTURE1);
+  accumFBO[ping]->bindTexture(GL_TEXTURE1);
+  glUniform1i(glGetUniformLocation(frameShader->PROGRAM_ID, "newFrame"), 1);
+
+  glUniform1i(glGetUniformLocation(frameShader->PROGRAM_ID, "numFrames"), -1);  // weight ≈ 0
+
+  glDisable(GL_DEPTH_TEST);
   frameMesh->draw(frameShader.get());
+  glEnable(GL_DEPTH_TEST);
 
   frameIdx++;
 }
@@ -195,13 +250,16 @@ void TestRtSphere::OnImGuiRender() {
   ImGui::BulletText("Render:");
   if (ImGui::Checkbox("Real Time Toggle", &isRealTime)) {
     frameIdx = 0;  // reset frame index
+    for (int i = 0; i < 2; i++) {
+      accumFBO[i]->bind();
+      glClearColor(0, 0, 0, 1);
+      glClear(GL_COLOR_BUFFER_BIT);
+      accumFBO[i]->unbind();
+    }
   }
 }
 
-void TestRtSphere::OnExit() {
-  newFrame.reset();
-  oldFrame.reset();
-}
+void TestRtSphere::OnExit() {}
 
 void TestRtSphere::randomizeSpheres(Sphere* spheres, const int numSpheres) {
   // generate random spheres

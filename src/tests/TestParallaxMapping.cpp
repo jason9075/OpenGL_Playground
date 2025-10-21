@@ -61,5 +61,5 @@ void TestParallaxMapping::OnReload() {
               camera->position.z);
 }
 
-void TestParallaxMapping::OnExit() { shader->del(); }
+void TestParallaxMapping::OnExit() {}
 }  // namespace test
