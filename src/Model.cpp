@@ -299,9 +299,3 @@ std::vector<glm::vec4> Model::groupFloatsVec4(const std::vector<float> &floats) 
 
   return vec4s;
 }
-
-void Model::del() {
-  for (unsigned int i = 0; i < meshes.size(); i++) {
-    meshes[i].del();
-  }
-}

@@ -112,10 +112,6 @@ void TestRtBVH::OnImGuiRender() {
   }
 }
 
-void TestRtBVH::OnExit() {
-  model->del();
-  shaderProgram->del();
-  glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-}
+void TestRtBVH::OnExit() { glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); }
 
 }  // namespace test

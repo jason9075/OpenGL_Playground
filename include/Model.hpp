@@ -9,6 +9,12 @@ class Model {
  public:
   Model(const char *path);
   Model();
+  ~Model() = default;
+  Model(const Model &) = delete;
+  Model &operator=(const Model &) = delete;
+  Model(Model &&) noexcept = default;
+  Model &operator=(Model &&) noexcept = default;
+
   std::vector<Mesh> meshes;  // one model can have multiple meshes
 
   void draw(Shader *shader, const unsigned int instanceCount = 1);
@@ -16,8 +22,6 @@ class Model {
   void drawTri(Shader *shader, const unsigned int numTriangles, const unsigned int instanceCount = 1);
 
   void setModelMatrix(glm::mat4 matrix);
-
-  void del();
 
  private:
   const char *path;

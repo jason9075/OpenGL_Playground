@@ -90,11 +90,6 @@ void TestSdfBlend::OnImGuiRender() {
   ImGui::ColorEdit3("Model", modelColor);
 }
 
-void TestSdfBlend::OnExit() {
-  modelMesh->del();
-  sdfMesh->del();
-  shaderSDF->del();
-  shaderModel->del();
-}
+void TestSdfBlend::OnExit() {}
 
 }  // namespace test

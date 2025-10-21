@@ -89,18 +89,5 @@ void TestRoom::OnRender() {
 
 void TestRoom::OnImGuiRender() {}
 
-void TestRoom::OnExit() {
-  for (auto &texture : textures) {
-    texture.del();
-  }
-  floor->del();
-  northWall->del();
-  southWall->del();
-  eastWall->del();
-  westWall->del();
-  ceiling->del();
-  groundMesh->del();
-
-  shaderRoom->del();
-}
+void TestRoom::OnExit() {}
 }  // namespace test

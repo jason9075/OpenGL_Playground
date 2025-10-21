@@ -7,24 +7,33 @@
 
 VAO::VAO() { glGenVertexArrays(1, &ID); }
 
-void VAO::linkAttr(VBO &VBO, GLuint layout, GLuint numComponents, GLenum type, GLsizeiptr stride, const void *offset) {
-  VBO.bind();
+VAO::VAO(VAO &&other) noexcept : ID(other.ID) { other.ID = 0; }
+
+VAO &VAO::operator=(VAO &&other) noexcept {
+  if (this != &other) {
+    reset();
+    ID = other.ID;
+    other.ID = 0;
+  }
+  return *this;
+}
+void VAO::linkAttr(VBO &vbo, GLuint layout, GLuint numComponents, GLenum type, GLsizei stride, const void *offset) {
+  vbo.bind();
   glEnableVertexAttribArray(layout);
   glVertexAttribPointer(layout, numComponents, type, GL_FALSE, stride, offset);
-  VBO.unbind();
+  vbo.unbind();
 }
 
-void VAO::linkAttrDiv(VBO &VBO, GLuint layout, GLuint numComponents, GLenum type, GLsizeiptr stride,
-                      const void *offset) {
-  VBO.bind();
+void VAO::linkAttrDiv(VBO &vbo, GLuint layout, GLuint numComponents, GLenum type, GLsizei stride, const void *offset) {
+  vbo.bind();
   glEnableVertexAttribArray(layout);
   glVertexAttribPointer(layout, numComponents, type, GL_FALSE, stride, offset);
   glVertexAttribDivisor(layout, 1);
-  VBO.unbind();
+  vbo.unbind();
 }
 
-void VAO::linkMat4(VBO &VBO, GLuint layout) {
-  VBO.bind();
+void VAO::linkMat4(VBO &vbo, GLuint layout) {
+  vbo.bind();
   std::size_t vec4Size = sizeof(glm::vec4);
 
   for (GLuint i = 0; i < 4; i++) {
@@ -33,50 +42,113 @@ void VAO::linkMat4(VBO &VBO, GLuint layout) {
     glVertexAttribDivisor(layout + i, 1);
   }
 
-  VBO.unbind();
+  vbo.unbind();
 }
 
-void VAO::bind() { glBindVertexArray(ID); }
+void VAO::bind() const { glBindVertexArray(ID); }
 
-void VAO::unbind() { glBindVertexArray(0); }
+void VAO::unbind() const { glBindVertexArray(0); }
 
-void VAO::del() { glDeleteVertexArrays(1, &ID); }
+void VAO::reset() {
+  if (ID) {
+    glDeleteVertexArrays(1, &ID);
+    ID = 0;
+  }
+}
 
 VBO::VBO() { glGenBuffers(1, &ID); }
 
-void VBO::bind() { glBindBuffer(GL_ARRAY_BUFFER, ID); }
+VBO::VBO(VBO &&o) noexcept : ID(o.ID) { o.ID = 0; }
 
-void VBO::unbind() { glBindBuffer(GL_ARRAY_BUFFER, 0); }
+VBO &VBO ::operator=(VBO &&o) noexcept {
+  if (this != &o) {
+    reset();
+    ID = o.ID;
+    o.ID = 0;
+  }
+  return *this;
+}
+void VBO::bind() const { glBindBuffer(GL_ARRAY_BUFFER, ID); }
 
-void VBO::del() { glDeleteBuffers(1, &ID); }
+void VBO::unbind() const { glBindBuffer(GL_ARRAY_BUFFER, 0); }
 
+void VBO::reset() {
+  if (ID) {
+    glDeleteBuffers(1, &ID);
+    ID = 0;
+  }
+}
 // note: EBO no need to unbind
 EBO::EBO() { glGenBuffers(1, &ID); }
 
-void EBO::bind() { glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ID); }
+EBO::EBO(EBO &&o) noexcept : ID(o.ID) { o.ID = 0; }
+EBO &EBO::operator=(EBO &&o) noexcept {
+  if (this != &o) {
+    reset();
+    ID = o.ID;
+    o.ID = 0;
+  }
+  return *this;
+}
+
+void EBO::bind() const { glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ID); }
 
 void EBO::bufferData(const std::vector<GLuint> &indices) {
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLuint) * indices.size(), indices.data(), GL_STATIC_DRAW);
 }
 
-void EBO::del() { glDeleteBuffers(1, &ID); }
+void EBO::reset() {
+  if (ID) {
+    glDeleteBuffers(1, &ID);
+    ID = 0;
+  }
+}
 
 UBO::UBO() { glGenBuffers(1, &ID); }
 
-void UBO::bind() { glBindBuffer(GL_UNIFORM_BUFFER, ID); }
+UBO::UBO(UBO &&o) noexcept : ID(o.ID) { o.ID = 0; }
+UBO &UBO::operator=(UBO &&o) noexcept {
+  if (this != &o) {
+    reset();
+    ID = o.ID;
+    o.ID = 0;
+  }
+  return *this;
+}
+void UBO::bind() const { glBindBuffer(GL_UNIFORM_BUFFER, ID); }
 
-void UBO::unbind() { glBindBuffer(GL_UNIFORM_BUFFER, 0); }
+void UBO::unbind() const { glBindBuffer(GL_UNIFORM_BUFFER, 0); }
 
-void UBO::del() { glDeleteBuffers(1, &ID); }
-
+void UBO::reset() {
+  if (ID) {
+    glDeleteBuffers(1, &ID);
+    ID = 0;
+  }
+}
 FBO::FBO(float width, float height) : width(width), height(height) {
   glGenFramebuffers(1, &ID);
   glGenTextures(1, &textureID);
 }
 
-void FBO::bind() { glBindFramebuffer(GL_FRAMEBUFFER, ID); }
+FBO::FBO(FBO &&o) noexcept : ID(o.ID), textureID(o.textureID), width(o.width), height(o.height) {
+  o.ID = 0;
+  o.textureID = 0;
+}
+FBO &FBO::operator=(FBO &&o) noexcept {
+  if (this != &o) {
+    reset();
+    ID = o.ID;
+    textureID = o.textureID;
+    width = o.width;
+    height = o.height;
+    o.ID = 0;
+    o.textureID = 0;
+  }
+  return *this;
+}
+void FBO::bind() const { glBindFramebuffer(GL_FRAMEBUFFER, ID); }
 
-void FBO::unbind() { glBindFramebuffer(GL_FRAMEBUFFER, 0); }
+void FBO::unbind() const { glBindFramebuffer(GL_FRAMEBUFFER, 0); }
 
 void FBO::setupTexture() {
   glBindTexture(GL_TEXTURE_2D, textureID);
@@ -95,11 +167,16 @@ void FBO::bindTexture(GLenum textureUnit) {
   glBindTexture(GL_TEXTURE_2D, textureID);
 }
 
-void FBO::del() {
-  glDeleteFramebuffers(1, &ID);
-  glDeleteTextures(1, &textureID);
+void FBO::reset() {
+  if (textureID) {
+    glDeleteTextures(1, &textureID);
+    textureID = 0;
+  }
+  if (ID) {
+    glDeleteFramebuffers(1, &ID);
+    ID = 0;
+  }
 }
-
 Texture::Texture() : ID(0), unit(0), type("") {}
 
 Texture::Texture(const char *image, const char *texType, GLuint slot) : type(texType) {
@@ -139,18 +216,36 @@ Texture::Texture(const char *image, const char *texType, GLuint slot) : type(tex
   glBindTexture(GL_TEXTURE_2D, 0);
 }
 
+Texture::Texture(Texture &&other) noexcept { *this = std::move(other); }
+Texture &Texture::operator=(Texture &&other) noexcept {
+  if (this != &other) {
+    // 先釋放自己舊的 GL 資源（若你有擁有權）
+    if (ID) glDeleteTextures(1, &ID);
+
+    ID = other.ID;
+    unit = other.unit;
+    type = std::move(other.type);
+
+    other.ID = 0;  // 防止重複刪
+  }
+  return *this;
+}
 void Texture::texUnit(Shader &shader, const char *uniform, GLuint unit) {
   glUniform1i(glGetUniformLocation(shader.PROGRAM_ID, uniform), unit);
 }
 
-void Texture::bind() {
+void Texture::bind() const {
   glActiveTexture(GL_TEXTURE0 + unit);
   glBindTexture(GL_TEXTURE_2D, ID);
 }
 
-void Texture::unbind() { glBindTexture(GL_TEXTURE_2D, 0); }
+void Texture::unbind() const { glBindTexture(GL_TEXTURE_2D, 0); }
 
-void Texture::del() { glDeleteTextures(1, &ID); }
+void Texture::reset() {
+  if (ID) {
+    glDeleteTextures(1, &ID);
+  }
+}
 
 Mesh::Mesh(const std::vector<Vertex> &vertices) : vertices(vertices), vao(), vbo(), instanceMatrixVBO(), ebo() {
   vao.bind();
@@ -195,7 +290,7 @@ void Mesh::setupMeshAttributes() {
 
 unsigned int Mesh::numTriangles() { return indices.size() / 3; }
 
-void Mesh::setTexture(const std::vector<std::shared_ptr<Texture>> textures) { this->textures = std::move(textures); }
+void Mesh::setTexture(std::vector<std::shared_ptr<Texture>> textures) { this->textures = std::move(textures); }
 
 bool Mesh::hasTexture() const { return !this->textures.empty(); }
 
@@ -275,19 +370,6 @@ void Mesh::drawTri(Shader *shader, const unsigned int numTriangles, const unsign
   }
 }
 
-void Mesh::del() {
-  for (unsigned int i = 0; i < textures.size(); i++) {
-    textures[i]->del();
-  }
-  vao.del();
-  vbo.del();
-  instanceMatrixVBO.del();
-  ebo.del();
-  for (auto &ubo : ubo) {
-    ubo.del();
-  }
-}
-
 /*
   Flip is true if you are using the skybox.
 */
@@ -339,36 +421,18 @@ CubeMap::CubeMap(std::vector<std::string> &faces, bool flip) {
 
 CubeMap::~CubeMap() { reset(); }
 
-void CubeMap::flipHorizontally(unsigned char *data, int width, int height, int nrChannels) {
-  int rowSize = width * nrChannels;
-  for (int y = 0; y < height; ++y) {
-    unsigned char *rowStart = data + y * rowSize;
-    for (int x = 0; x < width / 2; ++x) {
-      int left = x * nrChannels;
-      int right = (width - 1 - x) * nrChannels;
-      // change the left and right pixels
-      for (int c = 0; c < nrChannels; ++c) {
-        std::swap(rowStart[left + c], rowStart[right + c]);
-      }
-    }
-  }
+CubeMap::CubeMap(CubeMap &&other) noexcept : cubeMesh(std::move(other.cubeMesh)), textureID(other.textureID) {
+  other.textureID = 0;
 }
 
-void CubeMap::flipVertically(unsigned char *data, int width, int height, int nrChannels) {
-  int rowSize = width * nrChannels;
-  unsigned char *tempRow = new unsigned char[rowSize];  // 暫存一行的數據
-
-  for (int y = 0; y < height / 2; ++y) {
-    unsigned char *topRowStart = data + y * rowSize;
-    unsigned char *bottomRowStart = data + (height - 1 - y) * rowSize;
-
-    // 交換整行數據
-    std::memcpy(tempRow, topRowStart, rowSize);
-    std::memcpy(topRowStart, bottomRowStart, rowSize);
-    std::memcpy(bottomRowStart, tempRow, rowSize);
+CubeMap &CubeMap::operator=(CubeMap &&other) noexcept {
+  if (this != &other) {
+    reset();
+    cubeMesh = std::move(other.cubeMesh);
+    textureID = other.textureID;
+    other.textureID = 0;
   }
-
-  delete[] tempRow;  // 釋放暫存空間
+  return *this;
 }
 
 void CubeMap::draw(Shader *shader) {
@@ -385,6 +449,35 @@ void CubeMap::reset() {
   }
 }
 
+void CubeMap::flipHorizontally(unsigned char *data, int width, int height, int nrChannels) {
+  const int rowSize = width * nrChannels;
+  for (int y = 0; y < height; ++y) {
+    unsigned char *rowStart = data + y * rowSize;
+    for (int x = 0; x < width / 2; ++x) {
+      int left = x * nrChannels;
+      int right = (width - 1 - x) * nrChannels;
+      // change the left and right pixels
+      for (int c = 0; c < nrChannels; ++c) {
+        std::swap(rowStart[left + c], rowStart[right + c]);
+      }
+    }
+  }
+}
+
+void CubeMap::flipVertically(unsigned char *data, int width, int height, int nrChannels) {
+  const int rowSize = width * nrChannels;
+  std::vector<unsigned char> tmp(rowSize);  // 暫存一行的數據
+
+  for (int y = 0; y < height / 2; ++y) {
+    unsigned char *topRowStart = data + y * rowSize;
+    unsigned char *bottomRowStart = data + (height - 1 - y) * rowSize;
+
+    // 交換整行數據
+    std::memcpy(tmp.data(), topRowStart, rowSize);
+    std::memcpy(topRowStart, bottomRowStart, rowSize);
+    std::memcpy(bottomRowStart, tmp.data(), rowSize);
+  }
+}
 PointCloud::PointCloud(const std::vector<Point> &points) : points(points), vao(), vbo(points) {
   vao.bind();
 
@@ -396,18 +489,26 @@ PointCloud::PointCloud(const std::vector<Point> &points) : points(points), vao()
   vao.unbind();
 }
 
-void PointCloud::draw(Shader *shader) {
+PointCloud::PointCloud(PointCloud &&other) noexcept
+    : points(std::move(other.points)), vao(std::move(other.vao)), vbo(std::move(other.vbo)) {}
+
+PointCloud &PointCloud::operator=(PointCloud &&other) noexcept {
+  if (this != &other) {
+    // 成員自己在 move assign 內會處理原資源釋放（或我們先 swap 再讓舊的自動析構）
+    points = std::move(other.points);
+    vao = std::move(other.vao);
+    vbo = std::move(other.vbo);
+  }
+  return *this;
+}
+
+void PointCloud::draw(Shader *shader) const {
   vao.bind();
-  glDrawArrays(GL_POINTS, 0, points.size());
+  glDrawArrays(GL_POINTS, 0, static_cast<GLsizei>(points.size()));
   vao.unbind();
 }
 
-void PointCloud::del() {
-  vao.del();
-  vbo.del();
-}
-
-GaussianSplat::GaussianSplat(const std::vector<GaussianSphere> &spheres) : vao(), vbo(spheres), spheres(spheres) {
+GaussianSplat::GaussianSplat(const std::vector<GaussianSphere> &spheres) : spheres(spheres), vao(), vbo(spheres) {
   vao.bind();
 
   vao.linkAttrDiv(vbo, 0, 3, GL_FLOAT, sizeof(GaussianSphere), (void *)offsetof(GaussianSphere, position));
@@ -419,28 +520,32 @@ GaussianSplat::GaussianSplat(const std::vector<GaussianSphere> &spheres) : vao()
   vao.unbind();
 }
 
+GaussianSplat::GaussianSplat(GaussianSplat &&other) noexcept
+    : spheres(std::move(other.spheres)), vao(std::move(other.vao)), vbo(std::move(other.vbo)) {}
+
+GaussianSplat &GaussianSplat::operator=(GaussianSplat &&other) noexcept {
+  if (this != &other) {
+    spheres = std::move(other.spheres);
+    vao = std::move(other.vao);
+    vbo = std::move(other.vbo);
+  }
+  return *this;
+}
 void GaussianSplat::sort(const glm::mat4 &viewMatrix, const bool isAscending) {
   std::sort(spheres.begin(), spheres.end(), [&](const GaussianSphere &a, const GaussianSphere &b) {
-    float zA = a.position.x * viewMatrix[0][2] + a.position.y * viewMatrix[1][2] + a.position.z * viewMatrix[2][2] +
-               viewMatrix[3][2];
-    float zB = b.position.x * viewMatrix[0][2] + b.position.y * viewMatrix[1][2] + b.position.z * viewMatrix[2][2] +
-               viewMatrix[3][2];
-    return isAscending ? zA < zB : zA > zB;
+    auto Az = (viewMatrix * glm::vec4(a.position, 1.0f)).z;
+    auto Bz = (viewMatrix * glm::vec4(b.position, 1.0f)).z;
+    return isAscending ? Az < Bz : Az > Bz;
   });
 
   // Update the VBO
   vbo.bind();
-  glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(GaussianSphere) * spheres.size(), spheres.data());
+  glBufferSubData(GL_ARRAY_BUFFER, 0, static_cast<GLsizeiptr>(sizeof(GaussianSphere) * spheres.size()), spheres.data());
   vbo.unbind();
 }
 
-void GaussianSplat::draw(Shader *shader) {
+void GaussianSplat::draw(Shader *shader) const {
   vao.bind();
-  glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, spheres.size());
+  glDrawArraysInstanced(GL_TRIANGLE_STRIP, 0, 4, static_cast<GLsizei>(spheres.size()));
   vao.unbind();
-}
-
-void GaussianSplat::del() {
-  vao.del();
-  vbo.del();
 }

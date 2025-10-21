@@ -23,8 +23,6 @@ TestModel::TestModel(const float screenWidth, const float screenHeight, const ch
   glDepthFunc(GL_LESS);
 }
 
-TestModel::~TestModel() {}
-
 void TestModel::OnEvent(SDL_Event &event) { camera->handle(event); }
 
 void TestModel::OnRender() {
@@ -54,8 +52,8 @@ void TestModel::OnImGuiRender() {
 }
 
 void TestModel::OnExit() {
-  model->del();
-  shaderProgram->del();
+  model.reset();
+  shaderProgram.reset();
 }
 
 }  // namespace test

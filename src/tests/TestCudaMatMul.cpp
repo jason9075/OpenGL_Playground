@@ -84,14 +84,7 @@ void TestCudaMatMul::OnImGuiRender() {
   }
 }
 
-void TestCudaMatMul::OnExit() {
-  matrixA->del();
-  matrixB->del();
-  tileMesh->del();
-  matrixC->del();
-  arrow->del();
-  shaderProgram->del();
-}
+void TestCudaMatMul::OnExit() {}
 
 // animation arrow
 void TestCudaMatMul ::updateInstanceMatrices(float time) {

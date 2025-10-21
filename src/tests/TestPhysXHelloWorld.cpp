@@ -125,12 +125,7 @@ void TestPhysXHelloWorld::OnImGuiRender() {
   }
 }
 
-void TestPhysXHelloWorld::OnExit() {
-  if (shader) shader->del();
-  if (groundMesh) groundMesh->del();
-  for (auto& b : mBalls) b.mesh->del();
-  shutdownPhysX();
-}
+void TestPhysXHelloWorld::OnExit() { shutdownPhysX(); }
 
 // ------------------ PhysX helpers ------------------
 

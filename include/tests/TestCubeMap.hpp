@@ -9,7 +9,7 @@ namespace test {
 class TestCubeMap : public Test {
  public:
   TestCubeMap(const float screenWidth, const float screenHeight);
-  ~TestCubeMap();
+  ~TestCubeMap() = default;
 
   void OnEvent(SDL_Event& event) override;
   void OnRender() override;

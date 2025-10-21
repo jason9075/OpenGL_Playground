@@ -47,8 +47,5 @@ void TestTriangle::OnImGuiRender() {
   ImGui::ColorEdit3("Triangle", triangleColor);
 }
 
-void TestTriangle::OnExit() {
-  mesh->del();
-  shaderProgram->del();
-}
+void TestTriangle::OnExit() {}
 }  // namespace test

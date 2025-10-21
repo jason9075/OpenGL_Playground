@@ -22,8 +22,6 @@ TestCubeMap::TestCubeMap(const float screenWidth, const float screenHeight) {
   glEnable(GL_DEPTH_TEST);
 }
 
-TestCubeMap::~TestCubeMap() {}
-
 void TestCubeMap::OnEvent(SDL_Event &event) { camera->handle(event); }
 
 void TestCubeMap::OnRender() {
@@ -56,9 +54,6 @@ void TestCubeMap::OnImGuiRender() {
   ImGui::SliderFloat("Skybox", &skyboxScale, 0.1f, 50.0f);
 }
 
-void TestCubeMap::OnExit() {
-  model->del();
-  modelShader->del();
-}
+void TestCubeMap::OnExit() {}
 
 }  // namespace test

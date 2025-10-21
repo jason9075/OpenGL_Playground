@@ -143,11 +143,7 @@ void TestPhysXMaterial::OnImGuiRender() {
   }
 }
 
-void TestPhysXMaterial::OnExit() {
-  if (shader) shader->del();
-  if (groundMesh) groundMesh->del();
-  shutdownPhysX();
-}
+void TestPhysXMaterial::OnExit() { shutdownPhysX(); }
 
 // ------------------ PhysX helpers ------------------
 

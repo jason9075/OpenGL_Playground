@@ -70,9 +70,6 @@ void TestSdfTaipei101::OnImGuiRender() {
   ImGui::ColorEdit3("SDF", sdfColor);
 }
 
-void TestSdfTaipei101::OnExit() {
-  sdfMesh->del();
-  shaderSDF->del();
-}
+void TestSdfTaipei101::OnExit() {}
 
 }  // namespace test

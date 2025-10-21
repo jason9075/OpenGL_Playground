@@ -9,7 +9,7 @@ namespace test {
 class TestModel : public Test {
  public:
   TestModel(const float screenWidth, const float screenHeight, const char* path);
-  ~TestModel();
+  ~TestModel() = default;
 
   void OnEvent(SDL_Event& event) override;
   void OnRender() override;

@@ -61,10 +61,7 @@ void TestMultipleObj::OnImGuiRender() {
   }
 }
 
-void TestMultipleObj::OnExit() {
-  model->del();
-  shaderProgram->del();
-}
+void TestMultipleObj::OnExit() {}
 
 void TestMultipleObj::updateInstanceMatrices() {
   std::random_device rd;

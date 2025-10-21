@@ -199,12 +199,8 @@ void TestRtSphere::OnImGuiRender() {
 }
 
 void TestRtSphere::OnExit() {
-  newFrame->del();
-  oldFrame->del();
-  rtMesh->del();
-  frameMesh->del();
-  shaderProgram->del();
-  frameShader->del();
+  newFrame.reset();
+  oldFrame.reset();
 }
 
 void TestRtSphere::randomizeSpheres(Sphere* spheres, const int numSpheres) {
