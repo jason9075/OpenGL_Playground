@@ -66,9 +66,9 @@ bool AABB::hit(const Ray &ray, Interval tInterval) const noexcept {
   return true;
 }
 
-HitRecord::HitRecord(float t, const glm::vec3 &p, const glm::vec3 &n) : t(t), p(p), normal(n) {}
+HitRecord::HitRecord(float t, const glm::vec3 &p, const glm::vec3 &n) noexcept : t(t), p(p), normal(n) {}
 
-Sphere::Sphere(const glm::vec3 &center, float radius) : center(center), radius(radius) {}
+Sphere::Sphere(const glm::vec3 &center, float radius) noexcept : center(center), radius(radius) {}
 bool Sphere::hit(const Ray &ray, Interval tInterval, HitRecord &record) const {
   glm::vec3 oc = ray.origin - center;
   float a = glm::dot(ray.direction, ray.direction);
@@ -100,23 +100,31 @@ AABB Sphere::boundingBox() const {
               Interval(center.z - radius, center.z + radius));
 }
 
-// HitTableList::HitTableList() : hitTables(std::vector<HitTable *>()) {}
-// HitTableList::HitTableList(std::vector<HitTable *> hitTables) : hitTables(hitTables) {}
-void HitTableList::add(HitTable *hitTable) { hitTables.push_back(hitTable); }
-bool HitTableList::hit(const Ray &ray, Interval tInterval, HitRecord &record) const {
-  HitRecord tempRecord;
+bool HitTableList::hit(const Ray &ray, Interval tRange, HitRecord &rec) const {
+  HitRecord temp;
   bool hitAnything = false;
-  float closest = tInterval.maxValue;
+  float closest = tRange.maxValue;
 
-  for (const auto &hitTable : hitTables) {
-    if (hitTable->hit(ray, tInterval, tempRecord)) {
+  for (const auto &obj : objects) {
+    // 把目前最近距離做為新的上界，讓後面的物件能剪枝
+    Interval range(tRange.minValue, closest);
+    if (obj->hit(ray, range, temp)) {
       hitAnything = true;
-      if (tempRecord.t < closest) {
-        closest = tempRecord.t;
-        record = tempRecord;
-      }
+      closest = temp.t;
+      rec = temp;
     }
   }
-
   return hitAnything;
+}
+
+AABB HitTableList::boundingBox() const {
+  if (objects.empty()) return AABB();
+  AABB box = objects.front()->boundingBox();
+  for (size_t i = 1; i < objects.size(); ++i) {
+    AABB b = objects[i]->boundingBox();
+    box = AABB(Interval(std::min(box.x.minValue, b.x.minValue), std::max(box.x.maxValue, b.x.maxValue)),
+               Interval(std::min(box.y.minValue, b.y.minValue), std::max(box.y.maxValue, b.y.maxValue)),
+               Interval(std::min(box.z.minValue, b.z.minValue), std::max(box.z.maxValue, b.z.maxValue)));
+  }
+  return box;
 }
