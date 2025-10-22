@@ -4,7 +4,7 @@
 
 namespace test {
 
-TestMultipleObj::TestMultipleObj(const float screenWidth, const float screenHeight) {
+TestMultipleObj::TestMultipleObj(const float screenWidth, const float screenHeight) : renderer(mesh_renderer) {
   glViewport(0, 0, screenWidth, screenHeight);
 
   shaderProgram = std::make_unique<Shader>("./shaders/multiple_obj_vert.glsl", "./shaders/multiple_obj_frag.glsl");
@@ -39,7 +39,7 @@ void TestMultipleObj::OnRender() {
 
   shaderProgram->use();
   camera->update(shaderProgram.get());
-  model->draw(shaderProgram.get(), row * col);
+  renderer.draw(*model, *shaderProgram);
 }
 
 void TestMultipleObj::OnImGuiRender() {

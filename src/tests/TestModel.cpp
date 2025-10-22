@@ -4,7 +4,7 @@
 
 namespace test {
 
-TestModel::TestModel(const float screenWidth, const float screenHeight, const char *path) {
+TestModel::TestModel(const float screenWidth, const float screenHeight, const char *path) : renderer(mesh_renderer) {
   glViewport(0, 0, screenWidth, screenHeight);
 
   shaderProgram = std::make_unique<Shader>("./shaders/model_vert.glsl", "./shaders/model_frag.glsl");
@@ -40,7 +40,7 @@ void TestModel::OnRender() {
   modelMatrix = glm::rotate(modelMatrix, glm::radians(rot.y), glm::vec3(0.0f, 1.0f, 0.0f));
   modelMatrix = glm::rotate(modelMatrix, glm::radians(rot.z), glm::vec3(0.0f, 0.0f, 1.0f));
   model->setModelMatrix(modelMatrix);
-  model->draw(shaderProgram.get());
+  renderer.draw(*model, *shaderProgram);
 }
 
 void TestModel::OnImGuiRender() {

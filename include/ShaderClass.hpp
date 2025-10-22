@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 class Shader {
  public:
   Shader(const char *vertShaderPath, const char *fragShaderPath);

@@ -44,11 +44,11 @@ void Model::loadMesh(unsigned int indMesh, glm::mat4 matrix) {
     normals[i] = glm::vec3(nor);
   }
 
-  std::vector<Vertex> vertices = assembleVertices(positions, normals, texCoords);
+  std::vector<gfx::geom::Vertex> vertices = assembleVertices(positions, normals, texCoords);
   std::vector<GLuint> indices = getIndices(JSON["accessors"][indAccInd]);
-  std::vector<std::shared_ptr<Texture>> textures = getTextures();
+  std::vector<std::shared_ptr<gfx::resource::Texture>> textures = getTextures();
 
-  meshes.push_back(Mesh(vertices, indices, textures));
+  meshes.push_back(gfx::geom::Mesh(vertices, indices, textures));
 }
 
 void Model::traverseNode(unsigned int nodeIndex, glm::mat4 modelMatrix) {
@@ -204,8 +204,8 @@ std::vector<GLuint> Model::getIndices(json accessor) {
   return indices;
 }
 
-std::vector<std::shared_ptr<Texture>> Model::getTextures() {
-  std::vector<std::shared_ptr<Texture>> textures;
+std::vector<std::shared_ptr<gfx::resource::Texture>> Model::getTextures() {
+  std::vector<std::shared_ptr<gfx::resource::Texture>> textures;
 
   std::string fileDir = std::string(path).substr(0, std::string(path).find_last_of("/"));
 
@@ -223,7 +223,7 @@ std::vector<std::shared_ptr<Texture>> Model::getTextures() {
     // 載入 + 放 cache
     {
       auto full = fileDir + "/" + texPath;
-      auto tex = std::make_shared<Texture>(full.c_str(), "albedo", /*slot*/ 0);  // slot 先統一用 0
+      auto tex = std::make_shared<gfx::resource::Texture>(full.c_str(), "albedo", /*slot*/ 0);  // slot 先統一用 0
       loadedTexturesName.push_back(texPath);
       loadedTextures.push_back(tex);
       textures.push_back(std::move(tex));
@@ -235,13 +235,13 @@ std::vector<std::shared_ptr<Texture>> Model::getTextures() {
   return textures;
 }
 
-std::vector<Vertex> Model::assembleVertices(const std::vector<glm::vec3> &positions,
-                                            const std::vector<glm::vec3> &normals,
-                                            const std::vector<glm::vec2> &texCoords) {
-  std::vector<Vertex> vertices;
+std::vector<gfx::geom::Vertex> Model::assembleVertices(const std::vector<glm::vec3> &positions,
+                                                       const std::vector<glm::vec3> &normals,
+                                                       const std::vector<glm::vec2> &texCoords) {
+  std::vector<gfx::geom::Vertex> vertices;
 
   for (unsigned int i = 0; i < positions.size(); i++) {
-    Vertex vertex;
+    gfx::geom::Vertex vertex;
     vertex.position = positions[i];
     vertex.normal = normals[i];
     vertex.color = glm::vec3(1.0f);
@@ -254,21 +254,21 @@ std::vector<Vertex> Model::assembleVertices(const std::vector<glm::vec3> &positi
 
 void Model::setModelMatrix(glm::mat4 matrix) { modelMatrix = matrix; }
 
-void Model::draw(Shader *shader, const unsigned int instanceCount) {
-  std::cout << "ModelMatrix: " << modelMatrix[0][0] << " " << modelMatrix[0][1] << " " << modelMatrix[0][2] << " "
-            << modelMatrix[0][3] << std::endl;
-  glUniformMatrix4fv(glGetUniformLocation(shader->PROGRAM_ID, "modelMatrix"), 1, GL_FALSE, glm::value_ptr(modelMatrix));
-  for (unsigned int i = 0; i < meshes.size(); i++) {
-    meshes[i].draw(shader, instanceCount);
-  }
-}
-
-void Model::drawTri(Shader *shader, const unsigned int numTriangles, const unsigned int instanceCount) {
-  glUniformMatrix4fv(glGetUniformLocation(shader->PROGRAM_ID, "modelMatrix"), 1, GL_FALSE, glm::value_ptr(modelMatrix));
-  for (unsigned int i = 0; i < meshes.size(); i++) {
-    meshes[i].drawTri(shader, numTriangles, instanceCount);
-  }
-}
+// void Model::draw(Shader *shader, const unsigned int instanceCount) {
+//   std::cout << "ModelMatrix: " << modelMatrix[0][0] << " " << modelMatrix[0][1] << " " << modelMatrix[0][2] << " "
+//             << modelMatrix[0][3] << std::endl;
+//   glUniformMatrix4fv(glGetUniformLocation(shader->PROGRAM_ID, "modelMatrix"), 1, GL_FALSE,
+//   glm::value_ptr(modelMatrix)); for (unsigned int i = 0; i < meshes.size(); i++) {
+//     meshes[i].draw(shader, instanceCount);
+//   }
+// }
+//
+// void Model::drawTri(Shader *shader, const unsigned int numTriangles, const unsigned int instanceCount) {
+//   glUniformMatrix4fv(glGetUniformLocation(shader->PROGRAM_ID, "modelMatrix"), 1, GL_FALSE,
+//   glm::value_ptr(modelMatrix)); for (unsigned int i = 0; i < meshes.size(); i++) {
+//     meshes[i].drawTri(shader, numTriangles, instanceCount);
+//   }
+// }
 
 std::vector<glm::vec2> Model::groupFloatsVec2(const std::vector<float> &floats) {
   std::vector<glm::vec2> vec2s;

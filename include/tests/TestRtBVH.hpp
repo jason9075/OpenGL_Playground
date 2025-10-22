@@ -3,6 +3,8 @@
 #include "Camera.hpp"
 #include "Model.hpp"
 #include "ShaderClass.hpp"
+#include "render/mesh_renderer.hpp"
+#include "render/model_renderer.hpp"
 #include "tests/Test.hpp"
 
 namespace test {
@@ -17,8 +19,10 @@ class TestRtBVH : public Test {
   void OnExit() override;
 
  private:
+  gfx::render::MeshRenderer mesh_renderer;
+  gfx::render::ModelRenderer renderer;
   std::chrono::time_point<std::chrono::high_resolution_clock> startTS;
-  std::unique_ptr<Mesh> beam;
+  std::unique_ptr<gfx::geom::Mesh> beam;
 
   glm::mat4 beamModelMatrix = glm::mat4(1.0f);
   glm::quat beamRotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);

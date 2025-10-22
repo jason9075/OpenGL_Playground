@@ -32,8 +32,33 @@ add_library(imgui STATIC ${IMGUI_SOURCES})
 target_include_directories(imgui PRIVATE external/imgui)
 
 # --- sources ---
-file(GLOB SOURCES src/*.cpp src/tests/*.cpp)
-add_executable(playground.app Main.cpp ${SOURCES})
+file(GLOB_RECURSE GFX_CORE_SOURCES     src/core/*.cpp)
+file(GLOB_RECURSE GFX_RESOURCE_SOURCES src/resource/*.cpp)
+file(GLOB_RECURSE GFX_GEOM_SOURCES     src/geom/*.cpp)
+file(GLOB_RECURSE GFX_RENDER_SOURCES   src/render/*.cpp)
+
+add_library(gfx_core ${GFX_CORE_SOURCES})
+target_include_directories(gfx_core PUBLIC include)
+
+add_library(gfx_resource ${GFX_RESOURCE_SOURCES})
+target_link_libraries(gfx_resource PUBLIC gfx_core)
+target_include_directories(gfx_resource PUBLIC include)
+
+add_library(gfx_geom ${GFX_GEOM_SOURCES})
+target_link_libraries(gfx_geom PUBLIC gfx_core gfx_resource)
+target_include_directories(gfx_geom PUBLIC include)
+
+# 你的 ShaderClass 如果沒有獨立 target，先做個薄包裝（可放 ShaderClass.cpp 或只頭檔）：
+add_library(ShaderLib INTERFACE)
+target_include_directories(ShaderLib INTERFACE include)
+
+add_library(gfx_render ${GFX_RENDER_SOURCES})
+target_link_libraries(gfx_render PUBLIC gfx_geom ShaderLib)
+target_include_directories(gfx_render PUBLIC include)
+
+# --- sources app ---
+file(GLOB APP_SOURCES src/*.cpp src/tests/*.cpp)
+add_executable(playground.app Main.cpp ${APP_SOURCES})
 target_precompile_headers(playground.app PRIVATE include/OPPCH.h)
 
 # Disable tests and installation for nlohmann_json
@@ -103,6 +128,7 @@ target_link_options(playground.app PRIVATE "-Wl,--start-group")
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     target_link_libraries(
         playground.app 
+        gfx_render
         imgui 
         ${OPENGL_LIBRARIES} 
         ${SDL2_LIBRARIES} 
@@ -118,6 +144,7 @@ if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 else()
     target_link_libraries(
         playground.app 
+        gfx_render
         imgui 
         ${OPENGL_LIBRARIES} 
         ${SDL2_LIBRARIES} 

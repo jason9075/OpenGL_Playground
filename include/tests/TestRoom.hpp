@@ -1,8 +1,9 @@
 #pragma once
 
 #include "Camera.hpp"
-#include "DataObject.hpp"
 #include "ShaderClass.hpp"
+#include "geom/mesh.hpp"
+#include "render/mesh_renderer.hpp"
 #include "tests/Test.hpp"
 
 namespace test {
@@ -17,15 +18,16 @@ class TestRoom : public Test {
   void OnExit() override;
 
  private:
-  std::vector<Texture> textures;
+  gfx::render::MeshRenderer renderer;
+  std::vector<gfx::resource::Texture> textures;
   std::unique_ptr<Shader> shaderRoom;
-  std::unique_ptr<Mesh> floor;
-  std::unique_ptr<Mesh> northWall;
-  std::unique_ptr<Mesh> southWall;
-  std::unique_ptr<Mesh> eastWall;
-  std::unique_ptr<Mesh> westWall;
-  std::unique_ptr<Mesh> ceiling;
-  std::unique_ptr<Mesh> groundMesh;
+  std::unique_ptr<gfx::geom::Mesh> floor;
+  std::unique_ptr<gfx::geom::Mesh> northWall;
+  std::unique_ptr<gfx::geom::Mesh> southWall;
+  std::unique_ptr<gfx::geom::Mesh> eastWall;
+  std::unique_ptr<gfx::geom::Mesh> westWall;
+  std::unique_ptr<gfx::geom::Mesh> ceiling;
+  std::unique_ptr<gfx::geom::Mesh> groundMesh;
   const float backgroundColor[4] = {0.8f, 0.8f, 0.8f, 1.0f};
   std::unique_ptr<CameraEventListener> listener;
 };

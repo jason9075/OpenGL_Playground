@@ -12,8 +12,8 @@ TestParallaxMapping::TestParallaxMapping(const float screenWidth, const float sc
   shader = std::make_unique<Shader>("./shaders/parallax_vert.glsl", "./shaders/parallax_frag.glsl");
   const float wallHeight = 3.0f;
   wall = createPlaneMesh(wallHeight, glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.8f), glm::vec3(0.0, wallHeight, 0.0f));
-  std::vector<std::shared_ptr<Texture>> textures;
-  textures.emplace_back(std::make_shared<Texture>("./assets/textures/room_3.png", "albedo", 0));
+  std::vector<std::shared_ptr<gfx::resource::Texture>> textures;
+  textures.emplace_back(std::make_shared<gfx::resource::Texture>("./assets/textures/room_3.png", "albedo", 0));
   wall->setTexture(textures);
   floor = createPlaneMesh(10.0f, glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.2f));
 
@@ -46,8 +46,8 @@ void TestParallaxMapping::OnRender() {
   glUniform3f(glGetUniformLocation(shader->PROGRAM_ID, "camPosition"), camera->position.x, camera->position.y,
               camera->position.z);
   camera->update(shader.get());
-  wall->draw(shader.get());
-  floor->draw(shader.get());
+  renderer.draw(*wall, *shader);
+  renderer.draw(*floor, *shader);
 }
 
 void TestParallaxMapping::OnImGuiRender() { ImGui::SliderFloat("Far Factor", &farFactor, 0.001f, 0.999f); }

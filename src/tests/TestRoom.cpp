@@ -11,11 +11,11 @@ TestRoom::TestRoom(const float screenWidth, const float screenHeight) {
 
   shaderRoom = std::make_unique<Shader>("./shaders/room_vert.glsl", "./shaders/room_frag.glsl");
 
-  auto texMarble1 = std::make_shared<Texture>("./assets/textures/marble1.png", "albedo", 0);
-  auto texMarble2 = std::make_shared<Texture>("./assets/textures/marble2.png", "albedo", 0);
+  auto texMarble1 = std::make_shared<gfx::resource::Texture>("./assets/textures/marble1.png", "albedo", 0);
+  auto texMarble2 = std::make_shared<gfx::resource::Texture>("./assets/textures/marble2.png", "albedo", 0);
 
-  auto V1 = std::vector<std::shared_ptr<Texture>>{texMarble1};
-  auto V2 = std::vector<std::shared_ptr<Texture>>{texMarble2};
+  auto V1 = std::vector<std::shared_ptr<gfx::resource::Texture>>{texMarble1};
+  auto V2 = std::vector<std::shared_ptr<gfx::resource::Texture>>{texMarble2};
 
   floor = createCuboidMesh(30.0f, 0.3f, 20.0f, {0, 0, 0});
   floor->setTexture(V2);
@@ -74,17 +74,17 @@ void TestRoom::OnRender() {
   shaderRoom->use();
   camera->update(shaderRoom.get());
   glUniform1i(glGetUniformLocation(shaderRoom->PROGRAM_ID, "classId"), 0);
-  groundMesh->draw(shaderRoom.get());
+  renderer.draw(*groundMesh, *shaderRoom);
 
   glUniform1i(glGetUniformLocation(shaderRoom->PROGRAM_ID, "classId"), 1);
-  northWall->draw(shaderRoom.get());
-  southWall->draw(shaderRoom.get());
-  eastWall->draw(shaderRoom.get());
-  westWall->draw(shaderRoom.get());
+  renderer.draw(*northWall, *shaderRoom);
+  renderer.draw(*southWall, *shaderRoom);
+  renderer.draw(*eastWall, *shaderRoom);
+  renderer.draw(*westWall, *shaderRoom);
   glUniform1i(glGetUniformLocation(shaderRoom->PROGRAM_ID, "classId"), 2);
-  floor->draw(shaderRoom.get());
+  renderer.draw(*floor, *shaderRoom);
   glUniform1i(glGetUniformLocation(shaderRoom->PROGRAM_ID, "classId"), 3);
-  ceiling->draw(shaderRoom.get());
+  renderer.draw(*ceiling, *shaderRoom);
 }
 
 void TestRoom::OnImGuiRender() {}

@@ -104,13 +104,13 @@ void TestPhysXMaterial::OnRender() {
   glUniformMatrix4fv(glGetUniformLocation(shader->PROGRAM_ID, "modelMatrix"), 1, GL_FALSE,
                      glm::value_ptr(glm::mat4(1.0f)));
   glUniform1i(glGetUniformLocation(shader->PROGRAM_ID, "useTexture"), false);
-  rampMesh->draw(shader.get());
+  renderer.draw(*rampMesh, *shader);
 
   // 地板：單位矩陣
   glUniformMatrix4fv(glGetUniformLocation(shader->PROGRAM_ID, "modelMatrix"), 1, GL_FALSE,
                      glm::value_ptr(glm::mat4(1.0f)));
   glUniform1i(glGetUniformLocation(shader->PROGRAM_ID, "useTexture"), false);
-  groundMesh->draw(shader.get());
+  renderer.draw(*groundMesh, *shader);
 
   // Cube
   for (auto& c : mCubes) {
@@ -118,7 +118,7 @@ void TestPhysXMaterial::OnRender() {
     const glm::mat4 M = pxToGlm(pose);
     glUniformMatrix4fv(glGetUniformLocation(shader->PROGRAM_ID, "modelMatrix"), 1, GL_FALSE, glm::value_ptr(M));
     glUniform1i(glGetUniformLocation(shader->PROGRAM_ID, "useTexture"), c.mesh->hasTexture());
-    c.mesh->draw(shader.get());
+    renderer.draw(*c.mesh, *shader);
   }
 
   camera->moveCamera();
@@ -215,8 +215,8 @@ void TestPhysXMaterial::spawnCube(short cid, float scale, const glm::vec3& pos, 
   auto mesh = createCubeMesh(scale, color);
 
   if (texturePath != nullptr) {
-    std::vector<std::shared_ptr<Texture>> textures;
-    textures.emplace_back(std::make_shared<Texture>(texturePath, "normal", 0));
+    std::vector<std::shared_ptr<gfx::resource::Texture>> textures;
+    textures.emplace_back(std::make_shared<gfx::resource::Texture>(texturePath, "normal", 0));
     mesh->setTexture(textures);
   }
   mCubes.push_back(Cube{cid, actor, std::move(mesh), scale});

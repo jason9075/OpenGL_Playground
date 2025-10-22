@@ -66,7 +66,7 @@ void TestSdfBlend::OnRender() {
                        glm::value_ptr(glm::scale(glm::mat4(1.0f), glm::vec3(size))));
     glUniform3fv(glGetUniformLocation(shaderModel->PROGRAM_ID, "color"), 1, modelColor);
     camera->update(shaderModel.get());
-    modelMesh->draw(shaderModel.get());
+    renderer.draw(*modelMesh, *shaderModel);
   }
 
   if (isShowSdf) {
@@ -76,7 +76,7 @@ void TestSdfBlend::OnRender() {
     glUniform3fv(glGetUniformLocation(shaderSDF->PROGRAM_ID, "lightPosition"), 1, lightPos);
     glUniform1i(glGetUniformLocation(shaderSDF->PROGRAM_ID, "isSphere"), isSphere);
     camera->update(shaderSDF.get());
-    sdfMesh->draw(shaderSDF.get());
+    renderer.draw(*sdfMesh, *shaderSDF);
   }
 }
 

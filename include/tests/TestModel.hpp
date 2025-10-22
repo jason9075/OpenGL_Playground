@@ -3,6 +3,8 @@
 #include "Camera.hpp"
 #include "Model.hpp"
 #include "ShaderClass.hpp"
+#include "render/mesh_renderer.hpp"
+#include "render/model_renderer.hpp"
 #include "tests/Test.hpp"
 
 namespace test {
@@ -17,6 +19,8 @@ class TestModel : public Test {
   void OnExit() override;
 
  private:
+  gfx::render::MeshRenderer mesh_renderer;
+  gfx::render::ModelRenderer renderer;
   std::unique_ptr<Shader> shaderProgram;
   std::unique_ptr<Model> model;
   glm::vec3 trans{0.0f, 0.0f, 0.0f};

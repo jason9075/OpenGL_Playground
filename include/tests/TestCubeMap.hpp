@@ -3,6 +3,9 @@
 #include "Camera.hpp"
 #include "Model.hpp"
 #include "ShaderClass.hpp"
+#include "render/cubemap_renderer.hpp"
+#include "render/mesh_renderer.hpp"
+#include "render/model_renderer.hpp"
 #include "tests/Test.hpp"
 
 namespace test {
@@ -29,8 +32,11 @@ class TestCubeMap : public Test {
   bool fixSkybox = false;
   std::unique_ptr<Shader> skyShader;
   std::unique_ptr<Shader> modelShader;
-  std::unique_ptr<CubeMap> skybox;
+  std::unique_ptr<gfx::geom::CubeMap> skybox;
   std::unique_ptr<Model> model;
+  gfx::render::MeshRenderer mesh_renderer;
+  gfx::render::ModelRenderer renderer;
+  gfx::render::CubeMapRenderer cubemap_renderer;
   std::unique_ptr<CameraEventListener> listener;
 };
 

@@ -6,8 +6,9 @@
 #include <memory>
 
 #include "Camera.hpp"
-#include "DataObject.hpp"
 #include "ShaderClass.hpp"
+#include "geom/mesh.hpp"
+#include "render/mesh_renderer.hpp"
 #include "tests/Test.hpp"
 
 namespace test {
@@ -22,18 +23,19 @@ class TestPhysXMaterial : public Test {
   void OnExit() override;
 
  private:
+  gfx::render::MeshRenderer renderer;
   std::unique_ptr<Shader> shader;
   std::unique_ptr<CameraEventListener> listener;
 
   struct Cube {
     short cid;
     physx::PxRigidDynamic* actor = nullptr;
-    std::unique_ptr<Mesh> mesh;
+    std::unique_ptr<gfx::geom::Mesh> mesh;
     float scale;
   };
   std::vector<Cube> mCubes;
-  std::unique_ptr<Mesh> groundMesh;
-  std::unique_ptr<Mesh> rampMesh;
+  std::unique_ptr<gfx::geom::Mesh> groundMesh;
+  std::unique_ptr<gfx::geom::Mesh> rampMesh;
 
   // --- PhysX core pointers ---
   physx::PxFoundation* mFoundation = nullptr;

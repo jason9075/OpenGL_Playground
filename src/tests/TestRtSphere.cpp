@@ -24,12 +24,12 @@ TestRtSphere::TestRtSphere(const float screenWidth, const float screenHeight) {
 
   // setup FBO
 
-  sceneFBO = std::make_unique<FBO>(screenWidth, screenHeight);
+  sceneFBO = std::make_unique<gfx::core::FBO>(screenWidth, screenHeight);
   sceneFBO->setupTexture();
 
-  accumFBO[0] = std::make_unique<FBO>(screenWidth, screenHeight);
+  accumFBO[0] = std::make_unique<gfx::core::FBO>(screenWidth, screenHeight);
   accumFBO[0]->setupTexture();
-  accumFBO[1] = std::make_unique<FBO>(screenWidth, screenHeight);
+  accumFBO[1] = std::make_unique<gfx::core::FBO>(screenWidth, screenHeight);
   accumFBO[1]->setupTexture();
 
   sceneFBO->bind();
@@ -124,7 +124,7 @@ void TestRtSphere::OnRender() {
   glUniform1i(glGetUniformLocation(shaderProgram->PROGRAM_ID, "showCornellLight"), isShowCornellLight);
   glUniform1i(glGetUniformLocation(shaderProgram->PROGRAM_ID, "showCornellPlanes"), isShowCornellPlanes);
 
-  rtMesh->draw(shaderProgram.get());
+  renderer.draw(*rtMesh, *shaderProgram);
 
   // 3. after rendering the main scene, unbind the framebuffer
   sceneFBO->unbind();
@@ -151,7 +151,7 @@ void TestRtSphere::OnRender() {
     glUniform1i(glGetUniformLocation(frameShader->PROGRAM_ID, "numFrames"), frameIdx);
 
     // render on the new frame
-    frameMesh->draw(frameShader.get());
+    renderer.draw(*frameMesh, *shaderProgram);
     accumFBO[B]->unbind();
     ping ^= 1;
   } else {  // Real time mode
@@ -167,7 +167,7 @@ void TestRtSphere::OnRender() {
     sceneFBO->bindTexture(GL_TEXTURE1);
     glUniform1i(glGetUniformLocation(frameShader->PROGRAM_ID, "newFrame"), 1);
     glUniform1i(glGetUniformLocation(frameShader->PROGRAM_ID, "numFrames"), 0);
-    frameMesh->draw(frameShader.get());
+    renderer.draw(*frameMesh, *shaderProgram);
     accumFBO[B]->unbind();
     ping ^= 1;
   }
@@ -184,7 +184,7 @@ void TestRtSphere::OnRender() {
   glUniform1i(glGetUniformLocation(frameShader->PROGRAM_ID, "numFrames"), -1);  // weight ≈ 0
 
   glDisable(GL_DEPTH_TEST);
-  frameMesh->draw(frameShader.get());
+  renderer.draw(*frameMesh, *shaderProgram);
   glEnable(GL_DEPTH_TEST);
 
   frameIdx++;

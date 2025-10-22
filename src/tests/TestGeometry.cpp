@@ -2,6 +2,8 @@
 
 #include <OPPCH.h>
 
+#include "geom/mesh.hpp"
+
 namespace test {
 
 TestGeometry::TestGeometry(const float screenWidth, const float screenHeight) {
@@ -10,14 +12,14 @@ TestGeometry::TestGeometry(const float screenWidth, const float screenHeight) {
   shaderProgram =
       std::make_unique<Shader>("./shaders/geo_vert.glsl", "./shaders/geo_gert.glsl", "./shaders/geo_frag.glsl");
 
-  vao = VAO();
-  Vertex vertex;
+  vao = gfx::core::VAO();
+  gfx::geom::Vertex vertex;
   vertex.position = glm::vec3(0.0f, 0.0f, 0.0f);
-  const std::vector<Vertex> vertices = {vertex};
-  VBO vbo = VBO(vertices);
+  const std::vector<gfx::geom::Vertex> vertices = {vertex};
+  gfx::core::VBO vbo = gfx::core::VBO(vertices);
 
   vao.bind();
-  vao.linkAttr(vbo, 0, 3, GL_FLOAT, sizeof(Vertex), (void*)0);
+  vao.linkAttr(vbo, 0, 3, GL_FLOAT, sizeof(gfx::geom::Vertex), (void*)0);
   vao.unbind();
 
   glm::vec3 camPosition = glm::vec3(0.0f, 0.0f, 3.0f);

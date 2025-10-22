@@ -6,7 +6,7 @@
 
 namespace test {
 
-TestLighting::TestLighting(const float screenWidth, const float screenHeight) {
+TestLighting::TestLighting(const float screenWidth, const float screenHeight) : renderer(mesh_renderer) {
   glViewport(0, 0, screenWidth, screenHeight);
 
   shaderProgram = std::make_unique<Shader>("./shaders/light_vert.glsl", "./shaders/light_frag.glsl");
@@ -46,7 +46,7 @@ void TestLighting::OnRender() {
   glUniform1i(glGetUniformLocation(shaderProgram->PROGRAM_ID, "diffuseEnabled"), diffuseToggle);
   glUniform1i(glGetUniformLocation(shaderProgram->PROGRAM_ID, "specularEnabled"), specularToggle);
   camera->update(shaderProgram.get());
-  model->draw(shaderProgram.get());
+  renderer.draw(*model, *shaderProgram);
 
   // draw light
   pureLightShader->use();
@@ -55,7 +55,7 @@ void TestLighting::OnRender() {
                      glm::value_ptr(modelMatrix));
   glUniform3fv(glGetUniformLocation(pureLightShader->PROGRAM_ID, "color"), 1, lightColor);
   camera->update(pureLightShader.get());
-  lightMesh->draw(pureLightShader.get());
+  mesh_renderer.draw(*lightMesh, *pureLightShader, 1);
 }
 
 void TestLighting::OnImGuiRender() {

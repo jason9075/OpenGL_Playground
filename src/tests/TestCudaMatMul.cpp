@@ -58,12 +58,12 @@ void TestCudaMatMul::OnRender() {
 
   shaderProgram->use();
   camera->update(shaderProgram.get());
-  matrixA->draw(shaderProgram.get(), M * N);
-  matrixB->draw(shaderProgram.get(), N * K);
-  tileMesh->draw(shaderProgram.get(), 2 * TILE[0] * TILE[1]);
-  matrixC->draw(shaderProgram.get(), M * K);
-  // frame->draw(shaderProgram.get(), 2);
-  arrow->draw(shaderProgram.get(), TILE[0] * TILE[1]);
+  renderer.draw(*matrixA, *shaderProgram, M * N);
+  renderer.draw(*matrixB, *shaderProgram, N * K);
+  renderer.draw(*tileMesh, *shaderProgram, 2 * TILE[0] * TILE[1]);
+  renderer.draw(*matrixC, *shaderProgram, M * K);
+  // renderer.draw(*frame, *shaderProgram,2);
+  renderer.draw(*arrow, *shaderProgram, TILE[0] * TILE[1]);
 }
 
 void TestCudaMatMul::OnImGuiRender() {

@@ -3,6 +3,7 @@
 #include "Camera.hpp"
 #include "Model.hpp"
 #include "ShaderClass.hpp"
+#include "render/mesh_renderer.hpp"
 #include "tests/Test.hpp"
 
 namespace test {
@@ -32,12 +33,13 @@ class TestCudaMatMul : public Test {
   const float ARROW_DEPTH = 5.0f;
   std::chrono::time_point<std::chrono::high_resolution_clock> startTS;
   std::unique_ptr<Shader> shaderProgram;
-  std::unique_ptr<Mesh> matrixA;
-  std::unique_ptr<Mesh> matrixB;
-  std::unique_ptr<Mesh> tileMesh;
-  std::unique_ptr<Mesh> matrixC;
-  std::unique_ptr<Mesh> frame;
-  std::unique_ptr<Mesh> arrow;
+  gfx::render::MeshRenderer renderer;
+  std::unique_ptr<gfx::geom::Mesh> matrixA;
+  std::unique_ptr<gfx::geom::Mesh> matrixB;
+  std::unique_ptr<gfx::geom::Mesh> tileMesh;
+  std::unique_ptr<gfx::geom::Mesh> matrixC;
+  std::unique_ptr<gfx::geom::Mesh> frame;
+  std::unique_ptr<gfx::geom::Mesh> arrow;
   std::unique_ptr<CameraEventListener> listener;
 
   void resetInstanceMatrices();
