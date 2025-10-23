@@ -152,9 +152,9 @@ void Camera::update(Shader *shaderProgram) {
   viewMatrix = glm::lookAt(position, position + orientation, up);
   projMatrix = glm::perspective(glm::radians(fov), (float)width / height, nearPlane, farPlane);
 
-  GLuint cp = glGetUniformLocation(shaderProgram->ID, "camPosition");
-  GLuint vm = glGetUniformLocation(shaderProgram->ID, "viewMatrix");
-  GLuint cm = glGetUniformLocation(shaderProgram->ID, "camMatrix");
+  GLuint cp = glGetUniformLocation(shaderProgram->PROGRAM_ID, "camPosition");
+  GLuint vm = glGetUniformLocation(shaderProgram->PROGRAM_ID, "viewMatrix");
+  GLuint cm = glGetUniformLocation(shaderProgram->PROGRAM_ID, "camMatrix");
 
   glUniform3f(cp, position.x, position.y, position.z);
   glUniformMatrix4fv(vm, 1, GL_FALSE, glm::value_ptr(viewMatrix));

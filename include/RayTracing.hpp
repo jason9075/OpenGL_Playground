@@ -2,64 +2,65 @@
 
 class Ray {
  public:
-  glm::vec3 origin, direction;
-  Ray(const glm::vec3 &origin, const glm::vec3 &direction);
-  glm::vec3 at(float t) const;
+  glm::vec3 origin{}, direction{};
+  Ray(const glm::vec3 &o, const glm::vec3 &d) noexcept;
+  [[nodiscard]] glm::vec3 at(float t) const noexcept;
 };
 
 class Interval {
  public:
-  float minValue, maxValue;
-  Interval(float min, float max);
-  float clamp(float x);
-  Interval expand(float delta);
+  float minValue{}, maxValue{};
+  Interval(float min, float max) noexcept;
+  [[nodiscard]] float clamp(float x) const noexcept;
+  [[nodiscard]] Interval expand(float delta) const noexcept;
 };
 
 class AABB {
  public:
   Interval x, y, z;
 
-  AABB();
-  AABB(const Interval &x, const Interval &y, const Interval &z);
+  AABB() noexcept;
+  AABB(const Interval &x, const Interval &y, const Interval &z) noexcept;
 
-  const Interval &axisInterval(int axis) const;
-
-  bool hit(const Ray &ray, Interval tInterval) const;
+  enum class Axis : int { X = 0, Y = 1, Z = 2 };
+  [[nodiscard]] const Interval &axisInterval(int axis) const;
+  [[nodiscard]] bool hit(const Ray &ray, Interval tInterval) const noexcept;
 };
 
 class HitRecord {
  public:
-  float t;
-  glm::vec3 p, normal;
-  HitRecord();
-  HitRecord(float t, const glm::vec3 &p, const glm::vec3 &normal);
+  float t{0.f};
+  glm::vec3 p{0.f}, normal{0.f};
+  HitRecord() noexcept = default;
+  HitRecord(float t, const glm::vec3 &p, const glm::vec3 &n) noexcept;
 };
 
 class HitTable {
  public:
   virtual ~HitTable() = default;
-  virtual bool hit(const Ray &ray, Interval tInterval, HitRecord &record) const = 0;
-  virtual AABB boundingBox() const = 0;
+  [[nodiscard]] virtual bool hit(const Ray &ray, Interval tInterval, HitRecord &record) const = 0;
+  [[nodiscard]] virtual AABB boundingBox() const = 0;
 };
 
-class Sphere : public HitTable {
+class Sphere final : public HitTable {
  public:
   glm::vec3 center;
   float radius;
 
-  Sphere(const glm::vec3 &center, float radius);
-  bool hit(const Ray &ray, Interval tInterval, HitRecord &record) const override;
-  AABB boundingBox() const override;
+  Sphere(const glm::vec3 &center, float radius) noexcept;
+  [[nodiscard]] bool hit(const Ray &ray, Interval tInterval, HitRecord &record) const override;
+  [[nodiscard]] AABB boundingBox() const override;
 };
 
 class HitTableList : public HitTable {
  public:
-  std::vector<HitTable *> hitTables;
+  HitTableList() = default;
 
-  // HitTableList();
-  // HitTableList(std::vector<HitTable *> hitTables);
   ~HitTableList() override;
-  void add(HitTable *hitTable);
-  bool hit(const Ray &ray, Interval tInterval, HitRecord &record) const override;
-  AABB boundingBox() const override;
+  void add(std::unique_ptr<HitTable> obj) { objects.emplace_back(std::move(obj)); }
+  [[nodiscard]] bool hit(const Ray &ray, Interval tInterval, HitRecord &record) const override;
+  [[nodiscard]] AABB boundingBox() const override;
+
+ private:
+  std::vector<std::unique_ptr<HitTable>> objects;
 };

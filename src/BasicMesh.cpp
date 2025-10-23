@@ -2,7 +2,8 @@
 
 #include <OPPCH.h>
 
-std::unique_ptr<Mesh> createCuboidMesh(float width, float height, float depth, glm::vec3 pos, glm::vec3 color) {
+std::unique_ptr<gfx::geom::Mesh> createCuboidMesh(float width, float height, float depth, glm::vec3 pos,
+                                                  glm::vec3 color) {
   glm::vec3 p0 = glm::vec3(-width / 2 + pos[0], -height / 2 + pos[1], -depth / 2 + pos[2]);
   glm::vec3 p1 = glm::vec3(width / 2 + pos[0], -height / 2 + pos[1], -depth / 2 + pos[2]);
   glm::vec3 p2 = glm::vec3(width / 2 + pos[0], height / 2 + pos[1], -depth / 2 + pos[2]);
@@ -25,7 +26,7 @@ std::unique_ptr<Mesh> createCuboidMesh(float width, float height, float depth, g
                            {1.0f, 1.0f},
                            {0.0f, 1.0f}};
 
-  std::vector<Vertex> vertices = {};
+  std::vector<gfx::geom::Vertex> vertices = {};
 
   // Front face
   vertices.push_back({p4, normals[0], color, texCoords[0]});
@@ -69,10 +70,10 @@ std::unique_ptr<Mesh> createCuboidMesh(float width, float height, float depth, g
       20, 21, 22, 22, 23, 20,  // Bottom face
   };
 
-  return std::make_unique<Mesh>(vertices, indices);
+  return std::make_unique<gfx::geom::Mesh>(vertices, indices);
 }
 
-std::unique_ptr<Mesh> createCubeMesh(float scale, glm::vec3 color) {
+std::unique_ptr<gfx::geom::Mesh> createCubeMesh(float scale, glm::vec3 color) {
   glm::vec3 p0 = glm::vec3(-scale, -scale, scale);
   glm::vec3 p1 = glm::vec3(scale, -scale, scale);
   glm::vec3 p2 = glm::vec3(scale, scale, scale);
@@ -95,7 +96,7 @@ std::unique_ptr<Mesh> createCubeMesh(float scale, glm::vec3 color) {
                            {1.0f, 1.0f},
                            {0.0f, 1.0f}};
 
-  std::vector<Vertex> vertices = {};
+  std::vector<gfx::geom::Vertex> vertices = {};
 
   // Front face
   vertices.push_back({p0, normals[0], color, texCoords[0]});
@@ -138,12 +139,12 @@ std::unique_ptr<Mesh> createCubeMesh(float scale, glm::vec3 color) {
       20, 21, 22, 22, 23, 20,  // Bottom face
   };
 
-  return std::make_unique<Mesh>(vertices, indices);
+  return std::make_unique<gfx::geom::Mesh>(vertices, indices);
 }
 
-std::unique_ptr<Mesh> createPlaneMesh(const float scale, const glm::vec3 normal, const glm::vec3 color,
-                                      const glm::vec3 center) {
-  std::vector<Vertex> vertices;
+std::unique_ptr<gfx::geom::Mesh> createPlaneMesh(const float scale, const glm::vec3 normal, const glm::vec3 color,
+                                                 const glm::vec3 center) {
+  std::vector<gfx::geom::Vertex> vertices;
   // Step 1: Find two orthogonal vectors to the normal
   glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
   glm::vec3 tangent, bitangent;
@@ -173,11 +174,11 @@ std::unique_ptr<Mesh> createPlaneMesh(const float scale, const glm::vec3 normal,
   }
   std::vector<GLuint> indices = {0, 1, 2, 2, 3, 0};
 
-  return std::make_unique<Mesh>(vertices, indices);
+  return std::make_unique<gfx::geom::Mesh>(vertices, indices);
 }
 // Helper function to add a cuboid to the mesh
-void addCuboid(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, glm::vec3 center, float width, float height,
-               float depth, glm::vec3 color) {
+void addCuboid(std::vector<gfx::geom::Vertex>& vertices, std::vector<GLuint>& indices, glm::vec3 center, float width,
+               float height, float depth, glm::vec3 color) {
   float hw = width / 2.0f;
   float hh = height / 2.0f;
   float hd = depth / 2.0f;
@@ -259,7 +260,7 @@ void addCuboid(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, glm:
   indices.insert(indices.end(), {baseIndex, baseIndex + 1, baseIndex + 2, baseIndex + 2, baseIndex + 3, baseIndex});
 }
 
-void addTriPrism(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, glm::vec3 center, float width,
+void addTriPrism(std::vector<gfx::geom::Vertex>& vertices, std::vector<GLuint>& indices, glm::vec3 center, float width,
                  float height, float depth, glm::vec3 color) {
   float hw = width / 2.0f;
   float hh = height / 2.0f;
@@ -345,9 +346,9 @@ void addTriPrism(std::vector<Vertex>& vertices, std::vector<GLuint>& indices, gl
 }
 // 框形 Mesh
 // use 4 cuboid to create a frame
-std::unique_ptr<Mesh> createFrameMesh(float width, float height, float depth, float thickness, glm::vec3 position,
-                                      glm::vec3 color) {
-  std::vector<Vertex> vertices;
+std::unique_ptr<gfx::geom::Mesh> createFrameMesh(float width, float height, float depth, float thickness,
+                                                 glm::vec3 position, glm::vec3 color) {
+  std::vector<gfx::geom::Vertex> vertices;
   std::vector<GLuint> indices;
 
   // Left vertical side
@@ -366,12 +367,12 @@ std::unique_ptr<Mesh> createFrameMesh(float width, float height, float depth, fl
   glm::vec3 bottomPos = position + glm::vec3(0.0f, -(height - thickness) / 2.0f, 0.0f);
   addCuboid(vertices, indices, bottomPos, width, thickness, depth, color);
 
-  return std::make_unique<Mesh>(vertices, indices);
+  return std::make_unique<gfx::geom::Mesh>(vertices, indices);
 }
 
-std::unique_ptr<Mesh> createArrowMesh(float shaftWidth, float shaftHeight, float headWidth, float headHeight,
-                                      float thickness, glm::vec3 position, glm::vec3 color) {
-  std::vector<Vertex> vertices;
+std::unique_ptr<gfx::geom::Mesh> createArrowMesh(float shaftWidth, float shaftHeight, float headWidth, float headHeight,
+                                                 float thickness, glm::vec3 position, glm::vec3 color) {
+  std::vector<gfx::geom::Vertex> vertices;
   std::vector<GLuint> indices;
 
   // Calculate half dimensions
@@ -382,14 +383,15 @@ std::unique_ptr<Mesh> createArrowMesh(float shaftWidth, float shaftHeight, float
   addTriPrism(vertices, indices, position + glm::vec3(0.0f, hsh, 0.0f), headWidth, headHeight, thickness, color);
   addCuboid(vertices, indices, position - glm::vec3(0.0f, hhh, 0.0f), shaftWidth, shaftHeight, thickness, color);
 
-  return std::make_unique<Mesh>(vertices, indices);
+  return std::make_unique<gfx::geom::Mesh>(vertices, indices);
 }
 
-std::unique_ptr<Mesh> createSphereMesh(float radius, glm::vec3 pos, glm::vec3 color, int rings, int sectors) {
+std::unique_ptr<gfx::geom::Mesh> createSphereMesh(float radius, glm::vec3 pos, glm::vec3 color, int rings,
+                                                  int sectors) {
   rings = std::max(3, rings);
   sectors = std::max(3, sectors);
 
-  std::vector<Vertex> vertices;
+  std::vector<gfx::geom::Vertex> vertices;
   vertices.reserve((rings + 1) * (sectors + 1));
 
   std::vector<GLuint> indices;
@@ -439,5 +441,5 @@ std::unique_ptr<Mesh> createSphereMesh(float radius, glm::vec3 pos, glm::vec3 co
     }
   }
 
-  return std::make_unique<Mesh>(vertices, indices);
+  return std::make_unique<gfx::geom::Mesh>(vertices, indices);
 }

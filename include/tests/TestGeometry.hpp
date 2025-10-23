@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Camera.hpp"
-#include "DataObject.hpp"
+#include "core/vao.hpp"
 #include "tests/Test.hpp"
 
 namespace test {
@@ -15,7 +15,7 @@ class TestGeometry : public Test {
   void OnImGuiRender() override;
 
  private:
-  VAO vao;
+  gfx::core::VAO vao;
   float geoRadius = 1.0f;
   float smoothValue = 0.25f;
   float mask = 0.25f;

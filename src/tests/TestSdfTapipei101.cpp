@@ -13,8 +13,8 @@ TestSdfTaipei101::TestSdfTaipei101(const float screenWidth, const float screenHe
   sdfMesh = createPlaneMesh();
 
   // texture
-  texture = std::make_unique<Texture>("./assets/textures/windows2.png", "normal", 0);
-  texture_bump = std::make_unique<Texture>("./assets/textures/windows_bump.png", "normal", 1);
+  texture = std::make_unique<gfx::resource::Texture>("./assets/textures/windows2.png", "normal", 0);
+  texture_bump = std::make_unique<gfx::resource::Texture>("./assets/textures/windows_bump.png", "normal", 1);
 
   // camera
   glm::vec3 position = glm::vec3(1.0f, 6.0f, 6.0f);
@@ -30,10 +30,10 @@ TestSdfTaipei101::TestSdfTaipei101(const float screenWidth, const float screenHe
 
   // sdf shader
   shaderSDF->use();
-  glUniform2f(glGetUniformLocation(shaderSDF->ID, "resolution"), screenWidth, screenHeight);
-  glUniform3f(glGetUniformLocation(shaderSDF->ID, "sdfCenter"), 0.0f, 0.0f, 0.0f);
-  glUniform1f(glGetUniformLocation(shaderSDF->ID, "fov"), camera->fov);
-  glUniform3fv(glGetUniformLocation(shaderSDF->ID, "lightColor"), 1, glm::value_ptr(glm::vec3(1.0f)));
+  glUniform2f(glGetUniformLocation(shaderSDF->PROGRAM_ID, "resolution"), screenWidth, screenHeight);
+  glUniform3f(glGetUniformLocation(shaderSDF->PROGRAM_ID, "sdfCenter"), 0.0f, 0.0f, 0.0f);
+  glUniform1f(glGetUniformLocation(shaderSDF->PROGRAM_ID, "fov"), camera->fov);
+  glUniform3fv(glGetUniformLocation(shaderSDF->PROGRAM_ID, "lightColor"), 1, glm::value_ptr(glm::vec3(1.0f)));
 }
 
 TestSdfTaipei101::~TestSdfTaipei101() {}
@@ -53,15 +53,15 @@ void TestSdfTaipei101::OnRender() {
   }
 
   shaderSDF->use();
-  glUniform1f(glGetUniformLocation(shaderSDF->ID, "sdfSize"), size);
-  glUniform3fv(glGetUniformLocation(shaderSDF->ID, "sdfColor"), 1, sdfColor);
-  glUniform3fv(glGetUniformLocation(shaderSDF->ID, "lightPosition"), 1, lightPos);
+  glUniform1f(glGetUniformLocation(shaderSDF->PROGRAM_ID, "sdfSize"), size);
+  glUniform3fv(glGetUniformLocation(shaderSDF->PROGRAM_ID, "sdfColor"), 1, sdfColor);
+  glUniform3fv(glGetUniformLocation(shaderSDF->PROGRAM_ID, "lightPosition"), 1, lightPos);
   camera->update(shaderSDF.get());
-  texture->texUnit(*shaderSDF, "taipei101", 0);
+  glUniform1i(glGetUniformLocation(shaderSDF->PROGRAM_ID, "teaipe101"), 0);
   texture->bind();
-  texture_bump->texUnit(*shaderSDF, "taipei101_bump", 1);
+  glUniform1i(glGetUniformLocation(shaderSDF->PROGRAM_ID, "taipei101_bump"), 1);
   texture_bump->bind();
-  sdfMesh->draw(shaderSDF.get());
+  renderer.draw(*sdfMesh, *shaderSDF);
 }
 
 void TestSdfTaipei101::OnImGuiRender() {
@@ -70,9 +70,6 @@ void TestSdfTaipei101::OnImGuiRender() {
   ImGui::ColorEdit3("SDF", sdfColor);
 }
 
-void TestSdfTaipei101::OnExit() {
-  sdfMesh->del();
-  shaderSDF->del();
-}
+void TestSdfTaipei101::OnExit() {}
 
 }  // namespace test

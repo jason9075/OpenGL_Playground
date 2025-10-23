@@ -33,9 +33,9 @@ TestGs::TestGs(const float screenWidth, const float screenHeight) {
 
   auto opacity = plyIn.getElement("vertex").getProperty<float>("opacity");
 
-  std::vector<GaussianSphere> spheres;
+  std::vector<gfx::geom::GaussianSphere> spheres;
   for (int i = 0; i < x.size(); i++) {
-    GaussianSphere sphere;
+    gfx::geom::GaussianSphere sphere;
     sphere.position = glm::vec3(x[i], y[i], z[i]);
     sphere.color = glm::vec3(0.5f + C0 * red[i], 0.5f + C0 * grn[i], 0.5f + C0 * blu[i]);  // normalize color
     glm::mat3 R(glm::normalize(glm::quat(rotate0[i], rotate1[i], rotate2[i], rotate3[i])));
@@ -47,7 +47,7 @@ TestGs::TestGs(const float screenWidth, const float screenHeight) {
     sphere.opacity = 1. / (1. + std::exp(-opacity[i]));
     spheres.push_back(sphere);
   }
-  splat = std::make_unique<GaussianSplat>(spheres);
+  splat = std::make_unique<gfx::geom::GaussianSplat>(spheres);
 
   glm::vec3 position = glm::vec3(5.0f, 3.0f, 0.0f);
   glm::vec3 orientation = glm::vec3(-0.7f, -0.6f, 0.0f);
@@ -73,22 +73,22 @@ void TestGs::OnRender() {
 
   shaderProgram->use();
   glUniformMatrix4fv(
-      glGetUniformLocation(shaderProgram->ID, "modelMatrix"), 1, GL_FALSE,
+      glGetUniformLocation(shaderProgram->PROGRAM_ID, "modelMatrix"), 1, GL_FALSE,
       glm::value_ptr(glm::rotate(glm::rotate(glm::mat4(1.0f), glm::radians(rotateX), glm::vec3(1.0f, 0.0f, 0.0f)),
                                  glm::radians(rotateZ), glm::vec3(0.0f, 0.0f, 1.0f))));
-  glUniform1f(glGetUniformLocation(shaderProgram->ID, "scaleFactor"), scaleFactor);
-  glUniform1f(glGetUniformLocation(shaderProgram->ID, "W"), 1024.0f);
-  glUniform1f(glGetUniformLocation(shaderProgram->ID, "H"), 768.0f);
+  glUniform1f(glGetUniformLocation(shaderProgram->PROGRAM_ID, "scaleFactor"), scaleFactor);
+  glUniform1f(glGetUniformLocation(shaderProgram->PROGRAM_ID, "W"), 1024.0f);
+  glUniform1f(glGetUniformLocation(shaderProgram->PROGRAM_ID, "H"), 768.0f);
   float tan_fovx = tan(glm::radians(45.0f) / 2.0f);
   float tan_fovy = tan(glm::radians(45.0f) / 2.0f);
   float focal_y = 768.0f / (2.0f * tan_fovy);
   float focal_x = 1024.0f / (2.0f * tan_fovx);
-  glUniform1f(glGetUniformLocation(shaderProgram->ID, "focal_x"), focal_x);
-  glUniform1f(glGetUniformLocation(shaderProgram->ID, "focal_y"), focal_y);
-  glUniform1f(glGetUniformLocation(shaderProgram->ID, "tan_fovx"), tan_fovx);
-  glUniform1f(glGetUniformLocation(shaderProgram->ID, "tan_fovy"), tan_fovy);
+  glUniform1f(glGetUniformLocation(shaderProgram->PROGRAM_ID, "focal_x"), focal_x);
+  glUniform1f(glGetUniformLocation(shaderProgram->PROGRAM_ID, "focal_y"), focal_y);
+  glUniform1f(glGetUniformLocation(shaderProgram->PROGRAM_ID, "tan_fovx"), tan_fovx);
+  glUniform1f(glGetUniformLocation(shaderProgram->PROGRAM_ID, "tan_fovy"), tan_fovy);
   camera->update(shaderProgram.get());
-  splat->draw(shaderProgram.get());
+  renderer.draw(*splat, *shaderProgram);
 }
 
 void TestGs::OnImGuiRender() {

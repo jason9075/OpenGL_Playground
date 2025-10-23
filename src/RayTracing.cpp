@@ -2,11 +2,12 @@
 
 #include <OPPCH.h>
 
-Ray::Ray(const glm::vec3 &origin, const glm::vec3 &direction) : origin(origin), direction(glm::normalize(direction)) {}
+Ray::Ray(const glm::vec3 &origin, const glm::vec3 &direction) noexcept
+    : origin(origin), direction(glm::normalize(direction)) {}
 
-glm::vec3 Ray::at(float t) const { return origin + t * direction; }
+glm::vec3 Ray::at(float t) const noexcept { return origin + t * direction; }
 
-Interval::Interval(float min, float max) {
+Interval::Interval(float min, float max) noexcept {
   if (min > max) {
     minValue = max;
     maxValue = min;
@@ -16,16 +17,16 @@ Interval::Interval(float min, float max) {
   maxValue = max;
 }
 
-float Interval::clamp(float x) { return glm::clamp(x, minValue, maxValue); }
+float Interval::clamp(float x) const noexcept { return glm::clamp(x, minValue, maxValue); }
 
-Interval Interval::expand(float delta) {
+Interval Interval::expand(float delta) const noexcept {
   auto padding = delta * 0.5f;
   return Interval(minValue - padding, maxValue + padding);
 }
 
-AABB::AABB() : x(Interval(0, 0)), y(Interval(0, 0)), z(Interval(0, 0)) {}
+AABB::AABB() noexcept : x(Interval(0, 0)), y(Interval(0, 0)), z(Interval(0, 0)) {}
 
-AABB::AABB(const Interval &x, const Interval &y, const Interval &z) : x(x), y(y), z(z) {}
+AABB::AABB(const Interval &x, const Interval &y, const Interval &z) noexcept : x(x), y(y), z(z) {}
 
 const Interval &AABB::axisInterval(int axis) const {
   switch (axis) {
@@ -40,7 +41,7 @@ const Interval &AABB::axisInterval(int axis) const {
   }
 }
 
-bool AABB::hit(const Ray &ray, Interval tInterval) const {
+bool AABB::hit(const Ray &ray, Interval tInterval) const noexcept {
   const glm::vec3 &origin = ray.origin;
   const glm::vec3 &direction = ray.direction;
 
@@ -65,10 +66,9 @@ bool AABB::hit(const Ray &ray, Interval tInterval) const {
   return true;
 }
 
-HitRecord::HitRecord() : t(0), p(glm::vec3(0)), normal(glm::vec3(0)) {}
-HitRecord::HitRecord(float t, const glm::vec3 &p, const glm::vec3 &normal) : t(t), p(p), normal(normal) {}
+HitRecord::HitRecord(float t, const glm::vec3 &p, const glm::vec3 &n) noexcept : t(t), p(p), normal(n) {}
 
-Sphere::Sphere(const glm::vec3 &center, float radius) : center(center), radius(radius) {}
+Sphere::Sphere(const glm::vec3 &center, float radius) noexcept : center(center), radius(radius) {}
 bool Sphere::hit(const Ray &ray, Interval tInterval, HitRecord &record) const {
   glm::vec3 oc = ray.origin - center;
   float a = glm::dot(ray.direction, ray.direction);
@@ -100,23 +100,31 @@ AABB Sphere::boundingBox() const {
               Interval(center.z - radius, center.z + radius));
 }
 
-// HitTableList::HitTableList() : hitTables(std::vector<HitTable *>()) {}
-// HitTableList::HitTableList(std::vector<HitTable *> hitTables) : hitTables(hitTables) {}
-void HitTableList::add(HitTable *hitTable) { hitTables.push_back(hitTable); }
-bool HitTableList::hit(const Ray &ray, Interval tInterval, HitRecord &record) const {
-  HitRecord tempRecord;
+bool HitTableList::hit(const Ray &ray, Interval tRange, HitRecord &rec) const {
+  HitRecord temp;
   bool hitAnything = false;
-  float closest = tInterval.maxValue;
+  float closest = tRange.maxValue;
 
-  for (const auto &hitTable : hitTables) {
-    if (hitTable->hit(ray, tInterval, tempRecord)) {
+  for (const auto &obj : objects) {
+    // 把目前最近距離做為新的上界，讓後面的物件能剪枝
+    Interval range(tRange.minValue, closest);
+    if (obj->hit(ray, range, temp)) {
       hitAnything = true;
-      if (tempRecord.t < closest) {
-        closest = tempRecord.t;
-        record = tempRecord;
-      }
+      closest = temp.t;
+      rec = temp;
     }
   }
-
   return hitAnything;
+}
+
+AABB HitTableList::boundingBox() const {
+  if (objects.empty()) return AABB();
+  AABB box = objects.front()->boundingBox();
+  for (size_t i = 1; i < objects.size(); ++i) {
+    AABB b = objects[i]->boundingBox();
+    box = AABB(Interval(std::min(box.x.minValue, b.x.minValue), std::max(box.x.maxValue, b.x.maxValue)),
+               Interval(std::min(box.y.minValue, b.y.minValue), std::max(box.y.maxValue, b.y.maxValue)),
+               Interval(std::min(box.z.minValue, b.z.minValue), std::max(box.z.maxValue, b.z.maxValue)));
+  }
+  return box;
 }

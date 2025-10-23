@@ -31,15 +31,15 @@ TestSdfBlend::TestSdfBlend(const float screenWidth, const float screenHeight) {
 
   // sdf shader
   shaderSDF->use();
-  glUniform2f(glGetUniformLocation(shaderSDF->ID, "resolution"), screenWidth, screenHeight);
-  glUniform3f(glGetUniformLocation(shaderSDF->ID, "sdfCenter"), 0.0f, 0.0f, 0.0f);
-  glUniform1f(glGetUniformLocation(shaderSDF->ID, "fov"), camera->fov);
-  glUniform3fv(glGetUniformLocation(shaderSDF->ID, "lightColor"), 1, glm::value_ptr(glm::vec3(1.0f)));
+  glUniform2f(glGetUniformLocation(shaderSDF->PROGRAM_ID, "resolution"), screenWidth, screenHeight);
+  glUniform3f(glGetUniformLocation(shaderSDF->PROGRAM_ID, "sdfCenter"), 0.0f, 0.0f, 0.0f);
+  glUniform1f(glGetUniformLocation(shaderSDF->PROGRAM_ID, "fov"), camera->fov);
+  glUniform3fv(glGetUniformLocation(shaderSDF->PROGRAM_ID, "lightColor"), 1, glm::value_ptr(glm::vec3(1.0f)));
 
   // model shader
   shaderModel->use();
-  glUniform3fv(glGetUniformLocation(shaderModel->ID, "lightColor"), 1, glm::value_ptr(glm::vec3(1.0f)));
-  glUniform1i(glGetUniformLocation(shaderModel->ID, "useTexture"), 0);
+  glUniform3fv(glGetUniformLocation(shaderModel->PROGRAM_ID, "lightColor"), 1, glm::value_ptr(glm::vec3(1.0f)));
+  glUniform1i(glGetUniformLocation(shaderModel->PROGRAM_ID, "useTexture"), 0);
   glUseProgram(0);
 }
 
@@ -61,22 +61,22 @@ void TestSdfBlend::OnRender() {
 
   if (isShowModel) {
     shaderModel->use();
-    glUniform3fv(glGetUniformLocation(shaderModel->ID, "lightPosition"), 1, lightPos);
-    glUniformMatrix4fv(glGetUniformLocation(shaderModel->ID, "modelMatrix"), 1, GL_FALSE,
+    glUniform3fv(glGetUniformLocation(shaderModel->PROGRAM_ID, "lightPosition"), 1, lightPos);
+    glUniformMatrix4fv(glGetUniformLocation(shaderModel->PROGRAM_ID, "modelMatrix"), 1, GL_FALSE,
                        glm::value_ptr(glm::scale(glm::mat4(1.0f), glm::vec3(size))));
-    glUniform3fv(glGetUniformLocation(shaderModel->ID, "color"), 1, modelColor);
+    glUniform3fv(glGetUniformLocation(shaderModel->PROGRAM_ID, "color"), 1, modelColor);
     camera->update(shaderModel.get());
-    modelMesh->draw(shaderModel.get());
+    renderer.draw(*modelMesh, *shaderModel);
   }
 
   if (isShowSdf) {
     shaderSDF->use();
-    glUniform1f(glGetUniformLocation(shaderSDF->ID, "sdfSize"), size);
-    glUniform3fv(glGetUniformLocation(shaderSDF->ID, "sdfColor"), 1, sdfColor);
-    glUniform3fv(glGetUniformLocation(shaderSDF->ID, "lightPosition"), 1, lightPos);
-    glUniform1i(glGetUniformLocation(shaderSDF->ID, "isSphere"), isSphere);
+    glUniform1f(glGetUniformLocation(shaderSDF->PROGRAM_ID, "sdfSize"), size);
+    glUniform3fv(glGetUniformLocation(shaderSDF->PROGRAM_ID, "sdfColor"), 1, sdfColor);
+    glUniform3fv(glGetUniformLocation(shaderSDF->PROGRAM_ID, "lightPosition"), 1, lightPos);
+    glUniform1i(glGetUniformLocation(shaderSDF->PROGRAM_ID, "isSphere"), isSphere);
     camera->update(shaderSDF.get());
-    sdfMesh->draw(shaderSDF.get());
+    renderer.draw(*sdfMesh, *shaderSDF);
   }
 }
 
@@ -90,11 +90,6 @@ void TestSdfBlend::OnImGuiRender() {
   ImGui::ColorEdit3("Model", modelColor);
 }
 
-void TestSdfBlend::OnExit() {
-  modelMesh->del();
-  sdfMesh->del();
-  shaderSDF->del();
-  shaderModel->del();
-}
+void TestSdfBlend::OnExit() {}
 
 }  // namespace test

@@ -25,14 +25,14 @@ TestGaussian::TestGaussian(const float screenWidth, const float screenHeight) {
   S = glm::mat3(std::exp(scale2[0]), 0.0f, 0.0f, 0.0f, std::exp(scale2[1]), 0.0f, 0.0f, 0.0f, std::exp(scale2[2]));
   glm::mat3 M2 = R * S * glm::transpose(S) * glm::transpose(R);
 
-  std::vector<GaussianSphere> spheres;
-  GaussianSphere sphere1;  // Yellow (Front)
+  std::vector<gfx::geom::GaussianSphere> spheres;
+  gfx::geom::GaussianSphere sphere1;  // Yellow (Front)
   sphere1.position = glm::vec3(0.0f, 0.0f, 0.0f);
   sphere1.color = glm::vec3(1.0f, 1.0f, 0.0f);
   sphere1.opacity = 1.0f;
   sphere1.covA = glm::vec3(M1[0][0], M1[0][1], M1[0][2]);
   sphere1.covB = glm::vec3(M1[1][1], M1[1][2], M1[2][2]);
-  GaussianSphere sphere2;  // BlueGreen (Back)
+  gfx::geom::GaussianSphere sphere2;  // BlueGreen (Back)
   sphere2.position = glm::vec3(0.05f, 0.05f, -1.0f);
   sphere2.color = glm::vec3(0.0f, 1.0f, 1.0f);
   sphere2.opacity = 1.0f;
@@ -41,7 +41,7 @@ TestGaussian::TestGaussian(const float screenWidth, const float screenHeight) {
   spheres.push_back(sphere1);
   spheres.push_back(sphere2);  // order matters, first sphere is drawn first
 
-  splat = std::make_unique<GaussianSplat>(spheres);
+  splat = std::make_unique<gfx::geom::GaussianSplat>(spheres);
 
   glm::vec3 camPosition = glm::vec3(0.0f, 0.0f, 3.0f);
   glm::vec3 orientation = glm::vec3(0.0f, 0.0f, -1.0f);
@@ -66,23 +66,23 @@ void TestGaussian::OnRender() {
   camera->moveCamera();
 
   shaderProgram->use();
-  glUniformMatrix4fv(glGetUniformLocation(shaderProgram->ID, "modelMatrix"), 1, GL_FALSE,
+  glUniformMatrix4fv(glGetUniformLocation(shaderProgram->PROGRAM_ID, "modelMatrix"), 1, GL_FALSE,
                      glm::value_ptr(glm::mat4(1.0f)));
-  glUniform1f(glGetUniformLocation(shaderProgram->ID, "scaleFactor"), scaleFactor);
-  glUniform1f(glGetUniformLocation(shaderProgram->ID, "W"), 1024.0f);
-  glUniform1f(glGetUniformLocation(shaderProgram->ID, "H"), 768.0f);
+  glUniform1f(glGetUniformLocation(shaderProgram->PROGRAM_ID, "scaleFactor"), scaleFactor);
+  glUniform1f(glGetUniformLocation(shaderProgram->PROGRAM_ID, "W"), 1024.0f);
+  glUniform1f(glGetUniformLocation(shaderProgram->PROGRAM_ID, "H"), 768.0f);
   float tan_fovx = tan(glm::radians(45.0f) / 2.0f);
   float tan_fovy = tan(glm::radians(45.0f) / 2.0f);
   float focal_y = 768.0f / (2.0f * tan_fovy);
   float focal_x = 1024.0f / (2.0f * tan_fovx);
-  glUniform1f(glGetUniformLocation(shaderProgram->ID, "focal_x"), focal_x);
-  glUniform1f(glGetUniformLocation(shaderProgram->ID, "focal_y"), focal_y);
-  glUniform1f(glGetUniformLocation(shaderProgram->ID, "tan_fovx"), tan_fovx);
-  glUniform1f(glGetUniformLocation(shaderProgram->ID, "tan_fovy"), tan_fovy);
+  glUniform1f(glGetUniformLocation(shaderProgram->PROGRAM_ID, "focal_x"), focal_x);
+  glUniform1f(glGetUniformLocation(shaderProgram->PROGRAM_ID, "focal_y"), focal_y);
+  glUniform1f(glGetUniformLocation(shaderProgram->PROGRAM_ID, "tan_fovx"), tan_fovx);
+  glUniform1f(glGetUniformLocation(shaderProgram->PROGRAM_ID, "tan_fovy"), tan_fovy);
 
   camera->update(shaderProgram.get());
   splat->sort(camera->viewMatrix, true);
-  splat->draw(shaderProgram.get());
+  renderer.draw(*splat, *shaderProgram);
 }
 
 void TestGaussian::OnImGuiRender() { ImGui::SliderFloat("Render S", &scaleFactor, 0.1f, 10.0f); }

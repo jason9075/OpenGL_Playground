@@ -3,6 +3,8 @@
 #include "Camera.hpp"
 #include "Model.hpp"
 #include "ShaderClass.hpp"
+#include "render/mesh_renderer.hpp"
+#include "render/model_renderer.hpp"
 #include "tests/Test.hpp"
 
 namespace test {
@@ -22,9 +24,11 @@ class TestLighting : public Test {
   void OnImGuiRender() override;
 
  private:
+  gfx::render::MeshRenderer mesh_renderer;
+  gfx::render::ModelRenderer renderer;
   std::unique_ptr<Shader> shaderProgram;
   std::unique_ptr<Shader> pureLightShader;
-  std::unique_ptr<Mesh> lightMesh;
+  std::unique_ptr<gfx::geom::Mesh> lightMesh;
   std::unique_ptr<Model> model;
   std::unique_ptr<CameraEventListener> listener;
 };

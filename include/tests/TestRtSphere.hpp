@@ -1,10 +1,11 @@
 #pragma once
 
 #include "Camera.hpp"
-#include "Model.hpp"
 #include "ShaderClass.hpp"
+#include "core/fbo.hpp"
+#include "geom/mesh.hpp"
+#include "render/mesh_renderer.hpp"
 #include "tests/Test.hpp"
-
 namespace test {
 
 struct Material {  // 48 bytes
@@ -45,6 +46,7 @@ class TestRtSphere : public Test {
   void OnExit() override;
 
  private:
+  gfx::render::MeshRenderer renderer;
   static const int MAX_SPHERES = 50;
   static const int MAX_TRIANGLES = 24;  // 6 Plane (12) + 1 Light Cuboid (12)
   static constexpr float CBS = 10.0f;   // Cornell Box Size
@@ -81,11 +83,12 @@ class TestRtSphere : public Test {
   // data
   Sphere spheres[MAX_SPHERES];
   Triangle triangles[MAX_TRIANGLES];
+  int ping = 0;
   unsigned int frameIdx = 0;
-  std::unique_ptr<FBO> oldFrame;
-  std::unique_ptr<FBO> newFrame;
-  std::unique_ptr<Mesh> rtMesh;
-  std::unique_ptr<Mesh> frameMesh;
+  std::unique_ptr<gfx::core::FBO> accumFBO[2];
+  std::unique_ptr<gfx::core::FBO> sceneFBO;
+  std::unique_ptr<gfx::geom::Mesh> rtMesh;
+  std::unique_ptr<gfx::geom::Mesh> frameMesh;
   std::unique_ptr<Shader> shaderProgram;
   std::unique_ptr<Shader> frameShader;
   std::unique_ptr<CameraEventListener> listener;

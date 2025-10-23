@@ -1,8 +1,9 @@
 #pragma once
 
 #include "Camera.hpp"
-#include "DataObject.hpp"
 #include "ShaderClass.hpp"
+#include "geom/mesh.hpp"
+#include "render/mesh_renderer.hpp"
 #include "tests/Test.hpp"
 
 namespace test {
@@ -18,10 +19,11 @@ class TestParallaxMapping : public Test {
   void OnExit() override;
 
  private:
+  gfx::render::MeshRenderer renderer;
   float farFactor = 0.5f;
   std::unique_ptr<Shader> shader;
-  std::unique_ptr<Mesh> wall;
-  std::unique_ptr<Mesh> floor;
+  std::unique_ptr<gfx::geom::Mesh> wall;
+  std::unique_ptr<gfx::geom::Mesh> floor;
   std::unique_ptr<CameraEventListener> listener;
 };
 
