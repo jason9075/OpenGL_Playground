@@ -99,14 +99,12 @@ void TestPhysXHelloWorld::OnRender() {
     const PxTransform pose = b.actor->getGlobalPose();
     const glm::mat4 M = pxToGlm(pose);
     glUniformMatrix4fv(glGetUniformLocation(shader->PROGRAM_ID, "modelMatrix"), 1, GL_FALSE, glm::value_ptr(M));
-    glUniform1i(glGetUniformLocation(shader->PROGRAM_ID, "classId"), 1);
     renderer.draw(*b.mesh, *shader);
   }
 
   // 地板：單位矩陣
   glUniformMatrix4fv(glGetUniformLocation(shader->PROGRAM_ID, "modelMatrix"), 1, GL_FALSE,
                      glm::value_ptr(glm::mat4(1.0f)));
-  glUniform1i(glGetUniformLocation(shader->PROGRAM_ID, "classId"), 2);
   renderer.draw(*groundMesh, *shader);
 
   camera->moveCamera();

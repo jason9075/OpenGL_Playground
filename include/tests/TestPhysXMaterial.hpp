@@ -64,10 +64,6 @@ class TestPhysXMaterial : public Test {
   void spawnCube(short cid, float scale, const glm::vec3& pos, const glm::vec3& color, physx::PxMaterial& material,
                  const char* texturePath);
   void spawnCubes();
-
-  // Disable copy
-  TestPhysXMaterial(const TestPhysXMaterial&) = delete;
-  TestPhysXMaterial& operator=(const TestPhysXMaterial&) = delete;
 };
 
 }  // namespace test

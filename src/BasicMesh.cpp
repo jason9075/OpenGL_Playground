@@ -146,14 +146,10 @@ std::unique_ptr<gfx::geom::Mesh> createPlaneMesh(const float scale, const glm::v
                                                  const glm::vec3 center) {
   std::vector<gfx::geom::Vertex> vertices;
   // Step 1: Find two orthogonal vectors to the normal
-  glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
   glm::vec3 tangent, bitangent;
 
-  // Check if the normal is parallel to the up vector
-  if (glm::abs(glm::dot(normal, up)) > 0.999f) {
-    // If parallel, choose a different up vector
-    up = glm::vec3(1.0f, 0.0f, 0.0f);
-  }
+  glm::vec3 n = glm::normalize(normal);
+  glm::vec3 up = (std::abs(n.y) > 0.9f) ? glm::vec3(1, 0, 0) : glm::vec3(0, 1, 0);
 
   tangent = glm::normalize(glm::cross(up, normal));
   bitangent = glm::normalize(glm::cross(normal, tangent));

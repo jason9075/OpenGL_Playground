@@ -57,10 +57,6 @@ class TestPhysXHelloWorld : public Test {
   void stepPhysics(double dtSec);
   void shutdownPhysX();
   void spawnBall(float radius, const glm::vec3& pos, const glm::vec3& color = glm::vec3(0.9f, 0.2f, 0.2f));
-
-  // Disable copy
-  TestPhysXHelloWorld(const TestPhysXHelloWorld&) = delete;
-  TestPhysXHelloWorld& operator=(const TestPhysXHelloWorld&) = delete;
 };
 
 }  // namespace test
